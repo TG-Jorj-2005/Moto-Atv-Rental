@@ -148,6 +148,8 @@ model Vehicle {
   quoteItems      QuoteItem[]
   photos          VehiclePhoto[]
 
+  @@index([listingStatus, status])
+  @@index([ownerId])
   @@map("vehicles")
 }
 
@@ -184,6 +186,9 @@ model Booking {
   // Besides the exclusion constraint on `period`, SQL migrations also create the partial unique index
   // bookings_one_active_per_vehicle (at most one ACTIVE booking per vehicle). Prisma cannot express it.
   @@index([vehicleId, startAt])
+  @@index([userId, status])
+  @@index([status, startAt])
+  @@index([customerId])
   @@map("bookings")
 }
 
@@ -219,6 +224,7 @@ model Payment {
   paidAt       DateTime      @default(now()) @map("paid_at")
   booking      Booking       @relation(fields: [bookingId], references: [id])
 
+  @@index([bookingId])
   @@map("payments")
 }
 
@@ -231,6 +237,7 @@ model Maintenance {
   notes       String?
   vehicle     Vehicle         @relation(fields: [vehicleId], references: [id])
 
+  @@index([vehicleId, type, performedAt])
   @@map("maintenance")
 }
 
@@ -258,6 +265,7 @@ model QuoteRequest {
   bookings        Booking[]
   items           QuoteItem[]
 
+  @@index([userId, status])
   @@map("quote_requests")
 }
 
@@ -270,6 +278,7 @@ model Payout {
   paidAt  DateTime @default(now()) @map("paid_at")
   owner   User     @relation(fields: [ownerId], references: [id])
 
+  @@index([ownerId])
   @@map("payouts")
 }
 
