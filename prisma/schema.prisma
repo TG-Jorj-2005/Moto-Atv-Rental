@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum VehicleType {
+  ATV
+  MOTORCYCLE
+  SCOOTER
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RENTED
+  IN_SERVICE
+  RETIRED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD_POS
+  BANK_TRANSFER
+}
+
+enum MaintenanceType {
+  SERVICE
+  ITP
+  RCA
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+// Only the minimum personal data is stored (no ID / license numbers).
+model Customer {
+  id        String    @id @default(cuid())
+  fullName  String    @map("full_name")
+  email     String    @unique
+  phone     String
+  createdAt DateTime  @default(now()) @map("created_at")
+  bookings  Booking[]
+
+  @@map("customers")
+}
+
+// Rates are stored in bani (1/100 RON) to avoid floating point money.
+model Vehicle {
+  id            String        @id @default(cuid())
+  name          String
+  type          VehicleType
+  plate         String        @unique
+  status        VehicleStatus @default(AVAILABLE)
+  hourlyRate    Int           @map("hourly_rate")
+  dailyRate     Int           @map("daily_rate")
+  weekendRate   Int?          @map("weekend_rate")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  bookings      Booking[]
+  maintenance   Maintenance[]
+
+  @@map("vehicles")
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  vehicleId  String        @map("vehicle_id")
+  customerId String        @map("customer_id")
+  startAt    DateTime      @map("start_at") @db.Timestamptz(3)
+  endAt      DateTime      @map("end_at") @db.Timestamptz(3)
+  status     BookingStatus @default(PENDING)
+  totalPrice Int           @map("total_price")
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  // Generated column (see prisma/sql/booking_no_overlap.sql). Never written by Prisma.
+  period Unsupported("tstzrange")?
+
+  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id])
+  customer Customer  @relation(fields: [customerId], references: [id])
+  payments Payment[]
+
+  @@index([vehicleId, startAt])
+  @@map("bookings")
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  bookingId String        @map("booking_id")
+  amount    Int
+  method    PaymentMethod
+  paidAt    DateTime      @default(now()) @map("paid_at")
+  booking   Booking       @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model Maintenance {
+  id          String          @id @default(cuid())
+  vehicleId   String          @map("vehicle_id")
+  type        MaintenanceType
+  performedAt DateTime        @map("performed_at")
+  nextDueAt   DateTime?       @map("next_due_at")
+  notes       String?
+  vehicle     Vehicle         @relation(fields: [vehicleId], references: [id])
+
+  @@map("maintenance")
+}
