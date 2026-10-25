@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { CATEGORY_BLURBS } from "../src/lib/vehicle-categories";
 
 const prisma = new PrismaClient();
 
@@ -43,34 +44,54 @@ async function main() {
     locationIds[l.name] = row.id;
   }
 
-  // DEMO DATA: all vehicles below are demonstration listings of the platform's own fleet (no owner, 0% commission).
+  // DEMO DATA: demonstration listings of the platform's own fleet (no owner, 0% commission). The models are real and
+  // the specifications (year, displacement, power) follow the manufacturers' published data for that model year; where a
+  // maker publishes power only in kW the figure is converted to hp, and where it publishes none the field is empty.
+  // Plates, prices, locations and availability are invented. Photos come from Wikimedia Commons (credits in
+  // src/lib/photo-credits.json).
   type Demo = {
-    name: string; type: "ATV" | "MOTORCYCLE" | "SCOOTER"; plate: string; hourlyRate: number; dailyRate: number; weekendRate: number;
-    year: number; engineCc: number; powerHp: number; seats: number; licenseCategory: string | null; location: string; photos: string[];
+    name: string; type: "ATV" | "MOTORCYCLE" | "SCOOTER"; category: Category; plate: string; daily: number; slug: string;
+    year: number; engineCc: number; powerHp: number | null; seats: number | null; licenseCategory: string | null; location: string;
   };
+  type Category = "CRUISER" | "ADVENTURE" | "NAKED_SPORT" | "DUAL_SPORT" | "ATV_SPORT" | "ATV_UTILITY";
   const vehicles: Demo[] = [
-    { name: "Yamaha Grizzly 700", type: "ATV", plate: "GL-01-ATV", hourlyRate: 15000, dailyRate: 60000, weekendRate: 100000, year: 2022, engineCc: 686, powerHp: 50, seats: 2, licenseCategory: null, location: "Galati Riverside", photos: ["/vehicles/yamaha-grizzly-700.jpg", "/gallery/g6.jpg"] },
-    { name: "Can-Am Outlander 570", type: "ATV", plate: "GL-02-ATV", hourlyRate: 14000, dailyRate: 55000, weekendRate: 95000, year: 2022, engineCc: 570, powerHp: 48, seats: 2, licenseCategory: null, location: "Braila Trail Base", photos: ["/vehicles/can-am-outlander-570.jpg", "/gallery/g2.jpg"] },
-    { name: "Honda CRF 300", type: "MOTORCYCLE", plate: "GL-03-MOT", hourlyRate: 12000, dailyRate: 45000, weekendRate: 80000, year: 2023, engineCc: 286, powerHp: 27, seats: 1, licenseCategory: "A2", location: "Galati Center", photos: ["/vehicles/honda-crf-300.jpg", "/gallery/g3.jpg"] },
-    { name: "Vespa Primavera 125", type: "SCOOTER", plate: "GL-04-SCO", hourlyRate: 5000, dailyRate: 20000, weekendRate: 35000, year: 2023, engineCc: 125, powerHp: 12, seats: 2, licenseCategory: "A1", location: "Galati Center", photos: ["/vehicles/vespa-primavera-125.jpg", "/gallery/g5.jpg"] },
-    { name: "Polaris Sportsman 570", type: "ATV", plate: "BV-05-ATV", hourlyRate: 14500, dailyRate: 58000, weekendRate: 98000, year: 2023, engineCc: 567, powerHp: 44, seats: 2, licenseCategory: null, location: "Brasov Mountain Base", photos: ["/gallery/g1.jpg", "/gallery/g2.jpg"] },
-    { name: "CFMoto CForce 520", type: "ATV", plate: "CJ-06-ATV", hourlyRate: 12000, dailyRate: 48000, weekendRate: 84000, year: 2022, engineCc: 495, powerHp: 32, seats: 2, licenseCategory: null, location: "Cluj Hills", photos: ["/gallery/g2.jpg", "/gallery/g6.jpg"] },
-    { name: "KTM 350 EXC-F", type: "MOTORCYCLE", plate: "SB-07-MOT", hourlyRate: 13000, dailyRate: 52000, weekendRate: 90000, year: 2023, engineCc: 350, powerHp: 40, seats: 1, licenseCategory: "A2", location: "Sibiu Old Town Garage", photos: ["/gallery/g3.jpg"] },
-    { name: "Yamaha Tenere 700", type: "MOTORCYCLE", plate: "TM-08-MOT", hourlyRate: 16000, dailyRate: 64000, weekendRate: 110000, year: 2022, engineCc: 689, powerHp: 73, seats: 2, licenseCategory: "A", location: "Timisoara West", photos: ["/gallery/g3.jpg", "/gallery/g1.jpg"] },
-    { name: "Suzuki DR-Z400SM", type: "MOTORCYCLE", plate: "CT-09-MOT", hourlyRate: 11000, dailyRate: 44000, weekendRate: 76000, year: 2021, engineCc: 398, powerHp: 38, seats: 1, licenseCategory: "A2", location: "Constanta Seaside", photos: ["/gallery/g3.jpg"] },
+    // Cruiser
+    { name: "Honda Rebel 500", type: "MOTORCYCLE", category: "CRUISER", plate: "BC-11-MOT", daily: 42000, slug: "honda-rebel-500", year: 2024, engineCc: 471, powerHp: 46, seats: 2, licenseCategory: "A2", location: "Bucharest North" },
+    { name: "Honda Rebel 1100", type: "MOTORCYCLE", category: "CRUISER", plate: "CJ-12-MOT", daily: 62000, slug: "honda-rebel-1100", year: 2024, engineCc: 1084, powerHp: 88, seats: 2, licenseCategory: "A", location: "Cluj Hills" },
+    { name: "Kawasaki Vulcan S", type: "MOTORCYCLE", category: "CRUISER", plate: "TM-13-MOT", daily: 48000, slug: "kawasaki-vulcan-s", year: 2024, engineCc: 649, powerHp: 61, seats: 2, licenseCategory: "A", location: "Timisoara West" },
+    { name: "Harley-Davidson Fat Boy 114", type: "MOTORCYCLE", category: "CRUISER", plate: "CT-14-MOT", daily: 82000, slug: "harley-davidson-fat-boy-114", year: 2024, engineCc: 1868, powerHp: 94, seats: 2, licenseCategory: "A", location: "Constanta Seaside" },
+    // Adventure and touring
+    { name: "BMW R 1300 GS", type: "MOTORCYCLE", category: "ADVENTURE", plate: "BV-15-MOT", daily: 95000, slug: "bmw-r1300gs", year: 2024, engineCc: 1300, powerHp: 145, seats: 2, licenseCategory: "A", location: "Brasov Mountain Base" },
+    { name: "Honda Africa Twin", type: "MOTORCYCLE", category: "ADVENTURE", plate: "SV-16-MOT", daily: 78000, slug: "honda-africa-twin", year: 2024, engineCc: 1084, powerHp: 102, seats: 2, licenseCategory: "A", location: "Suceava Bucovina Hub" },
+    { name: "Yamaha Tenere 700", type: "MOTORCYCLE", category: "ADVENTURE", plate: "TM-08-MOT", daily: 64000, slug: "yamaha-tenere-700", year: 2024, engineCc: 689, powerHp: 73, seats: 2, licenseCategory: "A", location: "Timisoara West" },
+    // Naked and sport
+    { name: "Yamaha MT-07", type: "MOTORCYCLE", category: "NAKED_SPORT", plate: "IS-17-MOT", daily: 46000, slug: "yamaha-mt-07", year: 2024, engineCc: 689, powerHp: 73, seats: 2, licenseCategory: "A", location: "Iasi Campus Point" },
+    { name: "Kawasaki Z900", type: "MOTORCYCLE", category: "NAKED_SPORT", plate: "BH-18-MOT", daily: 64000, slug: "kawasaki-z900", year: 2024, engineCc: 948, powerHp: 124, seats: 2, licenseCategory: "A", location: "Oradea Crisana" },
+    { name: "Honda CBR650R", type: "MOTORCYCLE", category: "NAKED_SPORT", plate: "BC-19-MOT", daily: 56000, slug: "honda-cbr650r", year: 2023, engineCc: 649, powerHp: 95, seats: 2, licenseCategory: "A", location: "Bucharest North" },
+    // Dual-sport and enduro
+    { name: "Honda CRF300L", type: "MOTORCYCLE", category: "DUAL_SPORT", plate: "GL-03-MOT", daily: 38000, slug: "honda-crf300l", year: 2024, engineCc: 286, powerHp: 27, seats: null, licenseCategory: "A2", location: "Galati Center" },
+    { name: "KTM 350 EXC-F", type: "MOTORCYCLE", category: "DUAL_SPORT", plate: "SB-07-MOT", daily: 52000, slug: "ktm-350-exc-f", year: 2024, engineCc: 350, powerHp: 51, seats: 1, licenseCategory: null, location: "Sibiu Old Town Garage" },
+    // ATVs
+    { name: "CFMOTO CFORCE 850 XC", type: "ATV", category: "ATV_UTILITY", plate: "CJ-06-ATV", daily: 56000, slug: "cfmoto-cforce-850-xc", year: 2024, engineCc: 800, powerHp: 60, seats: null, licenseCategory: null, location: "Cluj Hills" },
+    { name: "Can-Am Outlander 570", type: "ATV", category: "ATV_UTILITY", plate: "GL-02-ATV", daily: 55000, slug: "can-am-outlander-570", year: 2022, engineCc: 570, powerHp: 48, seats: null, licenseCategory: null, location: "Galati Riverside" },
+    { name: "Polaris Sportsman 570", type: "ATV", category: "ATV_UTILITY", plate: "BV-05-ATV", daily: 58000, slug: "polaris-sportsman-570", year: 2024, engineCc: 567, powerHp: 44, seats: null, licenseCategory: null, location: "Brasov Mountain Base" },
+    { name: "Yamaha Grizzly 700", type: "ATV", category: "ATV_UTILITY", plate: "GL-01-ATV", daily: 60000, slug: "yamaha-grizzly-700", year: 2024, engineCc: 686, powerHp: null, seats: null, licenseCategory: null, location: "Galati Riverside" },
+    { name: "Yamaha Raptor 700", type: "ATV", category: "ATV_SPORT", plate: "BR-20-ATV", daily: 52000, slug: "yamaha-raptor-700", year: 2024, engineCc: 686, powerHp: null, seats: 1, licenseCategory: null, location: "Braila Trail Base" },
   ];
 
-  for (const { location, photos, ...v } of vehicles) {
-    const description = `Demo listing: ${v.name}, a ${v.type === "ATV" ? "quad" : v.type === "SCOOTER" ? "scooter" : "motorcycle"} of the platform's own fleet. Helmet and basic equipment on request. Prices and details are demonstration data.`;
-    const data = { ...v, description, locationId: locationIds[location] };
+  for (const { location, slug, daily, ...v } of vehicles) {
+    const description = `Demo listing: ${v.name}, ${CATEGORY_BLURBS[v.category].charAt(0).toLowerCase()}${CATEGORY_BLURBS[v.category].slice(1)} Model year ${v.year}, specifications as published by the manufacturer. Helmet and basic equipment on request. Prices and availability are demonstration data.`;
+    const rates = { hourlyRate: Math.round(daily / 4 / 100) * 100, dailyRate: daily, weekendRate: Math.round((daily * 1.7) / 100) * 100 };
+    const locationId = locationIds[location];
     const row = await prisma.vehicle.upsert({
       where: { plate: v.plate },
-      update: { description, year: v.year, engineCc: v.engineCc, powerHp: v.powerHp, seats: v.seats, licenseCategory: v.licenseCategory, locationId: data.locationId },
-      create: data,
+      // Prices are only set when the vehicle is created: an administrator's later price changes survive a re-seed.
+      update: { name: v.name, type: v.type, category: v.category, description, year: v.year, engineCc: v.engineCc, powerHp: v.powerHp, seats: v.seats, licenseCategory: v.licenseCategory, locationId },
+      create: { ...v, ...rates, description, locationId },
     });
     // The demonstration photos are static files; uploaded photos are never touched.
     await prisma.vehiclePhoto.deleteMany({ where: { vehicleId: row.id, OR: [{ path: { startsWith: "/vehicles/" } }, { path: { startsWith: "/gallery/" } }] } });
-    await prisma.vehiclePhoto.createMany({ data: photos.map((path, position) => ({ vehicleId: row.id, path, position })) });
+    await prisma.vehiclePhoto.create({ data: { vehicleId: row.id, path: `/vehicles/${slug}.jpg`, position: 0 } });
   }
 
   if (process.env.SEED_DEMO_USERS === "true") {

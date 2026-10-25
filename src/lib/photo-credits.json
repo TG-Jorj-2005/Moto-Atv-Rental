@@ -1,24 +1,94 @@
 {
   "vehicles": {
     "yamaha-grizzly-700": {
-      "author": "Intermountain Forest Service, USDA Region 4 Photography",
-      "license": "Public domain",
-      "source": "https://commons.wikimedia.org/wiki/File:ATV_on_the_Great_Western_Trail_ET5A5566_(28917257300).jpg"
+      "author": "Zeitlupe",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Yamaha_Grizzly_700_1.jpg"
     },
     "can-am-outlander-570": {
-      "author": "Ossewa",
-      "license": "CC BY 4.0",
-      "source": "https://commons.wikimedia.org/wiki/File:Quad_Bike,_Xai_Xai.jpg"
-    },
-    "honda-crf-300": {
-      "author": "U.S. Forest Service- Pacific Northwest Region",
-      "license": "Public domain",
-      "source": "https://commons.wikimedia.org/wiki/File:ATV_riding_Grassland,_Ochoco_National_Forest_(36456358141).jpg"
+      "author": "DestinationFearFan",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2021_Can-Am_Outlander_570.jpg"
     },
     "vespa-primavera-125": {
       "author": "from an anonymous contributor, vespaforum.de",
       "license": "CC BY-SA 3.0",
       "source": "https://commons.wikimedia.org/wiki/File:Vespa_Primavera_50_4T_4V_seitlich.jpg"
+    },
+    "honda-rebel-500": {
+      "author": "Chris Woodrich",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Honda_CMX500_Rebel_parked_at_Hogs_for_Hospice,_Leamington,_Ontario,_2025-08-02.jpg"
+    },
+    "honda-rebel-1100": {
+      "author": "Chanokchon",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2021_Honda_Rebel_1100_MT.jpg"
+    },
+    "kawasaki-vulcan-s": {
+      "author": "Wikithulhu",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:KawasakiVulcanS2020.jpg"
+    },
+    "harley-davidson-fat-boy-114": {
+      "author": "Terragio67",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Harley_Davidson_-_Fat_Boy_114_(3).jpg"
+    },
+    "bmw-r1300gs": {
+      "author": "Cjp24",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_BMW_R1300GS_Option_719_Tramuntana_(1).jpg"
+    },
+    "honda-africa-twin": {
+      "author": "Chanokchon",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2020_Honda_CRF1100L_Africa_Twin_MT.jpg"
+    },
+    "yamaha-tenere-700": {
+      "author": "Happypap55",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tenere_700.jpg"
+    },
+    "yamaha-mt-07": {
+      "author": "PackMecEng",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2021_Black_Yamaha_MT-07.jpg"
+    },
+    "kawasaki-z900": {
+      "author": "T.doi.z900",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:KawasakiZ900.jpg"
+    },
+    "honda-cbr650r": {
+      "author": "Chanokchon",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2023_Honda_CBR650R_Standard.jpg"
+    },
+    "ktm-350-exc-f": {
+      "author": "Y Sekiai",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:KTM_350_EXC-F.JPG"
+    },
+    "cfmoto-cforce-850-xc": {
+      "author": "Reise Reise",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:CForce_850_XC.jpg"
+    },
+    "polaris-sportsman-570": {
+      "author": "DestinationFearFan",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2021_Polaris_Sportsman_570.jpg"
+    },
+    "yamaha-raptor-700": {
+      "author": "4028mdk09",
+      "license": "CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:YFM700R.JPG"
+    },
+    "honda-crf300l": {
+      "author": "Chanokchon",
+      "license": "CC BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2024_Honda_CRF300L.jpg"
     }
   },
   "gallery": [
