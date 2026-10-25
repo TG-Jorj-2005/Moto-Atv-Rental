@@ -20,13 +20,22 @@ reseed() {
   psql "$E2E_DB_URL" -q -c "truncate table users, vehicles, locations, customers, quote_requests cascade"
   DATABASE_URL="$TEST_DATABASE_URL" SEED_DEMO_USERS=true DEMO_PASSWORD='Demo-pass-2030!' npx prisma db seed >/dev/null
 }
+fail=0
+reseed
+echo "== seed is idempotent"
+counts() { psql "$E2E_DB_URL" -Atc "select (select count(*) from users)||'/'||(select count(*) from vehicles)||'/'||(select count(*) from vehicle_photos)||'/'||(select count(*) from locations)||'/'||(select count(*) from maintenance)"; }
+before="$(counts)"
+DATABASE_URL="$TEST_DATABASE_URL" npx prisma db seed >/dev/null
+DATABASE_URL="$TEST_DATABASE_URL" npx prisma db seed >/dev/null
+after="$(counts)"
+# the second and third runs use the base seed only (no demo users), so the totals must not change
+if [ "$before" = "$after" ]; then echo "  PASS  re-running the seed twice adds no users, vehicles, photos or locations ($after)"; else echo "  FAIL  seed changed the data: $before -> $after"; fail=1; fi
 echo "building into $NEXT_DIST_DIR (the normal .next folder is left alone)"
 npx next build >"$WORK/build.log" 2>&1 || { tail -20 "$WORK/build.log"; exit 1; }
 DATABASE_URL="$TEST_DATABASE_URL" UPLOAD_DIR="$E2E_UPLOAD_DIR" AUTH_TRUST_HOST=true npx next start -p "$PORT" >"$WORK/server.log" 2>&1 &
 SERVER=$!
 for _ in $(seq 1 40); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
-fail=0
-for script in public_and_customer owner company_and_admin booking_api authorization; do
+for script in ${E2E_ONLY:-public_and_customer accounts owner company_and_admin booking_api authorization crawl robustness finance maintenance}; do
   reseed
   echo "== $script"
   out="$(python3 -W ignore "e2e/$script.py" 2>&1)" || true

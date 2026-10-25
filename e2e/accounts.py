@@ -1,0 +1,54 @@
+"""Registration, login, role escalation attempts, redirects and forged sessions."""
+import sys, os, re, subprocess
+sys.path.insert(0, os.path.dirname(__file__))
+from driver import *
+
+print("== REGISTER")
+JAR = "/tmp/j_new"
+open(JAR, "w").close()
+page = get(None, "/register")
+reg = find_form(page, has=["name", "email", "password", "role"])
+check("the registration form offers only customer, owner and company", reg is not None and "ADMIN" not in page)
+def register(**v):
+    base = {"name": "Nou Utilizator", "email": "nou.user@example.test", "password": "parola-lunga-1", "role": "CUSTOMER"}
+    return submit(JAR, "/register", reg, {**base, **v})
+r = register(role="ADMIN", email="wannabe.admin@example.test")
+check("registering as ADMIN is refused and creates no account", "error=invalid" in r and sql("select count(*) from users where email='wannabe.admin@example.test'") == "0", r)
+for bad in ["admin", "ADMIN ", "owner", "SUPERUSER", ""]:
+    register(role=bad, email="x.bad@example.test")
+check("other invented role values create no account either", sql("select count(*) from users where email='x.bad@example.test'") == "0")
+check("a short password is refused", "error=invalid" in register(password="short", email="short.pw@example.test") and sql("select count(*) from users where email='short.pw@example.test'") == "0")
+check("an invalid email is refused", "error=invalid" in register(email="not-an-email"))
+r = register()
+check("a valid customer registration creates a CUSTOMER and signs in", sql("select role from users where email='nou.user@example.test'") == "CUSTOMER" and ("/account" in r or "303" in r), r)
+check("the password is stored hashed", sql("select password_hash from users where email='nou.user@example.test'").startswith("$2"))
+check("a duplicate email is refused with a clear message", "error=exists" in register())
+check("the email is compared in lower case", "error=exists" in register(email="NOU.USER@EXAMPLE.TEST"))
+register(role="OWNER", email="nou.owner@example.test")
+check("an owner registration creates an OWNER", sql("select role from users where email='nou.owner@example.test'") == "OWNER")
+register(role="RENTAL_COMPANY", email="nou.company@example.test", name="Firma SRL")
+check("a company registration creates a RENTAL_COMPANY with the default commission", sql("select role||'|'||coalesce(commission_bps::text,'null') from users where email='nou.company@example.test'") == "RENTAL_COMPANY|null")
+check("nobody registered becomes ADMIN", sql("select count(*) from users where email like '%@example.test' and role='ADMIN'") == "0")
+
+print("== LOGIN")
+login(JAR, "nou.user@example.test", "parola-lunga-1")
+check("the new customer can log in and open the account", status(JAR, "/account").startswith("200"))
+check("...but not the admin or provider areas", status(JAR, "/admin").startswith("307") and status(JAR, "/provider").startswith("307"))
+bad = "/tmp/j_bad"; login(bad, "nou.user@example.test", "wrong-password-1")
+check("a wrong password does not log in", status(bad, "/account").startswith("307"))
+login(bad, "nobody@example.test", "whatever-123")
+check("an unknown email does not log in", status(bad, "/account").startswith("307"))
+page = get(None, "/login?next=//evil.example.com")
+check("the login page does not carry an off-site redirect", "evil.example.com" not in page or 'value="/"' in page)
+check("a garbage session cookie is treated as anonymous", subprocess.run(["curl","-s","-o","/dev/null","-w","%{http_code}","-b","authjs.session-token=eyJhbGciOiJIUzI1NiJ9.e30.xxxxx","-L","--max-redirs","0",f"{BASE}/account"],capture_output=True,text=True).stdout in ("307","302"))
+check("a forged JWT claiming ADMIN is not honoured", subprocess.run(["curl","-s","-o","/dev/null","-w","%{http_code}","-b","authjs.session-token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJ4Iiwicm9sZSI6IkFETUlOIn0.","--max-redirs","0",f"{BASE}/admin"],capture_output=True,text=True).stdout in ("307","302","401"))
+
+print("== ROLE IS READ FROM THE DATABASE")
+sql("update users set role='OWNER' where email='nou.user@example.test'")
+check("a role changed in the database applies at once, without logging in again", status(JAR, "/provider").startswith("200"))
+sql("update users set role='CUSTOMER' where email='nou.user@example.test'")
+check("a demotion also applies at once", status(JAR, "/provider").startswith("307"))
+sql("delete from users where email='nou.user@example.test'")
+check("a session of a deleted user is no longer accepted", status(JAR, "/account").startswith("307"))
+sql("delete from users where email like '%@example.test' and email not like 'load.%'")
+print("FAILS:", FAILS)
