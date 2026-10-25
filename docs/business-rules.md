@@ -24,7 +24,10 @@ Four roles form a hierarchy: `CUSTOMER` < `OWNER` < `RENTAL_COMPANY` < `ADMIN`.
 - Every page, server action and API route checks the session **and** the role read from the database; ownership of the resource is checked in the service as well, so a forged form or request fails even if the page was never shown. Other people's resources answer 404.
 - OWNER and RENTAL_COMPANY see only their own vehicles, bookings, earnings and payouts; CUSTOMER only their own bookings; ADMIN sees everything and does not rent.
 - Money is shown in RON or EUR (a cookie-based switch; the EUR rate is `EUR_RON_RATE`, and a payment made in EUR stores the rate used).
-- Basic hardening headers are sent on every response (`nosniff`, `X-Frame-Options: DENY`, referrer and permissions policies).
+- Basic hardening headers are sent on every response (`nosniff`, `X-Frame-Options: DENY`, referrer and permissions policies); `X-Powered-By` is off. There is no Content-Security-Policy because Next.js needs inline scripts.
+- A NUL character in a URL is answered 400 by a middleware, and every Zod text field refuses it (PostgreSQL cannot store it). Registration can only create CUSTOMER, OWNER or RENTAL_COMPANY accounts; ADMIN is created by the seed and by another administrator.
+- CSV cells that start with `=`, `+`, `-`, `@` are neutralized so a spreadsheet does not run them as formulas.
+- The Docker image refuses to start with the `change-me` placeholders from `.env.example` or an `AUTH_SECRET` shorter than 16 characters.
 
 ## Vehicles, listings and maintenance
 

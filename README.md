@@ -87,6 +87,7 @@ listings say so. Do not use it on a real deployment.
 | `npm run test:integration` | Integration tests on a real PostgreSQL, **test database only** |
 | `./e2e/run.sh` | End-to-end checks of the screens and actions over HTTP, test database only (see `e2e/README.md`) |
 | `npm run loadtest:seed` + Locust | Load scenarios (see `loadtests/README.md`) |
+| `npm run db:check` | Read-only consistency report of the database in `DATABASE_URL` (21 checks: no overlaps, history, commission arithmetic, ...) |
 | `npm run lint` | `tsc --noEmit` |
 | `npm run build` | Production build |
 
