@@ -34,13 +34,13 @@ export async function seedDemoAccounts(prisma: PrismaClient, locationIds: Record
       data: { name, plate, type, ownerId, hourlyRate: Math.round(daily / 4), dailyRate: daily, weekendRate: Math.round(daily * 1.7), description: note, locationId: locationIds[loc], year: 2022, seats: 2, engineCc: type === "ATV" ? 450 : 300, powerHp: type === "ATV" ? 35 : 28,
         photos: { create: [{ path: photo, position: 0 }] }, listingStatus: "APPROVED", ...extra },
     });
-  const ownerAtv = await veh(owner.id, "Honda TRX 420 (demo owner)", "DM-01-ATV", "ATV", 42000, "Cluj Hills", "/gallery/g2.jpg");
-  await veh(owner.id, "Yamaha YFZ450R (demo owner)", "DM-02-ATV", "ATV", 52000, "Cluj Hills", "/gallery/g6.jpg", { listingStatus: "PENDING" });
-  await veh(owner.id, "Kawasaki KLX 230 (demo owner)", "DM-03-MOT", "MOTORCYCLE", 38000, "Cluj Hills", "/gallery/g3.jpg", { listingStatus: "REJECTED" });
-  const c1 = await veh(company.id, "Can-Am Renegade 650 (demo company)", "DT-01-ATV", "ATV", 56000, "Brasov Mountain Base", "/gallery/g1.jpg");
-  const c2 = await veh(company.id, "Polaris Scrambler 850 (demo company)", "DT-02-ATV", "ATV", 62000, "Brasov Mountain Base", "/gallery/g2.jpg");
-  const c3 = await veh(company.id, "Honda CRF 450L (demo company)", "DT-03-MOT", "MOTORCYCLE", 54000, "Brasov Mountain Base", "/gallery/g3.jpg");
-  const c4 = await veh(company.id, "Beta RR 300 (demo company)", "DT-04-MOT", "MOTORCYCLE", 48000, "Brasov Mountain Base", "/gallery/g3.jpg");
+  const ownerAtv = await veh(owner.id, "Yamaha Raptor 700 (demo owner)", "DM-01-ATV", "ATV", 42000, "Cluj Hills", "/vehicles/demo-yamaha-raptor-700.jpg");
+  await veh(owner.id, "Yamaha YFZ450R (demo owner)", "DM-02-ATV", "ATV", 52000, "Cluj Hills", "/vehicles/demo-yamaha-yfz450r.jpg", { listingStatus: "PENDING" });
+  await veh(owner.id, "Kawasaki KLX 230 (demo owner)", "DM-03-MOT", "MOTORCYCLE", 38000, "Cluj Hills", "/vehicles/demo-kawasaki-klx230.jpg", { listingStatus: "REJECTED" });
+  const c1 = await veh(company.id, "Can-Am Renegade 650 (demo company)", "DT-01-ATV", "ATV", 56000, "Brasov Mountain Base", "/vehicles/demo-can-am-renegade-650.jpg");
+  const c2 = await veh(company.id, "Polaris Scrambler (demo company)", "DT-02-ATV", "ATV", 62000, "Brasov Mountain Base", "/vehicles/demo-polaris-scrambler.jpg");
+  const c3 = await veh(company.id, "Honda CRF450L (demo company)", "DT-03-MOT", "MOTORCYCLE", 54000, "Brasov Mountain Base", "/vehicles/demo-honda-crf450l.jpg");
+  const c4 = await veh(company.id, "Beta RR 300 (demo company)", "DT-04-MOT", "MOTORCYCLE", 48000, "Brasov Mountain Base", "/vehicles/demo-beta-rr-300.jpg");
   const platform = await prisma.vehicle.findMany({ where: { ownerId: null }, orderBy: { plate: "asc" } });
   const byPlate = (p: string) => platform.find((v) => v.plate === p)!;
   const grizzly = byPlate("GL-01-ATV");

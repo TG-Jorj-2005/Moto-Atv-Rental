@@ -92,6 +92,23 @@ async function main() {
     // The demonstration photos are static files; uploaded photos are never touched.
     await prisma.vehiclePhoto.deleteMany({ where: { vehicleId: row.id, OR: [{ path: { startsWith: "/vehicles/" } }, { path: { startsWith: "/gallery/" } }] } });
     await prisma.vehiclePhoto.create({ data: { vehicleId: row.id, path: `/vehicles/${slug}.jpg`, position: 0 } });
+
+    // DEMO maintenance records, only for a vehicle that has none yet (so a re-seed never duplicates them or undoes
+    // an administrator's records): valid ITP and RCA, and a service. Two vehicles are deliberately flagged so the
+    // dashboard warnings can be seen: a service due soon (KTM) and an overdue RCA (Yamaha Raptor 700).
+    if ((await prisma.maintenance.count({ where: { vehicleId: row.id } })) === 0) {
+      const day = 86_400_000;
+      const at = (offset: number) => new Date(Date.now() + offset * day);
+      const rcaOffset = v.name === "Yamaha Raptor 700" ? -9 : 150;
+      const serviceOffset = v.name === "KTM 350 EXC-F" ? 12 : 200;
+      await prisma.maintenance.createMany({
+        data: [
+          { vehicleId: row.id, type: "ITP", performedAt: at(-200), nextDueAt: at(165), notes: "Demo record" },
+          { vehicleId: row.id, type: "RCA", performedAt: at(rcaOffset - 365), nextDueAt: at(rcaOffset), notes: "Demo record" },
+          { vehicleId: row.id, type: "SERVICE", performedAt: at(serviceOffset - 365), nextDueAt: at(serviceOffset), notes: "Demo record" },
+        ],
+      });
+    }
   }
 
   if (process.env.SEED_DEMO_USERS === "true") {
