@@ -50,7 +50,11 @@ export default async function AdminMaintenance() {
             <TBody>
               {rows.map(({ v, warnings }) => (
                 <TR key={v.id}>
-                  <TD><span className="font-medium">{v.name}</span><span className="block text-xs text-stone-600">{v.plate}</span></TD>
+                  <TD>
+                    <Link href={`/admin/vehicles/${v.id}?tab=maintenance`} className="font-medium hover:underline">{v.name}</Link>
+                    <span className="block text-xs text-stone-600">{v.plate}</span>
+                    <span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden">{warnings.map((w, i) => <WarningBadge key={i} w={w} />)}</span>
+                  </TD>
                   <TD className="text-stone-700">{v.owner?.name ?? "Platform fleet"}</TD>
                   <TD><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} /></TD>
                   <TD><div className="flex flex-wrap gap-1.5">{warnings.map((w, i) => <WarningBadge key={i} w={w} />)}</div></TD>

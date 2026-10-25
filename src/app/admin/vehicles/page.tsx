@@ -87,7 +87,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
                     <TD>
                       <div className="flex items-center gap-3">
                         <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-stone-200">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
-                        <div><Link href={`/admin/vehicles/${v.id}`} className="font-medium hover:underline">{v.name}</Link><span className="block text-xs text-stone-600">{v.plate} · {v.location?.name ?? "no location"}</span></div>
+                        <div><Link href={`/admin/vehicles/${v.id}`} className="font-medium hover:underline">{v.name}</Link><span className="block text-xs text-stone-600">{v.plate} · {v.location?.name ?? "no location"}</span><span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden"><ListingStatusBadge status={v.listingStatus} /><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} /></span></div>
                       </div>
                     </TD>
                     <TD className="text-stone-700">{v.owner ? <>{v.owner.name}<span className="block text-xs text-stone-600">{v.owner.role === "RENTAL_COMPANY" ? "Rental company" : "Owner"}</span></> : "Platform fleet"}</TD>
