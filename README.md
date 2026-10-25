@@ -102,6 +102,8 @@ false positive in `migrate diff` is `ALTER COLUMN "period" DROP DEFAULT`, which 
 
 - [docs/business-rules.md](docs/business-rules.md): roles, authorization, vehicles and maintenance, booking lifecycle, commission and money, bulk offers, time zone rules, overlap prevention.
 - [docs/architecture.md](docs/architecture.md): layers, ER diagram, use cases, class view, sequence and state diagrams.
+- [decision.md](decision.md): the decisions, rules and constraints, with their origin, where they are implemented and how they were verified.
+- [log.md](log.md): the owner's prompts and requirements in chronological order.
 - [loadtests/README.md](loadtests/README.md) and [e2e/README.md](e2e/README.md).
 
 ## Project layout
@@ -131,6 +133,12 @@ e2e/  loadtests/ end-to-end checks and Locust scenarios
 - The photos of the demo data repeat across vehicles; the demo vehicles are labelled as demonstration data.
 - Pages are rendered on the server without per-page loading skeletons (only the catalog streams its results), so that unknown ids return a real 404.
 - The load test and the end-to-end suite need a server on the test database; they never touch the development database.
+
+## Contributors and development assistance
+
+- **Author and owner:** TG-Jorj-2005 (student, CTI, UGAL). The author set the scope, the business rules and the decisions; see [decision.md](decision.md) and the record of requests in [log.md](log.md).
+- **AI development assistance:** the implementation, tests and documentation were produced with the help of Anthropic's Claude, used through Claude Code, under the author's direction. The assistant is a tool, not a contributor account; commits are made with the author's own Git identity. Details: [docs/CONTRIBUTORS.md](docs/CONTRIBUTORS.md).
+- Photos are credited on the site and in `src/lib/photo-credits.json`.
 
 ## Tests
 
