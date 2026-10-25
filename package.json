@@ -10,7 +10,8 @@
     "lint": "tsc --noEmit",
     "test:integration": "tsx scripts/test-integration.ts",
     "test:tz": "tsx scripts/test-timezones.ts",
-    "loadtest:seed": "tsx scripts/seed-loadtest.ts"
+    "loadtest:seed": "tsx scripts/seed-loadtest.ts",
+    "db:check": "tsx scripts/check-integrity.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
