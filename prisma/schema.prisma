@@ -7,9 +7,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Roles form a hierarchy: CUSTOMER < OWNER < RENTAL_COMPANY < ADMIN (see src/lib/roles.ts).
 enum Role {
   ADMIN
   CUSTOMER
+  OWNER
+  RENTAL_COMPANY
+}
+
+enum AccountType {
+  PERSON
+  COMPANY
+}
+
+enum ListingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum QuoteStatus {
+  NEW
+  QUOTED
+  ACCEPTED
+  DECLINED
+}
+
+enum Currency {
+  RON
+  EUR
 }
 
 enum VehicleType {
@@ -47,11 +73,21 @@ enum MaintenanceType {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  role         Role     @default(CUSTOMER)
-  createdAt    DateTime @default(now()) @map("created_at")
+  id            String                 @id @default(cuid())
+  email         String                 @unique
+  passwordHash  String                 @map("password_hash")
+  role          Role                   @default(CUSTOMER)
+  /// @deprecated Kept for compatibility only; replaced by `role`. Do not read or write it in code.
+  accountType   AccountType            @default(PERSON) @map("account_type")
+  // Platform commission for this owner's vehicles, in basis points (1500 = 15%). Null = platform default.
+  commissionBps Int?                   @map("commission_bps")
+  name          String                 @default("")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  vehicles      Vehicle[]
+  quotes        QuoteRequest[]
+  bookings      Booking[]
+  payouts       Payout[]
+  statusChanges BookingStatusHistory[]
 
   @@map("users")
 }
@@ -68,51 +104,120 @@ model Customer {
   @@map("customers")
 }
 
+model Location {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  city     String
+  county   String    @default("")
+  address  String
+  phone    String
+  hours    String
+  vehicles Vehicle[]
+
+  @@map("locations")
+}
+
 // Rates are stored in bani (1/100 RON) to avoid floating point money.
 model Vehicle {
-  id            String        @id @default(cuid())
-  name          String
-  type          VehicleType
-  plate         String        @unique
-  status        VehicleStatus @default(AVAILABLE)
-  hourlyRate    Int           @map("hourly_rate")
-  dailyRate     Int           @map("daily_rate")
-  weekendRate   Int?          @map("weekend_rate")
-  createdAt     DateTime      @default(now()) @map("created_at")
-  bookings      Booking[]
-  maintenance   Maintenance[]
+  id          String        @id @default(cuid())
+  name        String
+  type        VehicleType
+  plate       String        @unique
+  status      VehicleStatus @default(AVAILABLE)
+  hourlyRate  Int           @map("hourly_rate")
+  dailyRate   Int           @map("daily_rate")
+  weekendRate Int?          @map("weekend_rate")
+  /// @deprecated Kept for compatibility; photos live in vehicle_photos (the migration copied this value there).
+  imageUrl    String?       @map("image_url")
+  description String?
+
+  // Specifications shown on the vehicle page (all optional).
+  year            Int?
+  engineCc        Int?           @map("engine_cc")
+  powerHp         Int?           @map("power_hp")
+  seats           Int?
+  licenseCategory String?        @map("license_category")
+  ownerId         String?        @map("owner_id")
+  owner           User?          @relation(fields: [ownerId], references: [id])
+  listingStatus   ListingStatus  @default(APPROVED) @map("listing_status")
+  locationId      String?        @map("location_id")
+  location        Location?      @relation(fields: [locationId], references: [id])
+  createdAt       DateTime       @default(now()) @map("created_at")
+  bookings        Booking[]
+  maintenance     Maintenance[]
+  quoteItems      QuoteItem[]
+  photos          VehiclePhoto[]
 
   @@map("vehicles")
 }
 
 model Booking {
-  id         String        @id @default(cuid())
-  vehicleId  String        @map("vehicle_id")
-  customerId String        @map("customer_id")
-  startAt    DateTime      @map("start_at") @db.Timestamptz(3)
-  endAt      DateTime      @map("end_at") @db.Timestamptz(3)
-  status     BookingStatus @default(PENDING)
-  totalPrice Int           @map("total_price")
-  createdAt  DateTime      @default(now()) @map("created_at")
+  id               String        @id @default(cuid())
+  vehicleId        String        @map("vehicle_id")
+  customerId       String        @map("customer_id")
+  startAt          DateTime      @map("start_at") @db.Timestamptz(3)
+  endAt            DateTime      @map("end_at") @db.Timestamptz(3)
+  status           BookingStatus @default(PENDING)
+  totalPrice       Int           @map("total_price")
+  userId           String?       @map("user_id")
+  user             User?         @relation(fields: [userId], references: [id])
+  locationId       String?       @map("location_id")
+  quoteId          String?       @map("quote_id")
+  quote            QuoteRequest? @relation(fields: [quoteId], references: [id])
+  completedAt      DateTime?     @map("completed_at")
+  // Commission snapshot taken when the booking is CREATED (RON bani; rates in basis points):
+  // platform-fleet vehicles 0%, individual owners 15%, rental companies their own rate (minimum 5%).
+  // owner_amount stays NULL for platform-fleet vehicles. Never recalculated afterwards.
+  commissionBps    Int?          @map("commission_bps")
+  commissionAmount Int?          @map("commission_amount")
+  ownerAmount      Int?          @map("owner_amount")
+  createdAt        DateTime      @default(now()) @map("created_at")
 
   // Generated column (see prisma/sql/booking_no_overlap.sql). Never written by Prisma.
   period Unsupported("tstzrange")?
 
-  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id])
-  customer Customer  @relation(fields: [customerId], references: [id])
+  vehicle  Vehicle                @relation(fields: [vehicleId], references: [id])
+  customer Customer               @relation(fields: [customerId], references: [id])
   payments Payment[]
+  history  BookingStatusHistory[]
 
+  // Besides the exclusion constraint on `period`, SQL migrations also create the partial unique index
+  // bookings_one_active_per_vehicle (at most one ACTIVE booking per vehicle). Prisma cannot express it.
   @@index([vehicleId, startAt])
   @@map("bookings")
 }
 
+// One row per status change of a booking, written in the same transaction as the change itself.
+// from_status is NULL for the creation row. Rows with a note starting with "backfill:" were generated by the
+// migration and carry no real actor or time of the original change.
+model BookingStatusHistory {
+  id          String         @id @default(cuid())
+  bookingId   String         @map("booking_id")
+  fromStatus  BookingStatus? @map("from_status")
+  toStatus    BookingStatus  @map("to_status")
+  changedById String?        @map("changed_by_id")
+  note        String?
+  changedAt   DateTime       @default(now()) @map("changed_at") @db.Timestamptz(3)
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  changedBy User?   @relation(fields: [changedById], references: [id])
+
+  @@index([bookingId, changedAt])
+  @@map("booking_status_history")
+}
+
 model Payment {
-  id        String        @id @default(cuid())
-  bookingId String        @map("booking_id")
-  amount    Int
-  method    PaymentMethod
-  paidAt    DateTime      @default(now()) @map("paid_at")
-  booking   Booking       @relation(fields: [bookingId], references: [id])
+  id           String        @id @default(cuid())
+  bookingId    String        @map("booking_id")
+  amount       Int
+  method       PaymentMethod
+  currency     Currency      @default(RON)
+  // amount is always RON bani; paidAmount is what the customer actually paid in `currency` (minor units).
+  paidAmount   Int?          @map("paid_amount")
+  // RON per 1 EUR at payment time (only for EUR payments).
+  exchangeRate Decimal?      @map("exchange_rate") @db.Decimal(10, 4)
+  paidAt       DateTime      @default(now()) @map("paid_at")
+  booking      Booking       @relation(fields: [bookingId], references: [id])
 
   @@map("payments")
 }
@@ -127,4 +232,74 @@ model Maintenance {
   vehicle     Vehicle         @relation(fields: [vehicleId], references: [id])
 
   @@map("maintenance")
+}
+
+// Company request for many vehicles at once; the admin answers with a quote.
+model QuoteRequest {
+  id              String      @id @default(cuid())
+  userId          String      @map("user_id")
+  vehicleType     VehicleType @map("vehicle_type")
+  quantity        Int
+  startDate       DateTime    @map("start_date") @db.Date
+  endDate         DateTime    @map("end_date") @db.Date
+  purpose         String
+  locationId      String?     @map("location_id")
+  status          QuoteStatus @default(NEW)
+  quotedAmount    Int?        @map("quoted_amount")
+  adminNote       String?     @map("admin_note")
+  // Automatic quote: how many vehicles we can really offer for the period, and the bulk discount applied.
+  contactPhone    String      @default("") @map("contact_phone")
+  // Version of the offer. It grows each time the offer is recalculated; accepting must name the version the customer saw.
+  revision        Int         @default(1)
+  offeredQuantity Int?        @map("offered_quantity")
+  discountBps     Int?        @map("discount_bps")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  user            User        @relation(fields: [userId], references: [id])
+  bookings        Booking[]
+  items           QuoteItem[]
+
+  @@map("quote_requests")
+}
+
+// Money we paid out to an owner (recorded by the admin; no real transfer happens in the app).
+model Payout {
+  id      String   @id @default(cuid())
+  ownerId String   @map("owner_id")
+  amount  Int
+  note    String?
+  paidAt  DateTime @default(now()) @map("paid_at")
+  owner   User     @relation(fields: [ownerId], references: [id])
+
+  @@map("payouts")
+}
+
+// The exact vehicles of one version of an offer and their prices (RON bani). listPrice is before the bulk discount.
+// Accepting creates one booking per item at exactly these prices. Offers made before this table existed have no
+// items and must be recalculated before they can be accepted.
+model QuoteItem {
+  id        String       @id @default(cuid())
+  quoteId   String       @map("quote_id")
+  vehicleId String       @map("vehicle_id")
+  listPrice Int          @map("list_price")
+  price     Int
+  quote     QuoteRequest @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle      @relation(fields: [vehicleId], references: [id])
+
+  @@unique([quoteId, vehicleId])
+  @@index([vehicleId])
+  @@map("quote_items")
+}
+
+// Photos of a vehicle, in display order (position 0 is the cover). `path` is either a file served from the upload
+// directory (uploads/<name>) or a static demo image (/vehicles/..., /gallery/...).
+model VehiclePhoto {
+  id        String   @id @default(cuid())
+  vehicleId String   @map("vehicle_id")
+  path      String
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId, position])
+  @@map("vehicle_photos")
 }
