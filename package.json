@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:integration": "tsx scripts/test-integration.ts",
+    "test:tz": "tsx scripts/test-timezones.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -15,9 +17,14 @@
   "dependencies": {
     "@prisma/client": "^6.0.0",
     "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.61.0",
     "next": "^15.0.0",
+    "next-auth": "^5.0.0-beta.32",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.7.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
