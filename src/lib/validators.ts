@@ -17,3 +17,9 @@ export const bookingInputSchema = z
   });
 
 export type BookingInput = z.infer<typeof bookingInputSchema>;
+
+// A booking can only start in the future. Comparison of two absolute instants (no time zone involved),
+// strict: a start equal to "now" is already in the past by the time it is processed.
+export function isStartInFuture(startAt: Date, now: Date = new Date()): boolean {
+  return startAt.getTime() > now.getTime();
+}

@@ -1,3 +1,5 @@
+import { addDays, localDateOf, localDayStart, localWeekday } from "@/lib/business-time";
+
 export type Rates = {
   hourly: number;
   daily: number;
@@ -9,19 +11,17 @@ const DAY_HOURS = 24;
 
 /**
  * A rental qualifies for the flat weekend rate when it lasts more than one
- * day and fits entirely between Saturday 00:00 and Monday 00:00 (UTC).
+ * day and fits entirely between Saturday 00:00 and Monday 00:00 in Europe/Bucharest.
+ * (On the weekends when the clocks change that window is 47 or 49 hours long.)
  */
 export function isWeekendRental(start: Date, end: Date): boolean {
   if (end.getTime() - start.getTime() <= DAY_HOURS * HOUR_MS) return false;
-  if (start.getUTCDay() !== 6) return false;
+  if (localWeekday(start) !== 6) return false;
 
-  const saturdayStart = Date.UTC(
-    start.getUTCFullYear(),
-    start.getUTCMonth(),
-    start.getUTCDate(),
-  );
-  const mondayStart = saturdayStart + 2 * DAY_HOURS * HOUR_MS;
-  return start.getTime() >= saturdayStart && end.getTime() <= mondayStart;
+  const saturday = localDateOf(start);
+  const saturdayStart = localDayStart(saturday);
+  const mondayStart = localDayStart(addDays(saturday, 2));
+  return start.getTime() >= saturdayStart.getTime() && end.getTime() <= mondayStart.getTime();
 }
 
 /**
