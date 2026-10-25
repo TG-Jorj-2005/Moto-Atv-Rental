@@ -1,0 +1,68 @@
+{
+  "vehicles": {
+    "yamaha-grizzly-700": {
+      "author": "Intermountain Forest Service, USDA Region 4 Photography",
+      "license": "Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:ATV_on_the_Great_Western_Trail_ET5A5566_(28917257300).jpg"
+    },
+    "can-am-outlander-570": {
+      "author": "Ossewa",
+      "license": "CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Quad_Bike,_Xai_Xai.jpg"
+    },
+    "honda-crf-300": {
+      "author": "U.S. Forest Service- Pacific Northwest Region",
+      "license": "Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:ATV_riding_Grassland,_Ochoco_National_Forest_(36456358141).jpg"
+    },
+    "vespa-primavera-125": {
+      "author": "from an anonymous contributor, vespaforum.de",
+      "license": "CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Vespa_Primavera_50_4T_4V_seitlich.jpg"
+    }
+  },
+  "gallery": [
+    {
+      "file": "/gallery/g1.jpg",
+      "alt": "ATV on a highland trail",
+      "author": "Intermountain Forest Service, USDA Region 4 Photography",
+      "license": "Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:ATV_on_the_Great_Western_Trail_ET5A5566_(28917257300).jpg"
+    },
+    {
+      "file": "/gallery/g2.jpg",
+      "alt": "Quad bike on the shore",
+      "author": "Ossewa",
+      "license": "CC BY 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Quad_Bike,_Xai_Xai.jpg"
+    },
+    {
+      "file": "/gallery/g3.jpg",
+      "alt": "Riders on a dirt trail",
+      "author": "U.S. Forest Service- Pacific Northwest Region",
+      "license": "Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:ATV_riding_Grassland,_Ochoco_National_Forest_(36456358141).jpg"
+    },
+    {
+      "file": "/gallery/g4.jpg",
+      "alt": "Scooter on cobblestones",
+      "author": "from an anonymous contributor, vespaforum.de",
+      "license": "CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Vespa_Primavera_50_4T_4V_seitlich.jpg"
+    },
+    {
+      "file": "/gallery/g5.jpg",
+      "alt": "Vespa tail light detail",
+      "author": "from an anonymous contributor, vespaforum.de",
+      "license": "CC BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Vespa_Primavera_50_4T_4V_backlight.jpg"
+    },
+    {
+      "file": "/gallery/g6.jpg",
+      "alt": "ATV on a desert trail",
+      "author": "BLM Oregon &amp; Washington",
+      "license": "Public domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Radar_Hill_Off-Highway_Vehicle_Area_(36957188310).jpg"
+    }
+  ]
+}
