@@ -71,15 +71,18 @@ check("a customer cannot read another customer's booking", status(jar["cust"], "
 check("a vehicle in someone's PENDING listing is hidden from the public", status(None, "/vehicles/" + sql("select id from vehicles where listing_status='PENDING' limit 1")).startswith("404"))
 
 print("== status API")
-other = sql("select id from bookings where user_id=(select id from users where email='demo.customer2@example.com') and status='PENDING' limit 1")
+row = sql(f"select b.id||'|'||u.email from bookings b join users u on u.id=b.user_id where b.status='PENDING' and b.id<>'{pend}' and u.role='CUSTOMER' limit 1")
+other, owner_email = row.split("|")
+mine = "cust2" if owner_email == "demo.customer2@example.com" else "cust"
+stranger = "cust" if mine == "cust2" else "cust2"
 def api(who, bid, body):
     args = ["curl", "-s", "-o", "/tmp/s.out", "-w", "%{http_code}", "-X", "POST", "-H", "Content-Type: application/json", "-d", json.dumps(body)] + (["-b", jar[who]] if jar[who] else []) + [f"{BASE}/api/bookings/{bid}/status"]
     return subprocess.run(args, capture_output=True, text=True).stdout
 check("anonymous: 401", api("anon", other, {"to": "CANCELLED", "reason": "x"}) == "401")
-check("another customer cannot cancel it (403/404)", api("cust", other, {"to": "CANCELLED", "reason": "x"}) in ("403", "404") and sql(f"select status from bookings where id='{other}'") == "PENDING")
+check("another customer cannot cancel it (403/404)", api(stranger, other, {"to": "CANCELLED", "reason": "x"}) in ("403", "404") and sql(f"select status from bookings where id='{other}'") == "PENDING")
 check("the owner of the vehicle cannot confirm it", api("own", other, {"to": "CONFIRMED"}) in ("403", "404") and sql(f"select status from bookings where id='{other}'") == "PENDING")
-check("the customer cannot confirm their own booking", api("cust2", other, {"to": "CONFIRMED"}) in ("403",) and sql(f"select status from bookings where id='{other}'") == "PENDING")
-check("an unknown status is rejected (400)", api("cust2", other, {"to": "HACKED"}) == "400")
-check("the customer can cancel their own pending booking", api("cust2", other, {"to": "CANCELLED", "reason": "changed my mind"}) == "200" and sql(f"select status from bookings where id='{other}'") == "CANCELLED")
-check("a second cancel is refused", api("cust2", other, {"to": "CANCELLED"}) == "409")
+check("the customer cannot confirm their own booking", api(mine, other, {"to": "CONFIRMED"}) in ("403",) and sql(f"select status from bookings where id='{other}'") == "PENDING")
+check("an unknown status is rejected (400)", api(mine, other, {"to": "HACKED"}) == "400")
+check("the customer can cancel their own pending booking", api(mine, other, {"to": "CANCELLED", "reason": "changed my mind"}) == "200" and sql(f"select status from bookings where id='{other}'") == "CANCELLED")
+check("a second cancel is refused", api(mine, other, {"to": "CANCELLED"}) == "409")
 print("FAILS:", FAILS)
