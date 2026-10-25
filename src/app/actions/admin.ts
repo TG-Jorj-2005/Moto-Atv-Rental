@@ -13,6 +13,7 @@ import { eurRonRate, parseCurrency } from "@/lib/currency";
 import { toRonBani } from "@/lib/payments";
 import { isValidCompanyRate } from "@/lib/commission";
 import { locationSchema } from "@/lib/forms";
+import { text as zText } from "@/lib/zod-text";
 
 // Server actions of the administration area. Each one first requires the ADMIN role (read from the database); the
 // services check it again. `returnTo` is only accepted when it points inside /admin.
@@ -45,7 +46,7 @@ export async function transitionBookingAction(formData: FormData) {
 }
 
 const paymentSchema = z.object({
-  bookingId: z.string().min(1),
+  bookingId: zText().min(1),
   amount: z.coerce.number().positive().max(1_000_000),
   currency: z.enum(["RON", "EUR"]),
   method: z.enum(["CASH", "CARD_POS", "BANK_TRANSFER"]),
@@ -94,7 +95,7 @@ export async function moderateListingAction(formData: FormData) {
 
 export async function changeRoleAction(formData: FormData) {
   const me = await requireRole("ADMIN");
-  const parsed = z.object({ userId: z.string().min(1), role: z.nativeEnum(Role) }).safeParse(Object.fromEntries(formData));
+  const parsed = z.object({ userId: zText().min(1), role: z.nativeEnum(Role) }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/admin/users?error=NOT_FOUND");
   const result = await changeUserRole(me.id, parsed.data.userId, parsed.data.role);
   revalidatePath("/admin", "layout");
@@ -104,7 +105,7 @@ export async function changeRoleAction(formData: FormData) {
 
 export async function setCompanyRateAction(formData: FormData) {
   await requireRole("ADMIN");
-  const parsed = z.object({ ownerId: z.string().min(1), percent: z.coerce.number().min(0).max(100) }).safeParse(Object.fromEntries(formData));
+  const parsed = z.object({ ownerId: zText().min(1), percent: z.coerce.number().min(0).max(100) }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/admin/payouts?error=rate");
   const bps = Math.round(parsed.data.percent * 100);
   // Only rental companies have a configurable rate, and never below 5%. Checked again here on the server.
@@ -117,7 +118,7 @@ export async function setCompanyRateAction(formData: FormData) {
 
 export async function recordPayoutAction(formData: FormData) {
   await requireRole("ADMIN");
-  const parsed = z.object({ ownerId: z.string().min(1), amountRon: z.coerce.number().positive().max(10_000_000), note: z.string().trim().max(200).optional() }).safeParse(Object.fromEntries(formData));
+  const parsed = z.object({ ownerId: zText().min(1), amountRon: z.coerce.number().positive().max(10_000_000), note: zText().trim().max(200).optional() }).safeParse(Object.fromEntries(formData));
   if (!parsed.success) redirect("/admin/payouts?error=payout");
   const owner = await prisma.user.findUnique({ where: { id: parsed.data.ownerId }, select: { role: true } });
   if (!owner || (owner.role !== "OWNER" && owner.role !== "RENTAL_COMPANY")) redirect("/admin/payouts?error=payout");

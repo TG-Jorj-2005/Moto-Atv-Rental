@@ -1,14 +1,15 @@
 import { z } from "zod";
+import { text } from "@/lib/zod-text";
 
 export const bookingInputSchema = z
   .object({
-    vehicleId: z.string().min(1),
+    vehicleId: text().min(1),
     startAt: z.coerce.date(),
     endAt: z.coerce.date(),
     customer: z.object({
-      fullName: z.string().trim().min(2).max(100),
-      email: z.string().trim().toLowerCase().email(),
-      phone: z.string().trim().min(7).max(20),
+      fullName: text().trim().min(2).max(100),
+      email: text().trim().toLowerCase().email(),
+      phone: text().trim().min(7).max(20),
     }),
   })
   .refine((v) => v.endAt > v.startAt, {

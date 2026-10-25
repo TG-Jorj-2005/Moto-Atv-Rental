@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/session";
 import { transitionBooking } from "@/lib/booking-service";
+import { text } from "@/lib/zod-text";
 
 const bodySchema = z.object({
   to: z.enum(["CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED"]),
-  reason: z.string().max(500).optional(),
+  reason: text().max(500).optional(),
 });
 
 const STATUS: Record<string, number> = {

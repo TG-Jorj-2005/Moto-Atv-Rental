@@ -2,15 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { formatLocalDateTime } from "@/lib/business-time";
+import { csvCell as cell } from "@/lib/csv";
 
 export const dynamic = "force-dynamic";
-
-// A cell that starts with = + - @ could be run as a formula by a spreadsheet: it is neutralized with a leading quote.
-function cell(value: string | number | null): string {
-  const text = value === null ? "" : String(value);
-  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
-  return /[",\n\r]/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
-}
 
 // GET /admin/finance/export: completed bookings with the commission snapshot of each one. Administrators only.
 export async function GET() {

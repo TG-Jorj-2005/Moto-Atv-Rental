@@ -2,11 +2,12 @@ import { z } from "zod";
 import { REGISTERABLE_ROLES } from "@/lib/roles";
 import { localDateOf } from "@/lib/business-time";
 import { CATEGORIES, categoryFitsType } from "@/lib/vehicle-categories";
+import { text } from "@/lib/zod-text";
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(8).max(100),
+  name: text().trim().min(2).max(100),
+  email: text().trim().toLowerCase().email(),
+  password: text().min(8).max(100),
   role: z.enum(REGISTERABLE_ROLES),
 });
 
@@ -27,12 +28,12 @@ export const vehicleSpecsSchema = z.object({
 
 const vehicleCommon = z
   .object({
-    name: z.string().trim().min(3).max(80),
+    name: text().trim().min(3).max(80),
     hourlyRon: ron,
     dailyRon: ron,
     weekendRon: z.preprocess(blankToNull, ron.nullable()),
-    locationId: z.string().min(1),
-    description: z.string().trim().max(1000).optional().transform((v) => v || null),
+    locationId: text().min(1),
+    description: text().trim().max(1000).optional().transform((v) => v || null),
   })
   .merge(vehicleSpecsSchema);
 
@@ -40,7 +41,7 @@ const vehicleCommon = z
 export const vehicleCreateSchema = vehicleCommon
   .extend({
     type: z.enum(["ATV", "MOTORCYCLE", "SCOOTER"]),
-    plate: z.string().trim().toUpperCase().min(4).max(15),
+    plate: text().trim().toUpperCase().min(4).max(15),
   })
   .refine((v) => v.category === null || categoryFitsType(v.category, v.type), { path: ["category"], message: "The category does not fit the vehicle type." });
 export const vehicleEditSchema = vehicleCommon;
@@ -55,9 +56,9 @@ export const makeQuoteRequestSchema = (now: () => Date) =>
     quantity: z.coerce.number().int().min(2).max(500),
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),
-    purpose: z.string().trim().min(5).max(500),
-    contactPhone: z.string().trim().min(7).max(25),
-    locationId: z.string().optional(),
+    purpose: text().trim().min(5).max(500),
+    contactPhone: text().trim().min(7).max(25),
+    locationId: text().optional(),
   })
   .refine((v) => v.endDate >= v.startDate, { message: "endDate before startDate", path: ["endDate"] })
   .refine(
@@ -71,10 +72,10 @@ export const makeQuoteRequestSchema = (now: () => Date) =>
 export const quoteRequestSchema = makeQuoteRequestSchema(() => new Date());
 
 export const locationSchema = z.object({
-  name: z.string().trim().min(3).max(80),
-  city: z.string().trim().min(2).max(60),
-  county: z.string().trim().min(2).max(60),
-  address: z.string().trim().min(5).max(120),
-  phone: z.string().trim().min(7).max(25),
-  hours: z.string().trim().min(3).max(60),
+  name: text().trim().min(3).max(80),
+  city: text().trim().min(2).max(60),
+  county: text().trim().min(2).max(60),
+  address: text().trim().min(5).max(120),
+  phone: text().trim().min(7).max(25),
+  hours: text().trim().min(3).max(60),
 });

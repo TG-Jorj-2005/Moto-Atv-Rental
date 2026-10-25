@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // NEXT_DIST_DIR lets a second build (the end-to-end suite) live next to the normal one without overwriting it.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "standalone",
+  poweredByHeader: false,
   // Basic hardening headers for every response. (A Content-Security-Policy is not set: Next.js needs inline scripts.)
   async headers() {
     return [

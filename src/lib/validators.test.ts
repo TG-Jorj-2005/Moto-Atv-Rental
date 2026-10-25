@@ -56,3 +56,13 @@ describe("bookingInputSchema", () => {
     expect(bookingInputSchema.safeParse({ ...base, startAt: "not a date" }).success).toBe(false);
   });
 });
+
+describe("NUL characters", () => {
+  const ok = { vehicleId: "abc", startAt: "2031-01-01T08:00:00.000Z", endAt: "2031-01-01T10:00:00.000Z", customer: { fullName: "Demo Customer", email: "demo@example.com", phone: "0700000000" } };
+  it("are refused in every text field of a booking request, because PostgreSQL cannot store them", () => {
+    expect(bookingInputSchema.safeParse(ok).success).toBe(true);
+    expect(bookingInputSchema.safeParse({ ...ok, vehicleId: "a\u0000b" }).success).toBe(false);
+    expect(bookingInputSchema.safeParse({ ...ok, customer: { ...ok.customer, fullName: "De\u0000mo" } }).success).toBe(false);
+    expect(bookingInputSchema.safeParse({ ...ok, customer: { ...ok.customer, phone: "07\u000000" } }).success).toBe(false);
+  });
+});

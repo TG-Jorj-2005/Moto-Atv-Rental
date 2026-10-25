@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeQuoteRequestSchema, vehicleCreateSchema } from "./forms";
+import { makeQuoteRequestSchema, registerSchema, vehicleCreateSchema } from "./forms";
 
 const input = (startDate: string, endDate = "2030-01-31") => ({
   vehicleType: "ATV",
@@ -61,5 +61,13 @@ describe("vehicle category in the vehicle forms", () => {
     expect(wrong.success).toBe(false);
     if (!wrong.success) expect(wrong.error.issues[0]!.path).toEqual(["category"]);
     expect(vehicleCreateSchema.safeParse({ ...form, type: "SCOOTER", category: "CRUISER" }).success).toBe(false);
+  });
+});
+
+describe("NUL characters in the vehicle and registration forms", () => {
+  it("are refused", () => {
+    expect(vehicleCreateSchema.safeParse({ name: "Honda\u0000", type: "MOTORCYCLE", plate: "b-11-abc", hourlyRon: "100", dailyRon: "400", locationId: "x" }).success).toBe(false);
+    expect(registerSchema.safeParse({ name: "Ana\u0000", email: "a@b.ro", password: "parola-lunga-1", role: "CUSTOMER" }).success).toBe(false);
+    expect(registerSchema.safeParse({ name: "Ana", email: "a@b.ro", password: "parola-lunga-1", role: "CUSTOMER" }).success).toBe(true);
   });
 });
