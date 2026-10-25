@@ -9,6 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/form";
 import { Section } from "@/components/ui/misc";
 import { VehicleCard } from "@/components/vehicle-card";
+import { CATEGORIES, CATEGORY_BLURBS, CATEGORY_LABELS } from "@/lib/vehicle-categories";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +72,19 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
+        </Section>
+
+        <Section title="Browse by style" description="From relaxed cruisers to trail-ready quads.">
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {CATEGORIES.map((c) => (
+              <li key={c}>
+                <Link href={`/vehicles?category=${c}`} className="group flex h-full flex-col gap-1 rounded-xl border border-stone-200 bg-white p-4 shadow-card transition-shadow hover:shadow-pop">
+                  <span className="flex items-center justify-between gap-2 font-semibold">{CATEGORY_LABELS[c]}<span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700">{facets.categoryCounts[c] ?? 0}</span></span>
+                  <span className="text-sm text-stone-600">{CATEGORY_BLURBS[c]}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Section>
 
         <Section title="Featured vehicles" description="The newest listings on the marketplace." actions={<Link href="/vehicles" className={buttonVariants({ variant: "outline", size: "sm" })}>See all vehicles</Link>}>

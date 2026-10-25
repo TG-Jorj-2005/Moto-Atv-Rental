@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import type { VehicleCardData } from "@/lib/catalog";
 import { coverOf } from "@/lib/photos";
 import { formatMoney, type CurrencyCode } from "@/lib/currency";
+import { CATEGORY_LABELS } from "@/lib/vehicle-categories";
 
 export const TYPE_LABEL = { ATV: "ATV", MOTORCYCLE: "Motorcycle", SCOOTER: "Scooter" } as const;
 
@@ -22,7 +23,7 @@ export function VehicleCard({ vehicle, currency }: { vehicle: VehicleCardData; c
         ) : (
           <span className="grid size-full place-items-center text-stone-500"><Mountain aria-hidden className="size-10" /></span>
         )}
-        <Badge tone="dark" className="absolute left-3 top-3">{TYPE_LABEL[vehicle.type]}</Badge>
+        <Badge tone="dark" className="absolute left-3 top-3">{vehicle.category ? CATEGORY_LABELS[vehicle.category] : TYPE_LABEL[vehicle.type]}</Badge>
       </Link>
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="space-y-1">

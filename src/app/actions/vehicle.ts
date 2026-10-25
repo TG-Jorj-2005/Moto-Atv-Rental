@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@prisma/client";
 import { requireRole } from "@/lib/session";
-import { createListing, ListingForbiddenError } from "@/lib/listings";
+import { createListing, ListingCategoryError, ListingForbiddenError } from "@/lib/listings";
 import { createPlatformVehicle, resubmitListing, updateVehicleDetails } from "@/lib/vehicle-service";
 import { addPhotos, deletePhoto, setCoverPhoto } from "@/lib/photo-service";
 import { deleteMaintenance, recordMaintenance } from "@/lib/maintenance-service";
@@ -33,14 +33,17 @@ const text = (v: FormDataEntryValue | null) => (typeof v === "string" ? v : "");
 export async function createVehicleAction(formData: FormData) {
   const me = await requireRole(...ACTOR_ROLES);
   const parsed = vehicleCreateSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) back(formData.get("returnTo"), "/provider/vehicles/new", { error: "invalid" });
+  if (!parsed.success) back(formData.get("returnTo"), "/provider/vehicles/new", { error: parsed.error.issues.some((i) => i.path[0] === "category") ? "category" : "invalid" });
   const d = parsed.data;
-  const common = { name: d.name, type: d.type, plate: d.plate, hourlyRate: toBani(d.hourlyRon), dailyRate: toBani(d.dailyRon), weekendRate: d.weekendRon === null ? null : toBani(d.weekendRon), description: d.description, locationId: d.locationId, year: d.year, engineCc: d.engineCc, powerHp: d.powerHp, seats: d.seats, licenseCategory: d.licenseCategory };
+  const common = { name: d.name, type: d.type, plate: d.plate, hourlyRate: toBani(d.hourlyRon), dailyRate: toBani(d.dailyRon), weekendRate: d.weekendRon === null ? null : toBani(d.weekendRon), description: d.description, locationId: d.locationId, year: d.year, engineCc: d.engineCc, powerHp: d.powerHp, seats: d.seats, licenseCategory: d.licenseCategory, category: d.category };
   try {
     let id: string;
     if (me.role === "ADMIN") {
       const r = await createPlatformVehicle(me.id, common);
-      if (!r.ok) redirect("/forbidden");
+      if (!r.ok) {
+        if (r.code === "INVALID_CATEGORY") back(formData.get("returnTo"), "/provider/vehicles/new", { error: "category" });
+        redirect("/forbidden");
+      }
       id = r.id;
     } else {
       id = (await createListing(me.id, common)).id;
@@ -50,6 +53,7 @@ export async function createVehicleAction(formData: FormData) {
     redirect(`${me.role === "ADMIN" ? "/admin" : "/provider"}/vehicles/${id}?tab=photos&ok=created`);
   } catch (e) {
     if (e instanceof ListingForbiddenError) redirect("/forbidden");
+    if (e instanceof ListingCategoryError) back(formData.get("returnTo"), "/provider/vehicles/new", { error: "category" });
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") back(formData.get("returnTo"), "/provider/vehicles/new", { error: "plate" });
     throw e;
   }
@@ -61,9 +65,9 @@ export async function saveVehicleDetailsAction(formData: FormData) {
   const parsed = vehicleEditSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) back(formData.get("returnTo"), "/provider/vehicles", { error: "invalid" });
   const d = parsed.data;
-  const result = await updateVehicleDetails(me.id, id, { name: d.name, description: d.description, hourlyRate: toBani(d.hourlyRon), dailyRate: toBani(d.dailyRon), weekendRate: d.weekendRon === null ? null : toBani(d.weekendRon), locationId: d.locationId, year: d.year, engineCc: d.engineCc, powerHp: d.powerHp, seats: d.seats, licenseCategory: d.licenseCategory });
+  const result = await updateVehicleDetails(me.id, id, { name: d.name, description: d.description, hourlyRate: toBani(d.hourlyRon), dailyRate: toBani(d.dailyRon), weekendRate: d.weekendRon === null ? null : toBani(d.weekendRon), locationId: d.locationId, year: d.year, engineCc: d.engineCc, powerHp: d.powerHp, seats: d.seats, licenseCategory: d.licenseCategory, category: d.category });
   revalidatePath("/", "layout");
-  if (!result.ok) back(formData.get("returnTo"), "/provider/vehicles", { error: result.code === "FORBIDDEN" ? "forbidden" : "notfound" });
+  if (!result.ok) back(formData.get("returnTo"), "/provider/vehicles", { error: result.code === "FORBIDDEN" ? "forbidden" : result.code === "INVALID_CATEGORY" ? "category" : "notfound" });
   back(formData.get("returnTo"), "/provider/vehicles", { ok: result.backToModeration ? "saved_review" : "saved" });
 }
 

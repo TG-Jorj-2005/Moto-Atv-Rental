@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Building2, CalendarDays, Cog, Gauge, IdCard, MapPin, Phone, Clock, Users, Zap } from "lucide-react";
+import { Building2, CalendarDays, Cog, Gauge, IdCard, MapPin, Phone, Clock, Tag, Users, Zap } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { getCurrency } from "@/lib/currency-server";
@@ -18,6 +18,7 @@ import { BookingPanel } from "@/components/booking-panel";
 import { MonthCalendar, type DayMarks } from "@/components/month-calendar";
 import { VehicleGallery } from "@/components/vehicle-gallery";
 import { TYPE_LABEL, offerKind } from "@/components/vehicle-card";
+import { CATEGORY_LABELS } from "@/lib/vehicle-categories";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   const photos = vehicle.photos.map((p) => ({ url: photoUrl(p.path), alt: `${vehicle.name}`, credit: creditForPath(p.path) }));
   const specs = [
     { icon: Cog, label: "Type", value: TYPE_LABEL[vehicle.type] },
+    vehicle.category && { icon: Tag, label: "Category", value: CATEGORY_LABELS[vehicle.category] },
     vehicle.year != null && { icon: CalendarDays, label: "Year", value: String(vehicle.year) },
     vehicle.engineCc != null && { icon: Gauge, label: "Engine", value: `${vehicle.engineCc} cc` },
     vehicle.powerHp != null && { icon: Zap, label: "Power", value: `${vehicle.powerHp} hp` },
@@ -82,6 +84,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="dark">{TYPE_LABEL[vehicle.type]}</Badge>
+              {vehicle.category && <Badge tone="brand">{CATEGORY_LABELS[vehicle.category]}</Badge>}
               {inService ? <Badge tone="warning">Temporarily unavailable</Badge> : <Badge tone="success">Available to book</Badge>}
             </div>
             <h1 className="text-3xl font-bold tracking-tight">{vehicle.name}</h1>

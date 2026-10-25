@@ -1,5 +1,6 @@
-import { Prisma, type VehicleType } from "@prisma/client";
+import { Prisma, type VehicleCategory, type VehicleType } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { categoriesMatching, isCategory } from "@/lib/vehicle-categories";
 import { addDays, localDateOf, localDayStart, type LocalDate } from "@/lib/business-time";
 
 // Public catalog: which vehicles are shown and how the visitor filters them. Only approved listings that are not in
@@ -13,6 +14,7 @@ const TYPES = ["ATV", "MOTORCYCLE", "SCOOTER"] as const;
 export type CatalogFilters = {
   q: string;
   type: VehicleType | null;
+  category: VehicleCategory | null;
   county: string | null;
   locationId: string | null;
   minDailyRon: number | null;
@@ -47,6 +49,8 @@ function parseMoney(value: string | undefined): number | null {
 export function parseCatalogParams(raw: Raw, now: Date = new Date()): CatalogParseResult {
   const problems: string[] = [];
   const type = TYPES.find((t) => t === one(raw.type)) ?? null;
+  const rawCategory = one(raw.category);
+  const category = isCategory(rawCategory) ? rawCategory : null;
   const sort = SORTS.find((s) => s === one(raw.sort)) ?? "newest";
   const pageNumber = Number(one(raw.page));
   const page = Number.isInteger(pageNumber) && pageNumber >= 1 && pageNumber <= 10_000 ? pageNumber : 1;
@@ -88,15 +92,20 @@ export function parseCatalogParams(raw: Raw, now: Date = new Date()): CatalogPar
   }
 
   return {
-    filters: { q: (one(raw.q) ?? "").slice(0, 60), type, county: one(raw.county)?.slice(0, 60) ?? null, locationId: one(raw.location)?.slice(0, 60) ?? null, minDailyRon, maxDailyRon, from, to, sort, page },
+    filters: { q: (one(raw.q) ?? "").slice(0, 60), type, category, county: one(raw.county)?.slice(0, 60) ?? null, locationId: one(raw.location)?.slice(0, 60) ?? null, minDailyRon, maxDailyRon, from, to, sort, page },
     problems,
   };
 }
 
 export function catalogWhere(f: CatalogFilters): Prisma.VehicleWhereInput {
   const where: Prisma.VehicleWhereInput = { listingStatus: "APPROVED", status: "AVAILABLE" };
-  if (f.q) where.name = { contains: f.q, mode: "insensitive" };
+  if (f.q) {
+    // The words of the search match the name, or the label of a category ("cruiser", "adventure", ...).
+    const categories = categoriesMatching(f.q);
+    where.OR = [{ name: { contains: f.q, mode: "insensitive" } }, ...(categories.length > 0 ? [{ category: { in: categories } }] : [])];
+  }
   if (f.type) where.type = f.type;
+  if (f.category) where.category = f.category;
   if (f.locationId) where.locationId = f.locationId;
   else if (f.county) where.location = { county: f.county };
   if (f.minDailyRon !== null || f.maxDailyRon !== null) {
@@ -122,6 +131,7 @@ export const vehicleCardSelect = {
   id: true,
   name: true,
   type: true,
+  category: true,
   hourlyRate: true,
   dailyRate: true,
   weekendRate: true,
@@ -146,9 +156,14 @@ export async function searchVehicles(f: CatalogFilters) {
 }
 
 export async function catalogFacets() {
-  const [locations, byType] = await Promise.all([
+  const [locations, byType, byCategory] = await Promise.all([
     prisma.location.findMany({ orderBy: [{ county: "asc" }, { name: "asc" }], select: { id: true, name: true, city: true, county: true, _count: { select: { vehicles: { where: { listingStatus: "APPROVED", status: "AVAILABLE" } } } } } }),
     prisma.vehicle.groupBy({ by: ["type"], where: { listingStatus: "APPROVED", status: "AVAILABLE" }, _count: true }),
+    prisma.vehicle.groupBy({ by: ["category"], where: { listingStatus: "APPROVED", status: "AVAILABLE", category: { not: null } }, _count: true }),
   ]);
-  return { locations, counts: Object.fromEntries(byType.map((t) => [t.type, t._count])) as Partial<Record<VehicleType, number>> };
+  return {
+    locations,
+    counts: Object.fromEntries(byType.map((t) => [t.type, t._count])) as Partial<Record<VehicleType, number>>,
+    categoryCounts: Object.fromEntries(byCategory.map((c) => [c.category, c._count])) as Partial<Record<VehicleCategory, number>>,
+  };
 }

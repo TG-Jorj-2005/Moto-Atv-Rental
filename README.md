@@ -12,7 +12,7 @@ keeps the books. Payments and payouts are recorded by hand (no online payments).
 | `RENTAL_COMPANY` | Like an owner, plus bulk offers for many vehicles. Commission set per company by an admin (minimum 5%) |
 | `ADMIN` | Statistics and alerts, listing moderation, vehicle status, booking handover/completion/cancellation, payments, payouts, users and roles, commission rates, reports and CSV export, locations |
 
-The platform's own fleet has no owner and 0% commission.
+The platform's own fleet has no owner and 0% commission. The demo fleet is 17 real models (cruisers, adventure, naked and sport, dual-sport, and ATVs) with manufacturer specifications and openly licensed photos credited on the page.
 
 ## Stack
 

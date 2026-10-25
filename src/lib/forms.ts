@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { REGISTERABLE_ROLES } from "@/lib/roles";
 import { localDateOf } from "@/lib/business-time";
+import { CATEGORIES, categoryFitsType } from "@/lib/vehicle-categories";
 
 export const registerSchema = z.object({
   name: z.string().trim().min(2).max(100),
@@ -20,6 +21,8 @@ export const vehicleSpecsSchema = z.object({
   powerHp: optionalInt(1, 500),
   seats: optionalInt(1, 8),
   licenseCategory: z.enum(["", "AM", "A1", "A2", "A", "B"]).default("").transform((v) => v || null),
+  // Optional finer classification; whether it fits the vehicle type is checked where the type is known.
+  category: z.enum(["", ...CATEGORIES]).default("").transform((v) => v || null),
 });
 
 const vehicleCommon = z
@@ -34,10 +37,12 @@ const vehicleCommon = z
   .merge(vehicleSpecsSchema);
 
 // New vehicle: type and plate are fixed from now on.
-export const vehicleCreateSchema = vehicleCommon.extend({
-  type: z.enum(["ATV", "MOTORCYCLE", "SCOOTER"]),
-  plate: z.string().trim().toUpperCase().min(4).max(15),
-});
+export const vehicleCreateSchema = vehicleCommon
+  .extend({
+    type: z.enum(["ATV", "MOTORCYCLE", "SCOOTER"]),
+    plate: z.string().trim().toUpperCase().min(4).max(15),
+  })
+  .refine((v) => v.category === null || categoryFitsType(v.category, v.type), { path: ["category"], message: "The category does not fit the vehicle type." });
 export const vehicleEditSchema = vehicleCommon;
 
 export const toBani = (ron: number) => Math.round(ron * 100);

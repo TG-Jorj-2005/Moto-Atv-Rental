@@ -15,6 +15,7 @@ export const VEHICLE_OK: Record<string, string> = {
 export const VEHICLE_ERROR: Record<string, string> = {
   invalid: "Check the fields: name 3 to 80 characters, prices above zero, a location, and numbers within sensible limits.",
   plate: "A vehicle with this plate number already exists.",
+  category: "That category does not fit this type of vehicle.",
   forbidden: "Your account is not allowed to do this.",
   notfound: "That item was not found.",
   not_rejected: "Only rejected listings can be sent for approval again.",

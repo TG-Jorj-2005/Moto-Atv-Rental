@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeQuoteRequestSchema } from "./forms";
+import { makeQuoteRequestSchema, vehicleCreateSchema } from "./forms";
 
 const input = (startDate: string, endDate = "2030-01-31") => ({
   vehicleType: "ATV",
@@ -45,5 +45,21 @@ describe("quote request start date (calendar date in Bucharest)", () => {
     expect(schema.safeParse(input("2030-02-02", "2030-02-01")).success).toBe(false);
     expect(schema.safeParse({ ...input("2030-02-01"), quantity: 1 }).success).toBe(false);
     expect(schema.safeParse(input("2030-02-01", "2030-02-01")).success).toBe(true);
+  });
+});
+
+describe("vehicle category in the vehicle forms", () => {
+  const form = { name: "Honda Rebel 500", type: "MOTORCYCLE", plate: "b-11-abc", hourlyRon: "100", dailyRon: "400", locationId: "x" };
+  it("takes a category that fits the type and turns blank into null", () => {
+    expect(vehicleCreateSchema.parse({ ...form, category: "CRUISER" }).category).toBe("CRUISER");
+    expect(vehicleCreateSchema.parse({ ...form, category: "" }).category).toBeNull();
+    expect(vehicleCreateSchema.parse(form).category).toBeNull();
+  });
+  it("rejects an unknown category and a category of the wrong type, pointing at the category field", () => {
+    expect(vehicleCreateSchema.safeParse({ ...form, category: "BOAT" }).success).toBe(false);
+    const wrong = vehicleCreateSchema.safeParse({ ...form, category: "ATV_SPORT" });
+    expect(wrong.success).toBe(false);
+    if (!wrong.success) expect(wrong.error.issues[0]!.path).toEqual(["category"]);
+    expect(vehicleCreateSchema.safeParse({ ...form, type: "SCOOTER", category: "CRUISER" }).success).toBe(false);
   });
 });

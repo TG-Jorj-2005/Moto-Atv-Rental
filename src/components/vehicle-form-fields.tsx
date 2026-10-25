@@ -1,4 +1,5 @@
 import { Field, Input, Select, Textarea } from "@/components/ui/form";
+import { CATEGORY_LABELS, categoriesFor } from "@/lib/vehicle-categories";
 
 type Defaults = {
   name?: string;
@@ -14,6 +15,7 @@ type Defaults = {
   powerHp?: number | null;
   seats?: number | null;
   licenseCategory?: string | null;
+  category?: string | null;
 };
 
 const ron = (bani?: number | null) => (bani == null ? "" : String(bani / 100));
@@ -44,6 +46,19 @@ export function VehicleFormFields({ mode, locations, defaults = {} }: { mode: "c
       <Field label="Engine (cc)" htmlFor="vf-cc"><Input id="vf-cc" name="engineCc" type="number" min="20" max="5000" defaultValue={num(defaults.engineCc)} /></Field>
       <Field label="Power (hp)" htmlFor="vf-hp"><Input id="vf-hp" name="powerHp" type="number" min="1" max="500" defaultValue={num(defaults.powerHp)} /></Field>
       <Field label="Seats" htmlFor="vf-seats"><Input id="vf-seats" name="seats" type="number" min="1" max="8" defaultValue={num(defaults.seats)} /></Field>
+      <Field label="Category" htmlFor="vf-category" hint="Helps visitors find it: shown on the card and in the catalog filter. It must match the type.">
+        <Select id="vf-category" name="category" defaultValue={defaults.category ?? ""}>
+          <option value="">No category</option>
+          {mode === "create" ? (
+            <>
+              <optgroup label="Motorcycles">{categoriesFor("MOTORCYCLE").map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}</optgroup>
+              <optgroup label="ATVs">{categoriesFor("ATV").map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)}</optgroup>
+            </>
+          ) : (
+            categoriesFor(defaults.type === "ATV" || defaults.type === "SCOOTER" ? defaults.type : "MOTORCYCLE").map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>)
+          )}
+        </Select>
+      </Field>
       <Field label="Licence category needed" htmlFor="vf-licence">
         <Select id="vf-licence" name="licenseCategory" defaultValue={defaults.licenseCategory ?? ""}>
           <option value="">Not specified</option><option value="AM">AM</option><option value="A1">A1</option><option value="A2">A2</option><option value="A">A</option><option value="B">B</option>

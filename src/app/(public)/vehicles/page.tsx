@@ -10,6 +10,7 @@ import { Field, Input, Select } from "@/components/ui/form";
 import { EmptyState, PageHeader, Skeleton } from "@/components/ui/misc";
 import { VehicleCard } from "@/components/vehicle-card";
 import { cn } from "@/lib/utils";
+import { CATEGORIES, CATEGORY_LABELS } from "@/lib/vehicle-categories";
 
 export const metadata = { title: "Vehicles" };
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ function queryString(f: CatalogFilters, page: number): string {
   const p = new URLSearchParams();
   if (f.q) p.set("q", f.q);
   if (f.type) p.set("type", f.type);
+  if (f.category) p.set("category", f.category);
   if (f.county) p.set("county", f.county);
   if (f.locationId) p.set("location", f.locationId);
   if (f.minDailyRon !== null) p.set("minPrice", String(f.minDailyRon));
@@ -74,7 +76,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
   const facets = await catalogFacets();
   const counties = [...new Set(facets.locations.map((l) => l.county).filter(Boolean))];
   const today = iso(localDateOf(new Date()));
-  const activeCount = [filters.q, filters.type, filters.county, filters.locationId, filters.minDailyRon, filters.maxDailyRon, filters.from].filter((v) => v !== null && v !== "").length;
+  const activeCount = [filters.q, filters.type, filters.category, filters.county, filters.locationId, filters.minDailyRon, filters.maxDailyRon, filters.from].filter((v) => v !== null && v !== "").length;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
@@ -82,19 +84,42 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
 
       {problems.map((p) => <Alert key={p} tone="warning">{p}</Alert>)}
 
+      <nav aria-label="Categories" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        {[{ value: null, label: "All" }, ...CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }))].map((c) => {
+          const active = filters.category === c.value;
+          const count = c.value ? facets.categoryCounts[c.value] : undefined;
+          return (
+            <Link
+              key={c.label}
+              href={`/vehicles${queryString({ ...filters, category: c.value, type: null }, 1)}`}
+              aria-current={active ? "true" : undefined}
+              className={cn("shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors", active ? "border-stone-900 bg-stone-900 text-white" : "border-stone-300 bg-white text-stone-800 hover:bg-stone-50")}
+            >
+              {c.label}{count ? <span className={cn("ml-1.5 text-xs", active ? "text-stone-300" : "text-stone-500")}>{count}</span> : null}
+            </Link>
+          );
+        })}
+      </nav>
+
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
         <details className="group self-start rounded-xl border border-stone-200 bg-white shadow-card lg:open:block" open>
           <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-semibold lg:pointer-events-none">
             <SlidersHorizontal aria-hidden className="size-4" /> Filters{activeCount > 0 && <span className="rounded-full bg-brand-100 px-2 text-xs text-brand-900">{activeCount}</span>}
           </summary>
           <form method="get" action="/vehicles" className="space-y-4 border-t border-stone-100 p-4">
-            <Field label="Search by name" htmlFor="q"><Input id="q" name="q" defaultValue={filters.q} placeholder="e.g. Grizzly" maxLength={60} /></Field>
+            <Field label="Search by name" htmlFor="q"><Input id="q" name="q" defaultValue={filters.q} placeholder="e.g. Grizzly or cruiser" maxLength={60} /></Field>
             <Field label="Type" htmlFor="type">
               <Select id="type" name="type" defaultValue={filters.type ?? ""}>
                 <option value="">All types</option>
                 <option value="ATV">ATVs</option>
                 <option value="MOTORCYCLE">Motorcycles</option>
                 <option value="SCOOTER">Scooters</option>
+              </Select>
+            </Field>
+            <Field label="Category" htmlFor="category">
+              <Select id="category" name="category" defaultValue={filters.category ?? ""}>
+                <option value="">All categories</option>
+                {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}{facets.categoryCounts[c] ? ` (${facets.categoryCounts[c]})` : ""}</option>)}
               </Select>
             </Field>
             <Field label="County" htmlFor="county">

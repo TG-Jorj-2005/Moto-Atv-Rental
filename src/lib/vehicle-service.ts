@@ -1,7 +1,8 @@
-import type { ListingStatus, Prisma, VehicleStatus, VehicleType } from "@prisma/client";
+import type { ListingStatus, Prisma, VehicleCategory, VehicleStatus, VehicleType } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { runTransaction } from "@/lib/tx";
 import { canListVehicles } from "@/lib/roles";
+import { categoryFitsType } from "@/lib/vehicle-categories";
 import { authorizeVehicleManager } from "@/lib/vehicle-access";
 import { canChangeVehicleStatus, isTakingOutOfCirculation, type VehicleDenial } from "@/lib/vehicle-rules";
 import { documentWarnings, type DocumentWarning } from "@/lib/maintenance-rules";
@@ -81,12 +82,14 @@ export type PlatformVehicleInput = {
   powerHp?: number | null;
   seats?: number | null;
   licenseCategory?: string | null;
+  category?: VehicleCategory | null;
 };
 
 // A vehicle of the platform's own fleet: no owner (0% commission), approved from the start. Only an ADMIN creates them.
-export async function createPlatformVehicle(actorId: string, input: PlatformVehicleInput): Promise<{ ok: true; id: string } | { ok: false; code: "FORBIDDEN" }> {
+export async function createPlatformVehicle(actorId: string, input: PlatformVehicleInput): Promise<{ ok: true; id: string } | { ok: false; code: "FORBIDDEN" | "INVALID_CATEGORY" }> {
   const actor = await prisma.user.findUnique({ where: { id: actorId }, select: { role: true } });
   if (actor?.role !== "ADMIN") return { ok: false, code: "FORBIDDEN" };
+  if (input.category && !categoryFitsType(input.category, input.type)) return { ok: false, code: "INVALID_CATEGORY" };
   const vehicle = await prisma.vehicle.create({ data: { ...input, ownerId: null, listingStatus: "APPROVED" }, select: { id: true } });
   return { ok: true, id: vehicle.id };
 }
@@ -103,9 +106,10 @@ export type VehicleEdit = {
   powerHp?: number | null;
   seats?: number | null;
   licenseCategory?: string | null;
+  category?: VehicleCategory | null;
 };
 
-export type UpdateVehicleResult = { ok: true; backToModeration: boolean } | { ok: false; code: "NOT_FOUND" | "FORBIDDEN" };
+export type UpdateVehicleResult = { ok: true; backToModeration: boolean } | { ok: false; code: "NOT_FOUND" | "FORBIDDEN" | "INVALID_CATEGORY" };
 
 // An owner or company edits its own vehicle; an ADMIN edits any. Type and plate never change. Prices only affect
 // bookings made afterwards (every booking stores its own price). A change of the public text (name, description)
@@ -115,13 +119,14 @@ export async function updateVehicleDetails(actorId: string, vehicleId: string, e
     const actor = await tx.user.findUnique({ where: { id: actorId }, select: { id: true, role: true } });
     if (!actor) return { ok: false, code: "NOT_FOUND" };
     await tx.$queryRaw`SELECT id FROM vehicles WHERE id = ${vehicleId} FOR UPDATE`;
-    const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId }, select: { ownerId: true, name: true, description: true, listingStatus: true } });
+    const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId }, select: { ownerId: true, type: true, name: true, description: true, listingStatus: true } });
     if (!vehicle) return { ok: false, code: "NOT_FOUND" };
     const isAdmin = actor.role === "ADMIN";
     if (!isAdmin) {
       if (vehicle.ownerId !== actor.id) return { ok: false, code: "NOT_FOUND" }; // other people's vehicles do not exist
       if (!canListVehicles(actor.role)) return { ok: false, code: "FORBIDDEN" };
     }
+    if (edit.category && !categoryFitsType(edit.category, vehicle.type)) return { ok: false, code: "INVALID_CATEGORY" };
     const textChanged = edit.name !== vehicle.name || (edit.description ?? null) !== (vehicle.description ?? null);
     const backToModeration = !isAdmin && textChanged && vehicle.listingStatus === "APPROVED";
     await tx.vehicle.update({

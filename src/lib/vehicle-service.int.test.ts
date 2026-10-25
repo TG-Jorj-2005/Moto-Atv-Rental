@@ -230,3 +230,30 @@ describe("resubmitListing and specifications", () => {
     expect(await prisma.vehicle.findUniqueOrThrow({ where: { id: v.id } })).toMatchObject({ year: null, engineCc: null, powerHp: null, seats: null, licenseCategory: null });
   });
 });
+
+describe("vehicle categories", () => {
+  const base = { hourlyRate: 1000, dailyRate: 4000, weekendRate: null, description: null, locationId: null };
+  it("accepts a category that fits the type and refuses one that does not, for the admin fleet and for edits", async () => {
+    const admin = await makeUser("ADMIN");
+    const owner = await makeUser("OWNER");
+    const moto = await createPlatformVehicle(admin.id, { ...base, name: "Honda Rebel 500", type: "MOTORCYCLE", plate: "CAT-1", category: "CRUISER" });
+    expect(moto.ok).toBe(true);
+    expect(await createPlatformVehicle(admin.id, { ...base, name: "Honda Rebel 500", type: "MOTORCYCLE", plate: "CAT-2", category: "ATV_SPORT" })).toEqual({ ok: false, code: "INVALID_CATEGORY" });
+    expect(await prisma.vehicle.count({ where: { plate: "CAT-2" } })).toBe(0);
+    const quad = await makeVehicle(owner.id);
+    expect(await updateVehicleDetails(owner.id, quad.id, { ...base, name: quad.name, category: "CRUISER" })).toEqual({ ok: false, code: "INVALID_CATEGORY" });
+    expect((await prisma.vehicle.findUniqueOrThrow({ where: { id: quad.id } })).category).toBeNull();
+    expect(await updateVehicleDetails(owner.id, quad.id, { ...base, name: quad.name, category: "ATV_SPORT" })).toMatchObject({ ok: true });
+    expect((await prisma.vehicle.findUniqueOrThrow({ where: { id: quad.id } })).category).toBe("ATV_SPORT");
+    expect(await updateVehicleDetails(owner.id, quad.id, { ...base, name: quad.name, category: null })).toMatchObject({ ok: true });
+    expect((await prisma.vehicle.findUniqueOrThrow({ where: { id: quad.id } })).category).toBeNull();
+  });
+  it("does not let the category change who may edit, the approval status or the price rules", async () => {
+    const owner = await makeUser("OWNER");
+    const other = await makeUser("OWNER");
+    const quad = await makeVehicle(owner.id);
+    expect(await updateVehicleDetails(other.id, quad.id, { ...base, name: quad.name, category: "ATV_SPORT" })).toEqual({ ok: false, code: "NOT_FOUND" });
+    const result = await updateVehicleDetails(owner.id, quad.id, { ...base, name: quad.name, description: null, category: "ATV_UTILITY" });
+    expect(result).toEqual({ ok: true, backToModeration: false });
+  });
+});

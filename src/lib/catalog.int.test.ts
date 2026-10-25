@@ -71,6 +71,31 @@ describe("searchVehicles", () => {
   });
 });
 
+describe("categories in the catalog", () => {
+  const make = (owner: string | null, name: string, type: "ATV" | "MOTORCYCLE", category: "CRUISER" | "ADVENTURE" | "ATV_SPORT" | null, plate: string) =>
+    prisma.vehicle.create({ data: { name, type, category, plate, hourlyRate: 1000, dailyRate: 4000, ownerId: owner, listingStatus: "APPROVED" } });
+  it("filters by category, finds a category through the search words and counts them in the facets", async () => {
+    const rebel = await make(null, "Honda Rebel 500", "MOTORCYCLE", "CRUISER", "C-1");
+    const vulcan = await make(null, "Kawasaki Vulcan S", "MOTORCYCLE", "CRUISER", "C-2");
+    const gs = await make(null, "BMW R 1300 GS", "MOTORCYCLE", "ADVENTURE", "C-3");
+    const raptor = await make(null, "Yamaha Raptor 700", "ATV", "ATV_SPORT", "C-4");
+    await make(null, "Old Quad", "ATV", null, "C-5");
+    const ids = async (raw: Record<string, string>) => (await run(raw)).items.map((v) => v.id).sort();
+    expect(await ids({ category: "CRUISER" })).toEqual([rebel.id, vulcan.id].sort());
+    expect(await ids({ q: "cruiser" })).toEqual([rebel.id, vulcan.id].sort());
+    expect(await ids({ q: "Adventure" })).toEqual([gs.id]);
+    expect(await ids({ q: "rebel" })).toEqual([rebel.id]);
+    expect(await ids({ category: "ATV_SPORT", type: "ATV" })).toEqual([raptor.id]);
+    expect(await ids({ category: "CRUISER", type: "ATV" })).toEqual([]);
+    expect((await catalogFacets()).categoryCounts).toEqual({ CRUISER: 2, ADVENTURE: 1, ATV_SPORT: 1 });
+  });
+  it("hides categorised vehicles that are not bookable, like any other", async () => {
+    await prisma.vehicle.create({ data: { name: "Pending Cruiser", type: "MOTORCYCLE", category: "CRUISER", plate: "C-9", hourlyRate: 1000, dailyRate: 4000, listingStatus: "PENDING" } });
+    expect(await run({ category: "CRUISER" })).toMatchObject({ total: 0 });
+    expect((await catalogFacets()).categoryCounts).toEqual({});
+  });
+});
+
 describe("catalogFacets", () => {
   it("counts only what the public can book", async () => {
     await makeVehicle(null);

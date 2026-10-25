@@ -44,6 +44,16 @@ enum VehicleType {
   SCOOTER
 }
 
+// A finer classification inside the vehicle type (optional, shown in the catalog filters and on the cards).
+enum VehicleCategory {
+  CRUISER
+  ADVENTURE
+  NAKED_SPORT
+  DUAL_SPORT
+  ATV_SPORT
+  ATV_UTILITY
+}
+
 enum VehicleStatus {
   AVAILABLE
   RENTED
@@ -122,6 +132,7 @@ model Vehicle {
   id          String        @id @default(cuid())
   name        String
   type        VehicleType
+  category    VehicleCategory?
   plate       String        @unique
   status      VehicleStatus @default(AVAILABLE)
   hourlyRate  Int           @map("hourly_rate")
@@ -149,6 +160,7 @@ model Vehicle {
   photos          VehiclePhoto[]
 
   @@index([listingStatus, status])
+  @@index([category])
   @@index([ownerId])
   @@map("vehicles")
 }

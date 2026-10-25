@@ -8,7 +8,7 @@ describe("parseCatalogParams", () => {
   it("has sensible defaults and never needs any parameter", () => {
     const { filters, problems } = parse({});
     expect(problems).toEqual([]);
-    expect(filters).toMatchObject({ q: "", type: null, county: null, locationId: null, minDailyRon: null, maxDailyRon: null, from: null, to: null, sort: "newest", page: 1 });
+    expect(filters).toMatchObject({ q: "", type: null, category: null, county: null, locationId: null, minDailyRon: null, maxDailyRon: null, from: null, to: null, sort: "newest", page: 1 });
   });
   it("reads valid values", () => {
     const { filters, problems } = parse({ q: " grizzly ", type: "ATV", county: "Cluj", location: "abc", minPrice: "100", maxPrice: "500", sort: "price_asc", page: "3", from: "2030-06-20", to: "2030-06-22" });
@@ -21,6 +21,12 @@ describe("parseCatalogParams", () => {
     expect(parseCatalogParams({ page: "-3" }, NOW).filters.page).toBe(1);
     expect(parseCatalogParams({ page: "abc" }, NOW).filters.page).toBe(1);
     expect(parseCatalogParams({ type: ["MOTORCYCLE", "ATV"] }, NOW).filters.type).toBe("MOTORCYCLE");
+  });
+  it("reads a known category and ignores an unknown one", () => {
+    expect(parse({ category: "CRUISER" }).filters.category).toBe("CRUISER");
+    expect(parse({ category: "cruiser" }).filters.category).toBeNull();
+    expect(parse({ category: "BOAT" }).filters.category).toBeNull();
+    expect(parseCatalogParams({ category: ["ADVENTURE", "CRUISER"] }, NOW).filters.category).toBe("ADVENTURE");
   });
   it("reports bad prices and drops a contradictory price range", () => {
     const bad = parse({ minPrice: "abc", maxPrice: "-5" });
@@ -52,6 +58,11 @@ describe("parseCatalogParams", () => {
 describe("catalogWhere", () => {
   it("always restricts to approved, available listings", () => {
     expect(catalogWhere(parse({}).filters)).toEqual({ listingStatus: "APPROVED", status: "AVAILABLE" });
+  });
+  it("filters by category and lets the search words match a category label as well as the name", () => {
+    expect(catalogWhere(parse({ category: "CRUISER" }).filters).category).toBe("CRUISER");
+    expect(catalogWhere(parse({ q: "cruiser" }).filters).OR).toEqual([{ name: { contains: "cruiser", mode: "insensitive" } }, { category: { in: ["CRUISER"] } }]);
+    expect(catalogWhere(parse({ q: "grizzly" }).filters).OR).toEqual([{ name: { contains: "grizzly", mode: "insensitive" } }]);
   });
   it("converts RON per day to bani and prefers a location over a county", () => {
     const where = catalogWhere(parse({ minPrice: "100.5", maxPrice: "500", county: "Cluj", location: "loc1" }).filters);
