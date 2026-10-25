@@ -83,7 +83,11 @@ export default async function AdminBookings({ searchParams }: { searchParams: Pr
                 const paid = b.payments.reduce((n, p) => n + p.amount, 0);
                 return (
                   <TR key={b.id}>
-                    <TD><span className="font-medium">{b.vehicle.name}</span><span className="block text-xs text-stone-600">{b.vehicle.owner?.name ?? "Platform fleet"}</span></TD>
+                    <TD>
+                      <Link href={`/admin/bookings/${b.id}`} className="font-medium hover:underline">{b.vehicle.name}</Link>
+                      <span className="block text-xs text-stone-600">{b.vehicle.owner?.name ?? "Platform fleet"}</span>
+                      <span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden"><BookingStatusBadge status={b.status} />{flags.handoverDelayed && <Badge tone="danger">HANDOVER_DELAYED</Badge>}</span>
+                    </TD>
                     <TD>{b.customer.fullName}</TD>
                     <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                     <TD><div className="flex flex-wrap items-center gap-1.5"><BookingStatusBadge status={b.status} />{flags.handoverDelayed && <Badge tone="danger">HANDOVER_DELAYED</Badge>}{flags.returnOverdue && <Badge tone="danger">Return overdue</Badge>}</div></TD>

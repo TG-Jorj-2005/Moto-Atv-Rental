@@ -60,7 +60,7 @@ export default async function ProviderBookings({ searchParams }: { searchParams:
             <TBody>
               {bookings.map((b) => (
                 <TR key={b.id}>
-                  <TD className="font-medium"><Link className="hover:underline" href={`/provider/vehicles/${b.vehicle.id}?tab=bookings`}>{b.vehicle.name}</Link></TD>
+                  <TD className="font-medium"><Link className="hover:underline" href={`/provider/vehicles/${b.vehicle.id}?tab=bookings`}>{b.vehicle.name}</Link><span className="mt-1.5 block md:hidden"><BookingStatusBadge status={b.status} /></span></TD>
                   <TD>{b.customer.fullName}</TD>
                   <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                   <TD><BookingStatusBadge status={b.status} /></TD>
