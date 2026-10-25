@@ -10,6 +10,12 @@ async function main() {
     throw new Error("ADMIN_EMAIL and ADMIN_PASSWORD must be set");
   }
 
+  // Docker start-up: seed only a brand new database, so a restart never resets what the administrator changed.
+  if (process.env.SEED_IF_EMPTY === "true" && (await prisma.user.count()) > 0) {
+    console.log("Database already has users: seed skipped.");
+    return;
+  }
+
   await prisma.user.upsert({
     where: { email },
     update: {},
