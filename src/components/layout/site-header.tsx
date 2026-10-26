@@ -17,6 +17,7 @@ const PUBLIC_LINKS = [
   { href: "/vehicles", label: "All vehicles" },
   { href: "/vehicles?type=MOTORCYCLE", label: "Motorcycles" },
   { href: "/vehicles?type=ATV", label: "ATVs" },
+  { href: "/ridedna", label: "RideDNA" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#locations", label: "Locations" },
 ];

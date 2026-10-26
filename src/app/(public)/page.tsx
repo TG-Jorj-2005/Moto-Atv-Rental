@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Calculator, CalendarCheck, ShieldCheck, Undo2, ClipboardCheck, KeyRound, MapPin, Search, Store } from "lucide-react";
+import { ArrowRight, Dna, Calculator, CalendarCheck, ShieldCheck, Undo2, ClipboardCheck, KeyRound, MapPin, Search, Store } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { catalogFacets, vehicleCardSelect } from "@/lib/catalog";
 import { getCurrency } from "@/lib/currency-server";
@@ -46,6 +46,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap gap-3 pt-2">
               <Link href="/vehicles?type=MOTORCYCLE" className={buttonVariants({ size: "lg" })}>Explore motorcycles <ArrowRight aria-hidden className="size-4" /></Link>
               <Link href="/vehicles?type=ATV" className={buttonVariants({ variant: "outline", size: "lg" })}>Discover ATVs</Link>
+              <Link href="/ridedna" className={buttonVariants({ variant: "ghost", size: "lg" })}><Dna aria-hidden className="size-4" /> Find my ride (RideDNA)</Link>
             </div>
           </div>
           <form action="/vehicles" method="get" className="mt-8 grid gap-3 rounded-2xl border border-line bg-surface/95 p-4 text-fg shadow-pop sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end">

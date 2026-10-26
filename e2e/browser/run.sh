@@ -17,4 +17,7 @@ DATABASE_URL="$TEST_DATABASE_URL" SEED_DEMO_USERS=true DEMO_PASSWORD='Demo-pass-
 DATABASE_URL="$TEST_DATABASE_URL" UPLOAD_DIR="$E2E_TMP/uploads" AUTH_TRUST_HOST=true npx next start -p "$PORT" >"$E2E_TMP/server.log" 2>&1 &
 SERVER=$!
 for _ in $(seq 1 40); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
-python3 -W ignore e2e/browser/flows.py
+fail=0
+python3 -W ignore e2e/browser/flows.py || fail=1
+python3 -W ignore e2e/browser/ridedna.py || fail=1
+exit $fail
