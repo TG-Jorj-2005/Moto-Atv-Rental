@@ -4,7 +4,8 @@ import { SearchX } from "lucide-react";
 import { getCurrentUser } from "@/lib/session";
 import { getCurrency } from "@/lib/currency-server";
 import { formatMoney } from "@/lib/currency";
-import { answersToQuery, parseAnswers } from "@/lib/ridedna/answers";
+import { addDays, localDateOf, toLocalInputValue } from "@/lib/business-time";
+import { answersToQuery, dayToText, parseAnswers } from "@/lib/ridedna/answers";
 import { deriveProfile } from "@/lib/ridedna/profile";
 import { MAX_RESULTS, recommend } from "@/lib/ridedna/service";
 import { EXCELLENT_MIN, FAIR_MIN, GOOD_MIN, REASON_TEXT, WEIGHTS, type Reason } from "@/lib/ridedna/scoring";
@@ -12,6 +13,7 @@ import { Alert } from "@/components/ui/alert";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/misc";
 import { CompareTable } from "@/components/ridedna/compare-table";
+import { PeriodForm } from "@/components/ridedna/period-form";
 import { ProfileCard } from "@/components/ridedna/profile-card";
 import { RecommendationCard } from "@/components/ridedna/recommendation-card";
 
@@ -36,6 +38,9 @@ export default async function RideDnaResults({ searchParams }: { searchParams: P
   const editHref = `/ridedna?${answersToQuery(answers).toString()}`;
   const recs = result.recommendations;
   const exactDates = result.period.kind === "EXACT";
+  const minDay = dayToText(addDays(localDateOf(new Date()), 1));
+  // "Choose this vehicle" hands the period to the vehicle page, which fills the booking form (and checks it again).
+  const chooseHref = (id: string) => (result.period.kind === "EXACT" ? `/vehicles/${id}?start=${toLocalInputValue(result.period.period.startAt)}&end=${toLocalInputValue(result.period.period.endAt)}#book` : `/vehicles/${id}#book`);
 
   const topReasons = Object.entries(result.excluded).filter(([k]) => k !== "UNAVAILABLE").sort((a, b) => b[1] - a[1]).slice(0, 3) as [Reason, number][];
 
@@ -43,6 +48,8 @@ export default async function RideDnaResults({ searchParams }: { searchParams: P
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
       <nav aria-label="Breadcrumb" className="text-sm text-muted"><Link href="/ridedna" className="hover:underline">RideDNA</Link> <span aria-hidden>/</span> <span className="text-fg">Your results</span></nav>
       <ProfileCard profile={profile} editHref={editHref} />
+
+      <PeriodForm answers={answers} period={result.period} minDay={minDay} />
 
       {result.period.kind === "INVALID" && <Alert tone="warning" title="That day has already started or passed">Choose a day from tomorrow on, or change your answers.</Alert>}
 
@@ -60,7 +67,7 @@ export default async function RideDnaResults({ searchParams }: { searchParams: P
           <>
             <div className="grid gap-5 lg:grid-cols-3">
               {recs.map((r, i) => (
-                <RecommendationCard key={r.id} rec={r} rank={i + 1} detailsHref={`/vehicles/${r.id}`} chooseHref={`/vehicles/${r.id}`}
+                <RecommendationCard key={r.id} rec={r} rank={i + 1} detailsHref={`/vehicles/${r.id}`} chooseHref={chooseHref(r.id)}
                   priceNote={exactDates ? { kind: "EXACT", text: "Price for your dates (the booking recalculates it)." } : { kind: "ESTIMATE", text: "Estimate for a weekday trip of the chosen length; weekend rates and dates can change it." }} />
               ))}
             </div>

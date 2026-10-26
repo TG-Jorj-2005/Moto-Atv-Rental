@@ -24,10 +24,12 @@ const PRESETS = [
 
 // The booking form of a vehicle page. Times are typed in Bucharest time (whatever the time zone of the browser is);
 // the price and availability shown come from the server (the same pricing the booking will use).
-export function BookingPanel({ vehicleId, currency, defaultName, defaultEmail }: { vehicleId: string; currency: "RON" | "EUR"; defaultName: string; defaultEmail: string }) {
+// `initialStart` and `initialEnd` ("YYYY-MM-DDTHH:mm", Bucharest time) only pre-fill the fields, for example from RideDNA; the price,
+// the availability and the booking are all checked by the server again.
+export function BookingPanel({ vehicleId, currency, defaultName, defaultEmail, initialStart = "", initialEnd = "" }: { vehicleId: string; currency: "RON" | "EUR"; defaultName: string; defaultEmail: string; initialStart?: string; initialEnd?: string }) {
   const router = useRouter();
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+  const [start, setStart] = useState(initialStart);
+  const [end, setEnd] = useState(initialEnd);
   const [minStart, setMinStart] = useState<string | undefined>();
   const [estimate, setEstimate] = useState<Estimate>({ state: "idle" });
   const [submitting, setSubmitting] = useState(false);

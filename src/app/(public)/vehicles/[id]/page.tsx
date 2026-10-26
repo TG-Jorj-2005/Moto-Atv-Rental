@@ -38,8 +38,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: vehicle?.name ?? "Vehicle not found" };
 }
 
-export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
+// A period handed over by another page (RideDNA) as "YYYY-MM-DDTHH:mm" in Bucharest time. Anything else is ignored.
+const LOCAL_INPUT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const oneParam = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+
+export default async function VehiclePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { id } = await params;
+  const query = await searchParams;
+  const [qs, qe] = [oneParam(query.start), oneParam(query.end)];
+  const handed = qs && qe && LOCAL_INPUT.test(qs) && LOCAL_INPUT.test(qe) ? { start: qs, end: qe } : null;
+  const here = `/vehicles/${id}${handed ? `?start=${handed.start}&end=${handed.end}` : ""}`;
   const vehicle = await loadVehicle(id);
   if (!vehicle) notFound();
 
@@ -142,8 +150,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
                 <div className="space-y-3">
                   <p className="text-sm text-fg-soft">Log in or create an account to book this vehicle.</p>
                   <div className="flex gap-2">
-                    <Link href={`/login?next=/vehicles/${id}`} className={buttonVariants({ className: "flex-1" })}>Log in</Link>
-                    <Link href={`/register?next=/vehicles/${id}`} className={buttonVariants({ variant: "outline", className: "flex-1" })}>Register</Link>
+                    <Link href={`/login?next=${encodeURIComponent(here)}`} className={buttonVariants({ className: "flex-1" })}>Log in</Link>
+                    <Link href={`/register?next=${encodeURIComponent(here)}`} className={buttonVariants({ variant: "outline", className: "flex-1" })}>Register</Link>
                   </div>
                 </div>
               ) : mine ? (
@@ -151,7 +159,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               ) : !canRent(user.role) ? (
                 <Alert tone="info">Administrator accounts manage the platform and do not make bookings.</Alert>
               ) : (
-                <BookingPanel vehicleId={id} currency={currency} defaultName={user.name} defaultEmail={user.email} />
+                <BookingPanel vehicleId={id} currency={currency} defaultName={user.name} defaultEmail={user.email} initialStart={handed?.start} initialEnd={handed?.end} />
               )}
             </CardContent>
           </Card>
