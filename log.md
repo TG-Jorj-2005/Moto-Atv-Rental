@@ -29,16 +29,23 @@ This file records the prompts, requirements and instructions that the project ow
 | Test infrastructure | Integration tests on a separate database selected only through `TEST_DATABASE_URL`, refusing to run against the development or production database; `npm test` stays for unit tests. | P28, P29, P30, P33 |
 | Frontend | Modern, professional, premium and responsive marketplace; public pages, customer, owner/company and admin dashboards; loading, empty, error and success states; no fake data, no dead buttons; demo data labelled. | P19, P26, P33 |
 | Ways of working | First "ask before any architectural decision" (P25), then "take over, work autonomously, four verifications after every stage, do not commit unless asked" (P33), then "commit every finished stage and continue autonomously" (P36, P37), then "audit, document, final commit and push" (P40, P41). | P25, P33, P36, P37, P40, P41 |
-| Git | Repository named `moto-atv-rental-bd2`; the assistant must not appear as co-author (rewrite the first commit); commits only when asked (P33), later automatic commits per finished stage (P36, P37); publication on GitHub without force push (P40, P41). | P09–P14, P33, P36, P37, P40, P41 |
-| Running it | How to start the platform and the admin account, also from a phone; use the development database, never the test one, for normal running. | P34, P35 |
+| Git | Repository named `moto-atv-rental-bd2`; the assistant must not appear as co-author (rewrite the first commit); commits only when asked (P33), later automatic commits per finished stage (P36, P37); publication on GitHub without force push (P40, P41). | short prompts P09–P14 (omitted, see the note in Part 2), P33, P36, P37, P40, P41 |
+| Running it | How to start the platform and the admin account, also from a phone; use the development database, never the test one, for normal running. | P35 (and the short P34, omitted) |
 | Vehicles and photos | Real motorcycles and ATVs from varied categories (Cruiser, adventure and touring, naked and sport, dual-sport and enduro, ATV sport and utility), models and specifications confirmed from manufacturers, legally usable photos matching the exact model, Cruiser as a catalog category. | P19, P20, P38, P40 |
 | Final delivery | Complete audit, tests, `log.md`, `decision.md`, contributors section, final commit, push, final report. | P40, P41 |
 
-Social messages, one-word replies and screenshots sent as feedback are not requirements; the ones that matter for the story are listed in Part 2 (short replies of the first session) or mentioned in Part 3.
+Social messages, one-word replies and screenshots sent as feedback are not requirements; short prompts are summarised in the note at the start of Part 2.
 
 ## Part 2 — Prompts in chronological order (verbatim)
 
 <!-- Generated from the conversation transcripts; the prompt texts are verbatim. -->
+
+> **Short prompts are not reproduced.** Only the prompts in which the owner explained requirements at length are kept below, verbatim; the numbering of the
+> original record is kept, so the gaps are intentional. The omitted ones were one-line messages: P02–P08 (install the dependencies, "gata", "verify now", how to
+> run a quick test, save the conversation), P09–P10 (create the GitHub repository, name it `moto-atv-rental-bd2`), P11–P14 (the objection to the
+> `Co-Authored-By` line, the order to remove it and rewrite the commit, and the exchange that followed), P15–P18 (resume the project, install what is missing, continue, an error in `page.tsx`),
+> P21–P22 (asks for a plan of the architecture decisions and a question about the roles), P24 (answers "1.a, 2 yes, 3 yes"), P34 (how to open the platform on the phone) and P39 (describe what was done so far).
+
 
 ### P01. Project brief and first prototype request
 
@@ -132,144 +139,6 @@ locust -f loadtests/locustfile.py --host http://localhost:3000
 </pasted_content id="9668">
 ````
 
-### P02. Install the dependencies
-
-- Time: 2026-10-24T14:54:32Z (UTC) · session `a05d9b3e`
-
-````text
-instaleaza le tu te rog
-````
-
-### P03. Reply "gata" (done)
-
-- Time: 2026-10-24T14:55:08Z (UTC) · session `a05d9b3e`
-
-````text
-gata
-````
-
-### P04. Reply "gata" (done)
-
-- Time: 2026-10-24T14:56:13Z (UTC) · session `a05d9b3e`
-
-````text
-gata
-````
-
-### P05. Verify now
-
-- Time: 2026-10-24T14:56:54Z (UTC) · session `a05d9b3e`
-
-````text
-verifica acuma
-````
-
-### P06. Reply "gata" (done)
-
-- Time: 2026-10-24T14:57:19Z (UTC) · session `a05d9b3e`
-
-````text
-gata
-````
-
-### P07. How to run a quick test
-
-- Time: 2026-10-24T15:02:00Z (UTC) · session `a05d9b3e`
-
-````text
-cum il rulez rapid de test
-````
-
-### P08. Save the conversation so work can resume
-
-- Time: 2026-10-24T15:04:14Z (UTC) · session `a05d9b3e`
-
-````text
-salveaza conversatia asta pe care am avut o sa stii unde ramai cand ma intorc
-````
-
-### P09. Create the GitHub repository
-
-- Time: 2026-10-25T12:39:18Z (UTC) · session `cdc9c519`
-
-````text
-cum fac repo pentru proiectul la bd2 acum
-````
-
-### P10. Repository name
-
-- Time: 2026-10-25T12:41:12Z (UTC) · session `cdc9c519`
-
-````text
-sa fie moto-atv-rental-bd2
-````
-
-### P11. Objection to the Co-Authored-By line
-
-- Time: 2026-10-25T13:00:04Z (UTC) · session `cdc9c519`
-- Note: The assistant had added a `Co-Authored-By: Claude` trailer to the first commit.
-
-````text
-de ce te ai pus contriubitor cu mine la proiect, vrei sa imi furi din farfurie
-````
-
-### P12. Remove the co-author line and rewrite the commit
-
-- Time: 2026-10-25T13:00:48Z (UTC) · session `cdc9c519`
-
-````text
-fa asa si rescrie si sa te stergi de acolo
-````
-
-### P13. Ask for an apology
-
-- Time: 2026-10-25T13:02:50Z (UTC) · session `cdc9c519`
-
-````text
-cere ti si scuze
-````
-
-### P14. Apology accepted
-
-- Time: 2026-10-25T13:03:02Z (UTC) · session `cdc9c519`
-
-````text
-te am iertat
-````
-
-### P15. Resume the BD2 project
-
-- Time: 2026-10-25T13:10:56Z (UTC) · session `cdc9c519`
-
-````text
-mai stii proiectul de la bd2
-````
-
-### P16. Install what is still needed
-
-- Time: 2026-10-25T13:11:22Z (UTC) · session `cdc9c519`
-
-````text
-instaleaza te le ce mai e nevoie
-````
-
-### P17. Continue
-
-- Time: 2026-10-25T13:13:33Z (UTC) · session `cdc9c519`
-- Note: Sent after the user interrupted a tool use (message `[Request interrupted by user for tool use]`).
-
-````text
-contiuna
-````
-
-### P18. Error in page.tsx
-
-- Time: 2026-10-25T13:17:55Z (UTC) · session `cdc9c519`
-
-````text
-da eraore la page.tsx
-````
-
 ### P19. Landing page in three sections
 
 - Time: 2026-10-25T13:23:41Z (UTC) · session `cdc9c519`
@@ -300,22 +169,6 @@ sa fie si ceva de genu ca oameni pot sa isi puna vehiculele pe rent si firmele p
 - Bulk renting: "Cerere de ofertă" (request for an offer)
 - Everywhere: free text answer "locatii peste tot in romania dar sa poata sa plati in RON sau Euro" (locations all over Romania, payable in RON or EUR)
 
-### P21. Ask for an architecture-decisions plan
-
-- Time: 2026-10-25T13:46:29Z (UTC) · session `cdc9c519`
-
-````text
-bun fa mi un plan aici cu deciziile arhitecturale si eu iti zic daca e  bine sau nu
-````
-
-### P22. Question about the authentication roles
-
-- Time: 2026-10-25T13:49:51Z (UTC) · session `cdc9c519`
-
-````text
-care ar fi logica la  autentificatori cati si cum ar trebui sa avem?
-````
-
 ### P23. Companies list and rent vehicles, owners pay commission
 
 - Time: 2026-10-25T13:53:03Z (UTC) · session `cdc9c519`
@@ -330,16 +183,6 @@ firmele pot si sa puna si sa si inchirieze vehiculele si ownerul i se percepe co
 - Rate: "Rată per proprietar" (a rate per owner)
 - Earned: "La finalizarea rezervării (COMPLETED)" (when the booking is completed)
 - Assignment of vehicles in company offers: "Automat din vehiculele disponibile" (automatically from the available vehicles)
-
-### P24. Answers 1.a / 2 yes / 3 yes
-
-- Time: 2026-10-25T13:57:20Z (UTC) · session `cdc9c519`
-
-````text
-1.a
-2da
-3.da
-````
 
 ### P25. Working agreement: ask before architectural decisions
 
@@ -1020,15 +863,6 @@ La final, oferă-mi un raport general: ce ai implementat, fișierele și migrăr
 </pasted_content id="8076">
 ````
 
-### P34. How to open the platform on the phone, and the admin account
-
-- Time: 2026-10-25T15:54:33Z (UTC) · session `cdc9c519`
-- Note: Sent after another interruption of a tool use.
-
-````text
-deci cum pornesc platforma mobila si care e contul de admin inainte sa continuii
-````
-
 ### P35. Start the platform on the development database
 
 - Time: 2026-10-25T19:44:39Z (UTC) · session `cdc9c519`
@@ -1141,14 +975,6 @@ Acordă atenție specială aspectului vizual al motocicletelor Cruiser:
 - Verifică filtrarea pe mobil și desktop.
 - Nu modifica regulile de rezervare, autorizare sau comision doar pentru a introduce această categorie.
 </pasted_content id="8076">
-````
-
-### P39. Describe everything done so far
-
-- Time: 2026-10-25T21:08:13Z (UTC) · session `cdc9c519`
-
-````text
-descrie tot ce am facut la proiect pana acum
 ````
 
 ### P40. Final mission: audit, verification, polishing and publishing

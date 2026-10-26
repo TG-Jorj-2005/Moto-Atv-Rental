@@ -19,7 +19,7 @@ The history of this repository does not record other assistants. If the author a
 ## Git authorship
 
 - Every commit is authored with the author's own Git identity, as configured on the author's machine. No commit identity was invented or changed. The only rewrite of history was the one the author asked for in the first days of the project (the first commit, to remove a co-author line; see below).
-- At the author's request (P11–P13 in [log.md](../log.md)) commits carry **no** `Co-Authored-By` trailer for the assistant.
+- At the author's request (P11–P13, summarised in [log.md](../log.md)) commits carry **no** `Co-Authored-By` trailer for the assistant.
 - Project metadata (`package.json`) does not claim a human developer other than the author.
 
 ## Third-party material

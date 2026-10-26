@@ -175,8 +175,8 @@ This document collects the **decisions, business rules and constraints** that sh
 
 | Decision | Origin | Rationale | Where | Verified by | Status |
 |---|---|---|---|---|---|
-| The repository is named `moto-atv-rental-bd2` and is private on GitHub | Owner — explicit (P09, P10) | — | remote `origin` | `git remote -v`, GitHub API | Complete |
-| The assistant is **not** listed as co-author in commits (no `Co-Authored-By` trailer); the first commit was rewritten to remove it | Owner — explicit (P11, P12, P13) | The owner is the author of the work | `git log` | `git log` shows one author identity | Complete |
+| The repository is named `moto-atv-rental-bd2` and is private on GitHub | Owner — explicit (P09, P10, short prompts summarised in log.md) | — | remote `origin` | `git remote -v`, GitHub API | Complete |
+| The assistant is **not** listed as co-author in commits (no `Co-Authored-By` trailer); the first commit was rewritten to remove it | Owner — explicit (P11, P12, P13, short prompts summarised in log.md) | The owner is the author of the work | `git log` | `git log` shows one author identity | Complete |
 | Commits only when asked (P33); later: one commit per finished and verified stage, automatically (P36, P37); final commit and push (P40, P41) | Owner — explicit | Change of working agreement over time | `git log` (27 commits before the final one, in stage order, English messages) | `git log` | Complete |
 | Never `reset --hard`, `clean -fd`, history rewriting after publication, or force push | Owner — explicit (P36, P40, P41) | Safety | — | The audit used none of them | Complete |
 | Intermediate commits are not individually build-tested (the Prisma schema is one file shared by all stages); only the final tree is verified | Assistant — disclosed limitation | Splitting a single schema file by stage was not practical | — | A clean clone of the final commit builds, starts and passes the checks | Known limitation |
