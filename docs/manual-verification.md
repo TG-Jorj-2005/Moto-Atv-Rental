@@ -37,6 +37,22 @@ Accounts: the administrator from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`), and `
 | 16 | At 390 px open the catalog, a vehicle, *My bookings*, the owner's *Earnings* and the admin *Bookings* | No page scrolls sideways; wide tables scroll **inside** their card |
 | 17 | Open the mobile menu (hamburger) on a dashboard and on the public site | The menu opens, every entry works, the log-out button works |
 
+## RideDNA (extra feature, see [ridedna.md](ridedna.md))
+
+| # | Do | Expected |
+|---|---|---|
+| R1 | Open `/ridedna` (also reachable from the home page and the header) | The introduction and *Step 1 of 7: How much do you ride?* |
+| R2 | Press *Continue* without choosing | A message asks you to choose; you stay on the step |
+| R3 | Answer *Intermediate*, *A2*, *Forest roads and mixed terrain*, *Exploring far* and *Comfort* (a third priority is greyed out), *A weekend*, *Just me*, budget *3000 RON*; use *Back* once and check that the answers are kept | The summary shows the profile *Trail Seeker* and your answers; each has a *Change* button |
+| R4 | Press *Show my recommendations* before ticking the note | A message asks you to confirm the note |
+| R5 | Tick the note and press the button | Three vehicles, best score first, each with *Why it fits you*, the price, *Choose this vehicle* and *View details*; a *Side by side* table |
+| R6 | Choose a first day 30 days ahead and press *Check availability* | *Free for your dates right now* on each card and *Price for your dates* |
+| R7 | Press *Choose this vehicle* as a visitor, log in as `demo.customer@` | You come back to the vehicle with the period filled in; the total price equals the card's price |
+| R8 | In another window book the same vehicle for part of that period, then reload the form | *Already booked for part of this period*; the request button is disabled |
+| R9 | Answer *Beginner*, *No motorcycle licence*, *Touring on paved roads* | *None of our vehicles fits all your answers* with the reasons; no invented vehicle |
+| R10 | At 390 px, repeat R1 to R5 | No sideways scrolling; the comparison table scrolls inside its card; the options are easy to tap |
+| R11 | Use only the keyboard on the questionnaire (Tab, Space, Enter) | Every option and button can be reached and used; the focus moves to the new question |
+
 ## What was automated and what was not
 
 Steps 1 to 15 (including the content of both CSV files, but not the spreadsheet) and the 390 px widths of step 16 were driven in a real headless Firefox by `./e2e/browser/run.sh`

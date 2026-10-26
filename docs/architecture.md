@@ -24,6 +24,31 @@ flowchart LR
 
 Business logic lives in the services and the pure rule modules; pages and routes only authenticate, parse input (Zod) and call a service. The database is the last line of defence: the overlap constraint and the "one ACTIVE booking per vehicle" index hold even if application code were bypassed.
 
+## RideDNA flow
+
+```mermaid
+sequenceDiagram
+    actor U as Visitor
+    participant Q as /ridedna (client questionnaire)
+    participant R as /ridedna/results (server)
+    participant S as ridedna/service
+    participant DB as PostgreSQL
+    participant B as booking form + POST /api/bookings
+    U->>Q: seven answers (kept in the tab only)
+    Q->>R: GET with the answers in the address
+    R->>R: parseAnswers (Zod), deriveProfile
+    R->>S: recommend(answers, currency, own user)
+    S->>DB: approved, available vehicles (max 300)
+    S->>DB: overlapping bookings (only when a day was chosen)
+    S->>S: calculatePrice, eligibilityReasons, evaluateVehicle, rank
+    S-->>R: up to three recommendations and the exclusion counts
+    R-->>U: profile, cards, table
+    U->>B: Choose this vehicle (period in the address, pre-filled only)
+    B->>DB: price, availability and the booking, all checked again
+```
+
+The questionnaire and the results never write to the database. See [ridedna.md](ridedna.md).
+
 ## ER diagram
 
 ```mermaid

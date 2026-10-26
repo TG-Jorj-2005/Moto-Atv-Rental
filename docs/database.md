@@ -74,6 +74,8 @@ The seeds are idempotent (an end-to-end check runs the seed three times and comp
 The base seed does put the 17 demonstration vehicles of the platform fleet in a fresh production database: they are labelled
 as demonstration data and an administrator can retire them.
 
+RideDNA ([ridedna.md](ridedna.md)) reads these tables and **adds no table, column or migration**; the answers of the questionnaire are not stored.
+
 ## Checks
 
 `npm run db:check` runs 21 read-only consistency queries on the database in `DATABASE_URL` (no overlaps, history present,

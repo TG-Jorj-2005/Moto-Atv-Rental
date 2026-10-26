@@ -134,6 +134,12 @@ each concurrent hash can use 32 MiB (16 threads: up to 512 MiB at the peak), and
 (50 users logging in again and again without pause is a stress test, not a usage pattern). **Decision: not added** to the Dockerfile or `docker-compose.yml`. Set it
 (`UV_THREADPOOL_SIZE=16` in the `app` service environment) only on a host with enough cores and memory that expects many simultaneous logins. Raw statistics: `load-results/pool-*`.
 
+### RideDNA
+
+The results page of the RideDNA feature ([ridedna.md](ridedna.md)) reads at most 300 vehicles and, with a chosen day, one booking query. Unloaded it answers in about 29 ms (the catalog: 31 ms). In the mixed
+scenario with the page in the visitors' tasks (`load-results/ridedna-mixed-*`, final build, one process): 50 users, 3661 requests, 0 failures, results page median 87 ms and 95th percentile 380 ms; 100 users, 4885 requests, 0 failures, median 540 ms and 95th
+percentile 820 ms (the catalog in the same run: 610 ms and 1.1 s). It adds no index and no table.
+
 ### What is left
 
 With 100 users the pages are CPU-bound in server-side rendering: one unloaded request takes about 30 to 45 ms of CPU in the single Node process

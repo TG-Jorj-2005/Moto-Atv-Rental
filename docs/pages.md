@@ -14,6 +14,8 @@ and the ownership check (someone else's resource answers 404).
 | `/vehicles` | Catalog with filters (type, category, location, county, dates, text) and pagination | everyone | filter, open a vehicle |
 | `/vehicles/[id]` | Vehicle page: gallery, specifications, location, price, availability calendar, booking form | everyone (booking needs `CUSTOMER`, `OWNER` or `RENTAL_COMPANY`) | see the exact price, book |
 | `/book/[vehicleId]` | Old link, redirects to the vehicle page | everyone | |
+| `/ridedna` | RideDNA questionnaire: 7 steps, rider profile in the summary | everyone | answer, go back, change an answer, start over, ask for the recommendations |
+| `/ridedna/results` | Profile, up to three recommended vehicles with reasons and a comparison, choice of the first day and length (availability and exact price) | everyone | change the answers, check a day, view a vehicle, choose a vehicle (opens its booking form with the period filled in) |
 | `/login`, `/register` | Authentication | visitors | log in, create an account (customer, owner or company) |
 | `/forbidden`, not-found, error pages | Access denied, unknown address, unexpected error | everyone | |
 

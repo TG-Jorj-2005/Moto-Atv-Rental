@@ -106,12 +106,20 @@ false positive in `migrate diff` is `ALTER COLUMN "period" DROP DEFAULT`, which 
 
 - [docs/academic-requirements.md](docs/academic-requirements.md): checklist of the course stages 0 to 6 with evidence and status.
 - [docs/domain.md](docs/domain.md) (domain, users, scenarios), [docs/database.md](docs/database.md) (tables, constraints, indexes, fixtures), [docs/pages.md](docs/pages.md) (pages and CRUD), [docs/performance.md](docs/performance.md) (plans and load test results), [docs/reports-and-export.md](docs/reports-and-export.md) (CSV export), [docs/presentation.md](docs/presentation.md) (demo script, outline, test results).
+- [docs/ridedna.md](docs/ridedna.md): the RideDNA feature (flow, rules, score, tests, limits).
 - [docs/manual-verification.md](docs/manual-verification.md): what a person should click through before the defence.
 - [docs/business-rules.md](docs/business-rules.md): roles, authorization, vehicles and maintenance, booking lifecycle, commission and money, bulk offers, time zone rules, overlap prevention.
 - [docs/architecture.md](docs/architecture.md): layers, ER diagram, use cases, class view, sequence and state diagrams.
 - [decision.md](decision.md): the decisions, rules and constraints, with their origin, where they are implemented and how they were verified.
 - [log.md](log.md): the owner's prompts and requirements in chronological order.
 - [loadtests/README.md](loadtests/README.md) and [e2e/README.md](e2e/README.md).
+
+## RideDNA (personalised recommendations)
+
+An extra feature, not a course stage: at `/ridedna` a visitor answers seven questions (experience, licence, kind of ride, priorities, trip, budget), gets a rider profile and up to three
+real vehicles of the fleet with the reasons for each, sees which are free on the chosen days and the price, and continues to the normal booking. It runs on fixed, tested rules (no artificial
+intelligence, no external service, nothing stored). Hard rules (licence, power for the experience, seats, budget, category fit, availability) exclude vehicles before any score is computed; the
+booking keeps all its own checks and recomputes the price. How it works, the weights and its limits: [docs/ridedna.md](docs/ridedna.md).
 
 ## Course requirements (stages 0 to 6)
 
@@ -181,15 +189,15 @@ docs/            domain, database, pages, performance, reports, presentation, ch
 - `./e2e/run.sh`: the screens and actions over HTTP, like a browser would send them (forms, server actions, uploads), on the test database.
 - `./e2e/browser/run.sh`: the main flows (catalog filters, login, a booking with a conflict, editing a maintenance record, the CSV downloads) and the width of 25 pages at 390 px, in a real headless Firefox driven by a script. It is automation, not a person using the site.
 
-Results of the last full run (2026-10-26, same code as the current commit):
+Results of the last full run (2026-10-26, on the code of the commit `test(ridedna): cover recommendation and booking flows`):
 
 | Check | Result |
 |---|---|
 | `npm run lint` | no errors |
-| `npm test` (also under 6 time zones) | 201 passed |
-| `npm run test:integration` | 130 passed |
-| `./e2e/run.sh` | 376 checks passed, 0 failures |
-| `./e2e/browser/run.sh` | 50 checks passed, 0 failures |
+| `npm test` (also under 6 time zones) | 246 passed |
+| `npm run test:integration` | 151 passed |
+| `./e2e/run.sh` | 401 checks passed, 0 failures |
+| `./e2e/browser/run.sh` | 94 checks passed, 0 failures |
 | `npm run db:check` (development database) | 21 of 21 |
 | Locust, 50 and 100 users, 60 s | 0 failed requests; exactly one winner per contested slot |
 

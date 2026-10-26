@@ -41,6 +41,7 @@ Accounts (the password is the one chosen above, the administrator's is `ADMIN_PA
 | 8 | **Admin** | Moderate the pending listing; confirm → hand over → complete the booking from step 4; record a payment in EUR; the booking history shows each step and who made it |
 | 9 | **Maintenance and status** | As the owner open a vehicle → *Maintenance*: add a record, press the pencil to **edit** it (the form is prefilled, an impossible deadline is refused), then delete. As the admin put a vehicle `IN_SERVICE`: it cannot be booked; `RETIRED` instead of delete |
 | 10 | **Reports and export** | `/admin/finance`, then **Download CSV** (with a date range) and open it; as the owner download only the own file ([reports-and-export.md](reports-and-export.md)) |
+| 10b | **RideDNA** `/ridedna` | Seven questions, a rider profile, three real vehicles with the reasons, the choice of a day (availability and exact price), *Choose this vehicle* opening the normal booking with the period filled in ([ridedna.md](ridedna.md)) |
 | 11 | **Integrity** | `npm run db:check` (21 checks); the exclusion constraint and the indexes in [database.md](database.md) |
 | 12 | **Performance** | The Locust results in [performance.md](performance.md); how the contested slot ends with one winner |
 
@@ -56,11 +57,11 @@ Accounts (the password is the one chosen above, the administrator's is `ADMIN_PA
 | Check | Command | Result |
 |---|---|---|
 | Type check | `npm run lint` (`tsc --noEmit`) | no errors |
-| Unit tests | `npm test` | 201 passed (23 files) |
-| Unit tests in six time zones | `npm run test:tz` | 201 passed in each of the 6 zones |
-| Integration tests on PostgreSQL (test database; include concurrent bookings, roles and offers, the password upgrade and the CSV boundaries) | `npm run test:integration` | 130 passed (14 files) |
-| End to end over HTTP (builds the app, test database) | `./e2e/run.sh` | 376 checks passed + the seed idempotency check, 0 failures |
-| **Real browser** (headless Firefox through Marionette, test database) | `./e2e/browser/run.sh` | 50 checks passed, 0 failures (see below) |
+| Unit tests | `npm test` | 246 passed (26 files) |
+| Unit tests in six time zones | `npm run test:tz` | 246 passed in each of the 6 zones |
+| Integration tests on PostgreSQL (test database; include concurrent bookings, roles and offers, the password upgrade and the CSV boundaries) | `npm run test:integration` | 151 passed (16 files) |
+| End to end over HTTP (builds the app, test database) | `./e2e/run.sh` | 401 checks passed (376 + 25 of RideDNA) + the seed idempotency check, 0 failures |
+| **Real browser** (headless Firefox through Marionette, test database) | `./e2e/browser/run.sh` | 94 checks passed, 0 failures (50 of the main flows + 44 of RideDNA; see below) |
 | Consistency of the development database | `npm run db:check` | 21 of 21 passed |
 | All 13 migrations on a fresh empty database | `prisma migrate deploy` on a new `*_test` database (dropped afterwards) | applied; 12 tables; the overlap and partial-index constraints present; `migrate diff` shows only the known false positive |
 | **Docker Compose** with the documented configuration | `docker compose up --build -d app` | image built in 72 s; the app started, applied no migration (database up to date), skipped the seed (users exist); `/login`, `/vehicles`, `/api/vehicles` answer 200, `/admin` redirects; the placeholder `AUTH_SECRET` and `ADMIN_PASSWORD` make the container refuse to start; scrypt works in the container (Node 22). Volumes and the development database were not touched |

@@ -209,6 +209,19 @@ Online payments, Redis/BullMQ, Nginx/HTTPS, Playwright, CI, e-mails, PDF contrac
 
 **Future work**: online payments and payouts, e-mail notifications, PDF contracts, a general audit log, session revocation, a Content-Security-Policy, real-browser end-to-end tests, per-page loading states, refund and cancellation-fee policies, expiry of offers, equipment and damages.
 
+## 17. RideDNA (recommendations)
+
+| Decision | Origin | Rationale | Where | Verified by | Status |
+|---|---|---|---|---|---|
+| A personalised flow: a questionnaire, a rider profile and three real, explained recommendations, with availability, price and the way into the normal booking | Owner — explicit (the RideDNA request of 2026-10-26) | The requested feature | `src/lib/ridedna/`, `src/app/(public)/ridedna/` | unit, int, e2e, browser | Complete |
+| Fixed rules, no AI and no external service; the score is a documented weighted sum (40 ride, 30 priorities, 15 experience, 15 budget) | Owner — explicit (deterministic, testable, transparent); the weights are an assistant technical choice | The request asked for a deterministic, explainable algorithm | `scoring.ts`, [docs/ridedna.md](docs/ridedna.md) | unit | Complete |
+| Eligibility is separate from the score: licence, power for the experience, seats, budget, category fit and availability exclude a vehicle whatever its score | Owner — explicit | "A high score must not compensate a vehicle that is not eligible" | `eligibilityReasons` | unit, int | Complete |
+| The power limits for beginners (100 hp) and intermediates (130 hp) and the category tables are the assistant's editorial guidance, not legal or insurer rules | Assistant — technical choice | The data has no other basis for "easy to ride" | `scoring.ts` | unit (boundaries) | Complete, to be reviewed by the rental staff |
+| Missing data is left out of the score and shown to the user; it is never counted as a match. A motorcycle without a recorded licence category is offered only to a user who holds A; one without a seat count is not offered for a passenger | Owner — explicit; the rules are an assistant technical choice | No guesses about specifications | `eligibilityReasons`, `evaluateVehicle` | unit | Complete |
+| Nothing is stored: the answers are in the address of the results page and, unfinished, in the tab's `sessionStorage`; no table, no migration | Assistant — technical choice | No retention or privacy problem, shareable result | `answers.ts`, `quiz.tsx` | e2e, browser | Complete |
+| The price and the availability come from the existing functions; the booking is not shortcut: it repeats every check and recomputes the price | Owner — explicit | One source of truth for money and overlaps | `service.ts`, `booking-service.ts` | int (`booking-handoff`) | Complete |
+| Not rate limited | Assistant — technical choice | An in-memory counter would not hold across processes and the project has no shared store | — | documented | Known limitation |
+
 ## Final verification run
 
 The numbers for the final tree are in the final report of the delivery and in the commit message of the closing commit: unit, time-zone, integration and end-to-end results, the production build, the database integrity checks, the clean-environment Docker start and the load test.

@@ -86,6 +86,12 @@ Only `RENTAL_COMPANY` accounts request them (`/quotes`). A request names the veh
 - Offers do not expire automatically. Accepted prices are honoured even if an owner changes the rates later.
 - Quotes count whole calendar days in Bucharest time (see below).
 
+## RideDNA recommendations
+
+Recommendations never change the rules above: they only read approved vehicles that are not in service or retired, use the pricing function of the booking, the same overlap rule as the price preview, and hand
+the user to the normal booking, which repeats every check. Licence, power for the experience, seats, budget, category fit and (with a chosen day) availability are hard exclusions; a score only orders the vehicles that remain. A vehicle
+with missing data is not treated as a match. Details: [ridedna.md](ridedna.md).
+
 ## Time zone and date rules
 
 Every instant is stored in the database as an absolute UTC timestamp (`timestamptz`). Business calendar rules use **Europe/Bucharest**, and all conversions go through `src/lib/business-time.ts` (built on `Intl`, no extra dependency, never the machine's own time zone).

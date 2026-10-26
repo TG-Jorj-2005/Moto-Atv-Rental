@@ -23,6 +23,7 @@ folder, and exits with code 1 if any check fails.
 | `crawl.py` | follows every internal link and image for each role (no broken link), seeded photos are served and credited, the six categories and 17 models exist |
 | `robustness.py` | malformed and hostile requests (NUL bytes, huge values, SQL-looking text, bad JSON) never give a 5xx or leak internals; security headers |
 | `finance.py` | commission snapshot and half-up rounding per role, handover and completion, RON and EUR payments, balances, payouts, dashboards equal to the database, CSV formula neutralization |
+| `ridedna.py` | RideDNA over HTTP: public access, hostile input, nothing authoritative from the address, no private data, the user's own vehicles left out, the period and the price, a vehicle in service |
 | `maintenance.py` | ITP/RCA/service warnings, in-service vehicles cannot be booked or handed over, only the admin returns them, RENTED derived |
 
 `E2E_ONLY="finance maintenance" ./e2e/run.sh` runs only some scripts. Before the scripts, the runner checks that running the seed again adds no rows.
