@@ -8,6 +8,7 @@ export const VEHICLE_OK: Record<string, string> = {
   photo_deleted: "The photo was removed.",
   cover: "The cover photo was changed.",
   maintenance: "The maintenance record was added.",
+  maintenance_updated: "The maintenance record was saved.",
   maintenance_deleted: "The maintenance record was removed.",
   resubmitted: "The listing was sent for approval again.",
 };

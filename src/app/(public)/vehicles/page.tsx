@@ -10,7 +10,7 @@ import { Field, Input, Select } from "@/components/ui/form";
 import { EmptyState, PageHeader, Skeleton } from "@/components/ui/misc";
 import { VehicleCard } from "@/components/vehicle-card";
 import { cn } from "@/lib/utils";
-import { CATEGORIES, CATEGORY_LABELS } from "@/lib/vehicle-categories";
+import { categoriesForFilter, CATEGORY_LABELS } from "@/lib/vehicle-categories";
 
 export const metadata = { title: "Vehicles" };
 export const dynamic = "force-dynamic";
@@ -85,7 +85,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
       {problems.map((p) => <Alert key={p} tone="warning">{p}</Alert>)}
 
       <nav aria-label="Categories" className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        {[{ value: null, label: "All" }, ...CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABELS[c] }))].map((c) => {
+        {[{ value: null, label: "All" }, ...categoriesForFilter(filters.type).map((c) => ({ value: c, label: CATEGORY_LABELS[c] }))].map((c) => {
           const active = filters.category === c.value;
           const count = c.value ? facets.categoryCounts[c.value] : undefined;
           return (
@@ -119,7 +119,7 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
             <Field label="Category" htmlFor="category">
               <Select id="category" name="category" defaultValue={filters.category ?? ""}>
                 <option value="">All categories</option>
-                {CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}{facets.categoryCounts[c] ? ` (${facets.categoryCounts[c]})` : ""}</option>)}
+                {categoriesForFilter(filters.type).map((c) => <option key={c} value={c}>{CATEGORY_LABELS[c]}{facets.categoryCounts[c] ? ` (${facets.categoryCounts[c]})` : ""}</option>)}
               </Select>
             </Field>
             <Field label="County" htmlFor="county">

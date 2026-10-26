@@ -19,11 +19,11 @@ export function BarChart({ labels, series, format, title, className }: { labels:
 
   return (
     <figure className={cn("space-y-2", className)}>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={title} className="h-auto w-full">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={title} className="mx-auto h-auto w-full max-w-3xl text-fg-soft">
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke="#e7e5e4" />
-            <text x={pad.l - 6} y={y(t) + 4} textAnchor="end" fontSize="12" fill="#57534e">{format(t)}</text>
+            <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke="currentColor" strokeOpacity={0.18} />
+            <text x={pad.l - 6} y={y(t) + 4} textAnchor="end" fontSize="12" fill="currentColor">{format(t)}</text>
           </g>
         ))}
         {labels.map((label, i) => {
@@ -38,7 +38,7 @@ export function BarChart({ labels, series, format, title, className }: { labels:
                   </rect>
                 );
               })}
-              <text x={pad.l + i * groupW + groupW / 2} y={H - 8} textAnchor="middle" fontSize="12" fill="#44403c">{label}</text>
+              <text x={pad.l + i * groupW + groupW / 2} y={H - 8} textAnchor="middle" fontSize="12" fill="currentColor">{label}</text>
             </g>
           );
         })}

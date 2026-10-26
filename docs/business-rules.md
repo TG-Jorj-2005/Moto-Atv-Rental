@@ -21,6 +21,7 @@ Four roles form a hierarchy: `CUSTOMER` < `OWNER` < `RENTAL_COMPANY` < `ADMIN`.
 
 ## Authorization and privacy
 
+- **Passwords** are stored as scrypt hashes (`scrypt$N$r$p$salt$hash`, N=2^15, r=8, p=3) computed on the thread pool of `node:crypto`; older bcrypt hashes still work and are replaced at the next successful login. An unknown e-mail takes as long to refuse as a wrong password. Details and measurements: [performance.md](performance.md).
 - Every page, server action and API route checks the session **and** the role read from the database; ownership of the resource is checked in the service as well, so a forged form or request fails even if the page was never shown. Other people's resources answer 404.
 - OWNER and RENTAL_COMPANY see only their own vehicles, bookings, earnings and payouts; CUSTOMER only their own bookings; ADMIN sees everything and does not rent.
 - Money is shown in RON or EUR (a cookie-based switch; the EUR rate is `EUR_RON_RATE`, and a payment made in EUR stores the rate used).

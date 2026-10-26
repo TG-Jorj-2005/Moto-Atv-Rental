@@ -30,3 +30,14 @@ describe("vehicle categories", () => {
     expect(categoriesMatching("grizzly")).toEqual([]);
   });
 });
+
+describe("categoriesForFilter", () => {
+  it("offers every category without a type filter and only the matching ones with it", async () => {
+    const { categoriesForFilter, CATEGORIES, categoryFitsType } = await import("./vehicle-categories");
+    expect(categoriesForFilter(null)).toEqual(CATEGORIES);
+    expect(categoriesForFilter("ATV")).toEqual(["ATV_SPORT", "ATV_UTILITY"]);
+    expect(categoriesForFilter("MOTORCYCLE").every((c) => categoryFitsType(c, "MOTORCYCLE"))).toBe(true);
+    expect(categoriesForFilter("MOTORCYCLE")).not.toContain("ATV_SPORT");
+    expect(categoriesForFilter("SCOOTER")).toEqual([]);
+  });
+});

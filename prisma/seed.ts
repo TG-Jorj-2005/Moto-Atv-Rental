@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/lib/password";
 import { CATEGORY_BLURBS } from "../src/lib/vehicle-categories";
 
 const prisma = new PrismaClient();
@@ -20,7 +20,7 @@ async function main() {
   await prisma.user.upsert({
     where: { email },
     update: {},
-    create: { email, name: "Admin", passwordHash: await bcrypt.hash(password, 12), role: "ADMIN" },
+    create: { email, name: "Admin", passwordHash: await hashPassword(password), role: "ADMIN" },
   });
 
   // DEMO DATA: every address and phone number below is fictional placeholder data, not a real business.

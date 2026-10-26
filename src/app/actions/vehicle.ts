@@ -7,7 +7,7 @@ import { requireRole } from "@/lib/session";
 import { createListing, ListingCategoryError, ListingForbiddenError } from "@/lib/listings";
 import { createPlatformVehicle, resubmitListing, updateVehicleDetails } from "@/lib/vehicle-service";
 import { addPhotos, deletePhoto, setCoverPhoto } from "@/lib/photo-service";
-import { deleteMaintenance, recordMaintenance } from "@/lib/maintenance-service";
+import { deleteMaintenance, recordMaintenance, updateMaintenance } from "@/lib/maintenance-service";
 import { parseDateInput } from "@/lib/maintenance-rules";
 import { toBani, vehicleCreateSchema, vehicleEditSchema } from "@/lib/forms";
 
@@ -105,6 +105,18 @@ export async function addMaintenanceAction(formData: FormData) {
   const result = await recordMaintenance(me.id, text(formData.get("vehicleId")), { type: type as "SERVICE" | "ITP" | "RCA" | "OTHER", performedAt: performedAt!, nextDueAt, notes: text(formData.get("notes")).trim().slice(0, 500) || null });
   revalidatePath("/", "layout");
   back(formData.get("returnTo"), "/provider/vehicles", result.ok ? { ok: "maintenance" } : { error: result.code === "INVALID" ? "maintenance_dates" : "notfound" });
+}
+
+export async function updateMaintenanceAction(formData: FormData) {
+  const me = await requireRole(...ACTOR_ROLES);
+  const type = text(formData.get("type"));
+  const performedAt = parseDateInput(text(formData.get("performedOn")));
+  const dueRaw = text(formData.get("nextDueOn"));
+  const nextDueAt = dueRaw ? parseDateInput(dueRaw) : null;
+  if (!["SERVICE", "ITP", "RCA", "OTHER"].includes(type) || !performedAt || (dueRaw && !nextDueAt)) back(formData.get("returnTo"), "/provider/vehicles", { error: "maintenance_invalid" });
+  const result = await updateMaintenance(me.id, text(formData.get("recordId")), { type: type as "SERVICE" | "ITP" | "RCA" | "OTHER", performedAt: performedAt!, nextDueAt, notes: text(formData.get("notes")).trim().slice(0, 500) || null });
+  revalidatePath("/", "layout");
+  back(formData.get("returnTo"), "/provider/vehicles", result.ok ? { ok: "maintenance_updated" } : { error: result.code === "INVALID" ? "maintenance_dates" : "notfound" });
 }
 
 export async function deleteMaintenanceAction(formData: FormData) {

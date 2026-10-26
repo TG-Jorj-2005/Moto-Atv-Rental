@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { spendVerificationTime } from "@/lib/password";
+import { verifyAndUpgrade } from "@/lib/password-upgrade";
 
 const credentialsSchema = z.object({ email: z.string().trim().toLowerCase().email(), password: z.string().min(1) });
 
@@ -17,7 +18,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const parsed = credentialsSchema.safeParse(raw);
         if (!parsed.success) return null;
         const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
-        if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) return null;
+        if (!user) {
+          await spendVerificationTime(parsed.data.password);
+          return null;
+        }
+        if (!(await verifyAndUpgrade(user, parsed.data.password))) return null;
         return { id: user.id, email: user.email, name: user.name || user.email };
       },
     }),

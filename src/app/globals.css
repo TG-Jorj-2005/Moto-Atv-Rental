@@ -42,6 +42,7 @@
 html {
   scroll-behavior: smooth;
   color-scheme: dark;
+  scrollbar-color: #3a4352 transparent;
 }
 
 body {

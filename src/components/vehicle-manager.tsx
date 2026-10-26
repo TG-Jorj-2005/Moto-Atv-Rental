@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, ArrowLeft, ExternalLink, ImagePlus, Star, Trash2, Wrench } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ExternalLink, ImagePlus, Pencil, Star, Trash2, Wrench } from "lucide-react";
 import { prisma } from "@/lib/db";
 import type { CurrentUser } from "@/lib/current-user";
 import { getCurrency } from "@/lib/currency-server";
@@ -11,7 +11,7 @@ import { displayStatus } from "@/lib/vehicle-rules";
 import { creditForPath, photoUrl } from "@/lib/photos";
 import { MAX_PHOTOS_PER_VEHICLE } from "@/lib/uploads";
 import { VEHICLE_ERROR, VEHICLE_OK } from "@/lib/vehicle-messages";
-import { addMaintenanceAction, deleteMaintenanceAction, deletePhotoAction, makeCoverAction, resubmitListingAction, saveVehicleDetailsAction, uploadPhotosAction } from "@/app/actions/vehicle";
+import { addMaintenanceAction, updateMaintenanceAction, deleteMaintenanceAction, deletePhotoAction, makeCoverAction, resubmitListingAction, saveVehicleDetailsAction, uploadPhotosAction } from "@/app/actions/vehicle";
 import { BookingStatusBadge, ListingStatusBadge, VehicleStatusBadge } from "@/components/status-badges";
 import { VehicleFormFields } from "@/components/vehicle-form-fields";
 import { TYPE_LABEL } from "@/components/vehicle-card";
@@ -29,7 +29,7 @@ const DOC = { ITP: "ITP (technical inspection)", RCA: "RCA (insurance)", SERVICE
 
 // The management screen of one vehicle, shared by the provider area (own vehicles only) and the admin area (any
 // vehicle). `children` is where the admin area adds its own controls (status, moderation).
-export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam, ok, error, children }: { vehicleId: string; user: CurrentUser; basePath: "/provider" | "/admin"; tab?: string; ok?: string; error?: string; children?: React.ReactNode }) {
+export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam, edit, ok, error, children }: { vehicleId: string; user: CurrentUser; basePath: "/provider" | "/admin"; tab?: string; edit?: string; ok?: string; error?: string; children?: React.ReactNode }) {
   const tab: Tab = TABS.find((t) => t === tabParam) ?? "details";
   const vehicle = await prisma.vehicle.findFirst({
     where: { id: vehicleId, ...(user.role === "ADMIN" ? {} : { ownerId: user.id }) }, // somebody else's vehicle does not exist
@@ -49,6 +49,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
     prisma.booking.count({ where: { vehicleId, status: "ACTIVE" } }),
   ]);
   const warnings = documentWarnings(vehicle.maintenance, now);
+  const editing = tab === "maintenance" && edit ? vehicle.maintenance.find((m) => m.id === edit) ?? null : null; // only a record of this vehicle can be edited here
   const here = `${basePath}/vehicles/${vehicleId}`;
   const returnTo = (t: Tab) => `${here}?tab=${t}`;
   const tabHref = (t: Tab) => `${here}?tab=${t}`;
@@ -158,15 +159,19 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
             <Alert tone="success">ITP and RCA are recorded and valid.</Alert>
           )}
           <Card>
-            <CardHeader><CardTitle>Record a service, ITP, RCA or other work</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{editing ? "Edit the record" : "Record a service, ITP, RCA or other work"}</CardTitle></CardHeader>
             <CardContent>
-              <form action={addMaintenanceAction} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <form key={editing?.id ?? "new"} action={editing ? updateMaintenanceAction : addMaintenanceAction} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <input type="hidden" name="vehicleId" value={vehicle.id} /><input type="hidden" name="returnTo" value={returnTo("maintenance")} />
-                <Field label="Type" htmlFor="m-type"><Select id="m-type" name="type" defaultValue="ITP"><option value="ITP">ITP</option><option value="RCA">RCA</option><option value="SERVICE">Service</option><option value="OTHER">Other</option></Select></Field>
-                <Field label="Done on" htmlFor="m-done"><Input id="m-done" name="performedOn" type="date" required /></Field>
-                <Field label="Next deadline" htmlFor="m-next" hint="Optional."><Input id="m-next" name="nextDueOn" type="date" /></Field>
-                <Field label="Notes" htmlFor="m-notes" className="sm:col-span-2 lg:col-span-4"><Textarea id="m-notes" name="notes" maxLength={500} className="min-h-16" /></Field>
-                <div className="sm:col-span-2 lg:col-span-4"><Button><Wrench aria-hidden className="size-4" /> Add record</Button></div>
+                {editing && <input type="hidden" name="recordId" value={editing.id} />}
+                <Field label="Type" htmlFor="m-type"><Select id="m-type" name="type" defaultValue={editing?.type ?? "ITP"}><option value="ITP">ITP</option><option value="RCA">RCA</option><option value="SERVICE">Service</option><option value="OTHER">Other</option></Select></Field>
+                <Field label="Done on" htmlFor="m-done"><Input id="m-done" name="performedOn" type="date" required defaultValue={editing ? formatLocalDate(editing.performedAt) : undefined} /></Field>
+                <Field label="Next deadline" htmlFor="m-next" hint="Optional."><Input id="m-next" name="nextDueOn" type="date" defaultValue={editing?.nextDueAt ? formatLocalDate(editing.nextDueAt) : undefined} /></Field>
+                <Field label="Notes" htmlFor="m-notes" className="sm:col-span-2 lg:col-span-4"><Textarea id="m-notes" name="notes" maxLength={500} className="min-h-16" defaultValue={editing?.notes ?? ""} /></Field>
+                <div className="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-4">
+                  <Button><Wrench aria-hidden className="size-4" /> {editing ? "Save changes" : "Add record"}</Button>
+                  {editing && <Link href={returnTo("maintenance")} className={buttonVariants({ variant: "outline" })}>Cancel</Link>}
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -183,7 +188,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
                         <TD>{formatLocalDate(m.performedAt)}</TD>
                         <TD>{m.nextDueAt ? formatLocalDate(m.nextDueAt) : "—"}</TD>
                         <TD className="max-w-xs truncate text-muted" title={m.notes ?? ""}>{m.notes ?? "—"}</TD>
-                        <TD><form action={deleteMaintenanceAction}><input type="hidden" name="recordId" value={m.id} /><input type="hidden" name="returnTo" value={returnTo("maintenance")} /><Button size="sm" variant="dangerOutline" aria-label="Remove record"><Trash2 aria-hidden className="size-3.5" /></Button></form></TD>
+                        <TD className="whitespace-nowrap"><div className="flex gap-1.5"><Link href={`${here}?tab=maintenance&edit=${m.id}`} className={buttonVariants({ variant: "outline", size: "sm" })} aria-label="Edit record"><Pencil aria-hidden className="size-3.5" /></Link><form action={deleteMaintenanceAction}><input type="hidden" name="recordId" value={m.id} /><input type="hidden" name="returnTo" value={returnTo("maintenance")} /><Button size="sm" variant="dangerOutline" aria-label="Remove record"><Trash2 aria-hidden className="size-3.5" /></Button></form></div></TD>
                       </TR>
                     ))}
                   </TBody>

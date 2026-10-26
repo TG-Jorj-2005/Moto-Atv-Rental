@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { changeUserRole } from "@/lib/users";
-import { deleteMaintenance, listMaintenance, recordMaintenance } from "@/lib/maintenance-service";
+import { deleteMaintenance, listMaintenance, recordMaintenance, updateMaintenance } from "@/lib/maintenance-service";
 import { makeBooking, makeUser, makeVehicle, resetDatabase } from "@/test-support/db";
 
 beforeEach(resetDatabase);
@@ -12,6 +12,41 @@ const record = (over: Partial<Parameters<typeof recordMaintenance>[2]> = {}) => 
   nextDueAt: new Date("2032-01-10T00:00:00Z"),
   notes: "Passed",
   ...over,
+});
+
+describe("updateMaintenance", () => {
+  it("corrects a record for the owner and the admin, keeps it on the same vehicle and leaves status and bookings alone", async () => {
+    const [admin, owner] = [await makeUser("ADMIN"), await makeUser("OWNER")];
+    const vehicle = await makeVehicle(owner.id);
+    const created = await recordMaintenance(owner.id, vehicle.id, record());
+    if (!created.ok) throw new Error("setup");
+    const booking = await makeBooking(vehicle.id, "CONFIRMED");
+    expect(await updateMaintenance(owner.id, created.id, record({ type: "RCA", notes: "Renewed", nextDueAt: null }))).toEqual({ ok: true });
+    expect(await prisma.maintenance.findUniqueOrThrow({ where: { id: created.id } })).toMatchObject({ vehicleId: vehicle.id, type: "RCA", notes: "Renewed", nextDueAt: null });
+    expect(await updateMaintenance(admin.id, created.id, record({ notes: "Admin fix" }))).toEqual({ ok: true });
+    expect((await prisma.maintenance.findUniqueOrThrow({ where: { id: created.id } })).notes).toBe("Admin fix");
+    expect((await prisma.vehicle.findUniqueOrThrow({ where: { id: vehicle.id } })).status).toBe(vehicle.status);
+    expect((await prisma.booking.findUniqueOrThrow({ where: { id: booking.id } })).status).toBe("CONFIRMED");
+  });
+  it("hides other people's records, refuses bad dates and unknown records", async () => {
+    const [owner, other, customer] = [await makeUser("OWNER"), await makeUser("OWNER"), await makeUser("CUSTOMER")];
+    const vehicle = await makeVehicle(owner.id);
+    const created = await recordMaintenance(owner.id, vehicle.id, record());
+    if (!created.ok) throw new Error("setup");
+    expect(await updateMaintenance(other.id, created.id, record({ notes: "hijack" }))).toEqual({ ok: false, code: "NOT_FOUND" });
+    expect(await updateMaintenance(customer.id, created.id, record({ notes: "hijack" }))).toEqual({ ok: false, code: "NOT_FOUND" });
+    expect(await updateMaintenance(owner.id, "ghost", record())).toEqual({ ok: false, code: "NOT_FOUND" });
+    expect(await updateMaintenance(owner.id, created.id, record({ nextDueAt: new Date("2029-01-01T00:00:00Z") }))).toEqual({ ok: false, code: "INVALID" });
+    expect((await prisma.maintenance.findUniqueOrThrow({ where: { id: created.id } })).notes).toBe("Passed");
+  });
+  it("refuses an account whose role can no longer list vehicles", async () => {
+    const [admin, owner] = [await makeUser("ADMIN"), await makeUser("OWNER")];
+    const vehicle = await makeVehicle(owner.id, { status: "RETIRED" });
+    const created = await recordMaintenance(owner.id, vehicle.id, record());
+    if (!created.ok) throw new Error("setup");
+    await changeUserRole(admin.id, owner.id, "CUSTOMER");
+    expect(await updateMaintenance(owner.id, created.id, record())).toEqual({ ok: false, code: "FORBIDDEN" });
+  });
 });
 
 describe("recordMaintenance", () => {

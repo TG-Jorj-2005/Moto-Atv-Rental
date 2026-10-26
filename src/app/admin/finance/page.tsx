@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Download } from "lucide-react";
 import { requireRole } from "@/lib/session";
 import { getCurrency } from "@/lib/currency-server";
 import { formatMoney } from "@/lib/currency";
 import { monthlyFigures } from "@/lib/admin-data";
 import { BarChart } from "@/components/bar-chart";
+import { ExportForm } from "@/components/export-form";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader, Stat } from "@/components/ui/misc";
@@ -28,11 +28,17 @@ export default async function AdminFinance({ searchParams }: { searchParams: Pro
       <PageHeader
         title="Finance and reports"
         description="Figures are computed on completed bookings, by the month in which they were completed (Bucharest time). The commission is the one recorded on each booking when it was made."
-        actions={<><Link href="/admin/finance/export" className={buttonVariants({ variant: "outline" })}><Download aria-hidden className="size-4" /> Download completed bookings (CSV)</Link></>}
       />
-      <nav aria-label="Period" className="flex gap-2">
+      <nav aria-label="Period" className="flex flex-wrap gap-2">
         {[3, 6, 12].map((n) => <Link key={n} href={`/admin/finance?months=${n}`} aria-current={count === n ? "page" : undefined} className={buttonVariants({ variant: count === n ? "dark" : "outline", size: "sm" })}>Last {n} months</Link>)}
       </nav>
+      <Card>
+        <CardHeader><CardTitle>Export</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted">One row per completed booking with the price charged, the commission rate and amount recorded on it and the owner's share. Leave the dates empty to export everything (at most 5000 rows).</p>
+          <ExportForm action="/admin/finance/export" title="Download CSV" />
+        </CardContent>
+      </Card>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Stat label="Charged to customers" value={fmt(sum((r) => r.revenue))} hint={`Completed bookings, last ${count} months`} />
         <Stat label="Commission" value={fmt(sum((r) => r.commission))} hint="On owner and company vehicles" />
@@ -42,7 +48,7 @@ export default async function AdminFinance({ searchParams }: { searchParams: Pro
       <Card>
         <CardHeader><CardTitle>Revenue per month ({currency})</CardTitle></CardHeader>
         <CardContent>
-          <BarChart title={`Revenue per month, last ${count} months`} labels={rows.map((r) => LABEL(r.month))} series={[{ name: "Charged to customers", color: "#44403c", values: rows.map((r) => r.revenue) }, { name: "Commission", color: "#ea580c", values: rows.map((r) => r.commission) }, { name: "Kept by the platform", color: "#16a34a", values: rows.map((r) => r.platformRevenue) }]} format={fmt} />
+          <BarChart title={`Revenue per month, last ${count} months`} labels={rows.map((r) => LABEL(r.month))} series={[{ name: "Charged to customers", color: "#9aa4b2", values: rows.map((r) => r.revenue) }, { name: "Commission", color: "#ea580c", values: rows.map((r) => r.commission) }, { name: "Kept by the platform", color: "#16a34a", values: rows.map((r) => r.platformRevenue) }]} format={fmt} />
         </CardContent>
       </Card>
       <Card>

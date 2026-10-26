@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const LABEL = { AVAILABLE: "Available", IN_SERVICE: "In service", RETIRED: "Retired", RENTED: "Rented" } as const;
 
-export default async function AdminVehiclePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; ok?: string; error?: string; upcoming?: string; docs?: string }> }) {
+export default async function AdminVehiclePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string; ok?: string; error?: string; upcoming?: string; docs?: string; edit?: string }> }) {
   const user = await requireRole("ADMIN");
   const { id } = await params;
   const sp = await searchParams;
@@ -25,7 +25,7 @@ export default async function AdminVehiclePage({ params, searchParams }: { param
   const errorText = sp.error && sp.error in VEHICLE_DENIAL_MESSAGES ? VEHICLE_DENIAL_MESSAGES[sp.error as keyof typeof VEHICLE_DENIAL_MESSAGES] : null;
 
   return (
-    <VehicleManager vehicleId={id} user={user} basePath="/admin" tab={sp.tab} ok={statusOk ? undefined : sp.ok} error={errorText ? undefined : sp.error}>
+    <VehicleManager vehicleId={id} user={user} basePath="/admin" tab={sp.tab} edit={sp.edit} ok={statusOk ? undefined : sp.ok} error={errorText ? undefined : sp.error}>
       {statusOk && (
         <Alert tone="success" title={`The vehicle is now ${LABEL[statusOk as keyof typeof LABEL] ?? statusOk}`}>
           {Number(sp.upcoming) > 0 && <p><strong>{sp.upcoming} upcoming booking{Number(sp.upcoming) > 1 ? "s" : ""}</strong> still exist for this vehicle and were NOT cancelled. Review them in <Link className="underline" href="/admin/bookings">bookings</Link> and handle each one explicitly.</p>}

@@ -79,6 +79,26 @@ class Visitor(HttpUser):
             r.success() if r.status_code == 404 else r.failure(f"expected 404, got {r.status_code}")
 
 
+class LoginOnly(HttpUser):
+    """Authentication alone: every task signs a user in again (fresh session). It only runs when named on the
+    command line (`locust ... LoginOnly`); the mixed scenarios name their classes too (`Visitor Customer SlotFighter`)."""
+    weight = 1
+    wait_time = between(0.5, 1.5)
+
+    @task
+    def login(self):
+        self.client.cookies.clear()
+        token = self.client.get("/api/auth/csrf", name="/api/auth/csrf").json()["csrfToken"]
+        with self.client.post(
+            "/api/auth/callback/credentials",
+            data={"csrfToken": token, "email": f"load.user{take_user()}@example.test", "password": PASSWORD, "json": "true"},
+            name="/api/auth/callback/credentials",
+            catch_response=True,
+        ) as r:
+            signed_in = any("session-token" in name for name in self.client.cookies.get_dict())
+            r.success() if signed_in else r.failure("login failed")
+
+
 class LoggedIn(HttpUser):
     abstract = True
     wait_time = between(0.5, 2)

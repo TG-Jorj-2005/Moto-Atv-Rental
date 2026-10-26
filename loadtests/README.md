@@ -11,11 +11,20 @@ npm run loadtest:seed          # prints LOAD_VEHICLE_IDS=...  (adds 200 users an
 npm run build
 DATABASE_URL="$TEST_DATABASE_URL" AUTH_TRUST_HOST=true npx next start -p 3100
 
-# 3. Run Locust (headless example: 50 users, 60 seconds)
+# 3. Run Locust (headless example: 50 users, 60 seconds; name the classes to run)
 python3 -m venv ~/.venvs/locust && ~/.venvs/locust/bin/pip install locust   # once
 LOAD_VEHICLE_IDS=<ids printed above> ~/.venvs/locust/bin/locust -f loadtests/locustfile.py \
-  --host http://localhost:3100 --headless -u 50 -r 10 -t 60s
+  --host http://localhost:3100 --headless -u 50 -r 10 -t 60s Visitor Customer SlotFighter
 ```
+
+Login alone (each user signs in again and again, to measure authentication separately):
+
+```bash
+LOAD_VEHICLE_IDS=<ids> ~/.venvs/locust/bin/locust -f loadtests/locustfile.py --host http://localhost:3100 \
+  --headless -u 10 -r 50 -t 30s LoginOnly
+```
+
+Results of the runs are in `docs/load-results/` and are discussed in [../docs/performance.md](../docs/performance.md).
 
 Environment: `LOAD_VEHICLE_IDS` (required), `LOAD_USERS` (default 200), `LOAD_PASSWORD` (default `Load-test-2030!`).
 

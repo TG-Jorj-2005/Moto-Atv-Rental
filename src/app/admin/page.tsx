@@ -63,7 +63,7 @@ export default async function AdminOverview() {
             <BarChart
               title="Revenue and platform revenue per month, last 6 months"
               labels={months.map((m) => MONTH(m.month))}
-              series={[{ name: "Charged to customers", color: "#44403c", values: months.map((m) => m.revenue) }, { name: "Kept by the platform", color: "#c2410c", values: months.map((m) => m.platformRevenue) }]}
+              series={[{ name: "Charged to customers", color: "#9aa4b2", values: months.map((m) => m.revenue) }, { name: "Kept by the platform", color: "#c2410c", values: months.map((m) => m.platformRevenue) }]}
               format={(v) => formatMoney(Math.round(v), currency)}
             />
           </CardContent>

@@ -10,7 +10,7 @@ keeps the books. Payments and payouts are recorded by hand (no online payments).
 | `CUSTOMER` | Book, see and cancel their own bookings before the start, edit profile and password |
 | `OWNER` | Everything a customer does, plus list vehicles (photos, specifications), maintenance records, own calendar, bookings and earnings. Fixed 15% commission |
 | `RENTAL_COMPANY` | Like an owner, plus bulk offers for many vehicles. Commission set per company by an admin (minimum 5%) |
-| `ADMIN` | Statistics and alerts, listing moderation, vehicle status, booking handover/completion/cancellation, payments, payouts, users and roles, commission rates, reports and CSV export, locations |
+| `ADMIN` | Statistics and alerts, listing moderation, vehicle status, booking handover/completion/cancellation, payments, payouts, users and roles, commission rates, reports and CSV export (all providers), locations |
 
 The platform's own fleet has no owner and 0% commission. The demo fleet is 17 real models (cruisers, adventure, naked and sport, dual-sport, and ATVs) with manufacturer specifications and openly licensed photos credited on the page.
 
@@ -30,7 +30,7 @@ docker compose up --build
 
 Open http://localhost:3000 and log in as the administrator with `ADMIN_EMAIL` / `ADMIN_PASSWORD` from `.env`
 (default email `admin@example.com`). On start the container applies the migrations and, **only if the database has no
-users yet**, seeds the administrator, 12 locations and 9 demo vehicles of the platform fleet. Restarting never resets data.
+users yet**, seeds the administrator, 12 locations and 17 demonstration vehicles of the platform fleet. Restarting never resets data.
 Uploaded photos live in the `uploads` volume. Use `DB_PORT` / `APP_PORT` to change the host ports.
 
 ## Local development
@@ -86,6 +86,7 @@ listings say so. Do not use it on a real deployment.
 | `npm run test:tz` | The unit tests under six machine time zones |
 | `npm run test:integration` | Integration tests on a real PostgreSQL, **test database only** |
 | `./e2e/run.sh` | End-to-end checks of the screens and actions over HTTP, test database only (see `e2e/README.md`) |
+| `./e2e/browser/run.sh` | The main flows and the phone widths in a real headless Firefox (needs `firefox`), test database only |
 | `npm run loadtest:seed` + Locust | Load scenarios (see `loadtests/README.md`) |
 | `npm run db:check` | Read-only consistency report of the database in `DATABASE_URL` (21 checks: no overlaps, history, commission arithmetic, ...) |
 | `npm run lint` | `tsc --noEmit` |
@@ -100,6 +101,9 @@ false positive in `migrate diff` is `ALTER COLUMN "period" DROP DEFAULT`, which 
 
 ## Documentation
 
+- [docs/academic-requirements.md](docs/academic-requirements.md): checklist of the course stages 0 to 6 with evidence and status.
+- [docs/domain.md](docs/domain.md) (domain, users, scenarios), [docs/database.md](docs/database.md) (tables, constraints, indexes, fixtures), [docs/pages.md](docs/pages.md) (pages and CRUD), [docs/performance.md](docs/performance.md) (plans and load test results), [docs/reports-and-export.md](docs/reports-and-export.md) (CSV export), [docs/presentation.md](docs/presentation.md) (demo script, outline, test results).
+- [docs/manual-verification.md](docs/manual-verification.md): what a person should click through before the defence.
 - [docs/business-rules.md](docs/business-rules.md): roles, authorization, vehicles and maintenance, booking lifecycle, commission and money, bulk offers, time zone rules, overlap prevention.
 - [docs/architecture.md](docs/architecture.md): layers, ER diagram, use cases, class view, sequence and state diagrams.
 - [decision.md](decision.md): the decisions, rules and constraints, with their origin, where they are implemented and how they were verified.
@@ -123,9 +127,11 @@ e2e/  loadtests/ end-to-end checks and Locust scenarios
 - **Overlap prevention is in the database.** A generated `tstzrange` column plus an exclusion constraint (`btree_gist`) rejects overlapping non-cancelled bookings, and a partial unique index allows one `ACTIVE` booking per vehicle. The service also locks rows in a fixed order so conflicts end as clean `409` answers, never as deadlocks.
 - **Money is stored as integer bani and rates as integer basis points**, not as `Decimal` columns: exact, no floating point, simple half-up rounding in integer arithmetic. Only the exchange rate stored with an EUR payment is a decimal.
 - **The role is read from the database on every request**; sessions carry only the user id.
+- **Passwords use scrypt from `node:crypto`** (no extra dependency), which does not block the event loop like the pure-JavaScript bcrypt did; old bcrypt hashes keep working and are upgraded at login. Measurements: [docs/performance.md](docs/performance.md).
 
 ## Known limitations
 
+- There is no password reset, and a database that served this version cannot be served by the older bcrypt-only code (the new hashes are not readable by it).
 - Sessions are stateless JWTs: changing a password does not sign out other devices (the role and existence of the user are still checked on every request).
 - Bulk offers are for `RENTAL_COMPANY` only. Customers see an informative note.
 - No online payments, e-mail, PDF contracts, damages/deposits or audit log beyond the booking history.

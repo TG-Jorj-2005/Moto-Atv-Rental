@@ -1,10 +1,12 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Wide tables scroll horizontally inside their card instead of breaking the page on small screens.
+// Wide tables scroll horizontally inside their card instead of breaking the page on small screens. The wrapper is
+// `relative` so that absolutely positioned content (the `sr-only` header labels) is clipped by it too: without it, such an
+// element sat outside the scroll area and made the whole page 700 to 900 px wide on a phone.
 export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="relative w-full overflow-x-auto">
       <table className={cn("w-full text-left text-sm", className)} {...props} />
     </div>
   );

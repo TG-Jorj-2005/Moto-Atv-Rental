@@ -95,4 +95,23 @@ check("the CSV row of the new booking: 99.99 charged, 15.00 percent, 15.00 commi
 sql(f"update vehicles set name = '=CMD|calc!A1' where id='{own_v}'")
 csv = get(A, "/admin/finance/export")
 check("a vehicle name that looks like a formula is neutralized in the CSV", "'=CMD|calc!A1" in csv and ",=CMD" not in csv)
+
+# --- CSV export: permissions, per-provider isolation, date filters, encoding ---
+check("export: anonymous gets 401 and a customer 403 on both routes", all(status(j, r).startswith(c) for j, r, c in [(None, "/admin/finance/export", "401"), (None, "/provider/finance/export", "401"), (C, "/admin/finance/export", "403"), (C, "/provider/finance/export", "403")]), [status(None, "/admin/finance/export"), status(C, "/provider/finance/export")])
+check("export: an owner cannot use the admin export and an admin cannot use the provider one", status(O, "/admin/finance/export").startswith("403") and status(A, "/provider/finance/export").startswith("403"))
+def rows(jar, path): return get(jar, path).lstrip("\ufeff").strip().splitlines()[1:]
+own_n = int(sql(f"select count(*) from bookings b join vehicles v on v.id=b.vehicle_id where v.owner_id='{own_id}' and b.status='COMPLETED'"))
+co_n = int(sql(f"select count(*) from bookings b join vehicles v on v.id=b.vehicle_id where v.owner_id='{co_id}' and b.status='COMPLETED'"))
+all_n = int(sql("select count(*) from bookings where status='COMPLETED'"))
+o_rows, k_rows, a_rows = rows(O, "/provider/finance/export"), rows(K, "/provider/finance/export"), rows(A, "/admin/finance/export")
+check(f"export: the owner gets exactly their {own_n} completed bookings, the company {co_n}, the admin all {all_n}", (len(o_rows), len(k_rows), len(a_rows)) == (own_n, co_n, all_n), (len(o_rows), len(k_rows), len(a_rows)))
+check("export: no booking appears in both the owner's and the company's file", not ({r.split(",")[0] for r in o_rows} & {r.split(",")[0] for r in k_rows}))
+raw = subprocess.run(["curl", "-s", "-b", A, BASE + "/admin/finance/export"], capture_output=True).stdout
+check("export: UTF-8 with a byte order mark and the documented header", raw.startswith(b"\xef\xbb\xbfbooking,vehicle,plate,offered_by,start_bucharest") and raw.endswith(b"\n"))
+check("export: a future range returns only the header, a reversed or malformed range 400", len(rows(A, "/admin/finance/export?from=2099-01-01&to=2099-12-31")) == 0 and all(status(A, f"/admin/finance/export?{q}").startswith("400") for q in ["from=2027-05-02&to=2027-05-01", "from=nope", "to=2027-02-30"]))
+d1, d2 = "2026-10-08", "2026-10-09"
+in_range = int(sql(f"select count(*) from bookings where status='COMPLETED' and (completed_at at time zone 'Europe/Bucharest')::date between '{d1}' and '{d2}'"))
+check(f"export: the date filter keeps exactly the {in_range} bookings completed on those Bucharest days", len(rows(A, f"/admin/finance/export?from={d1}&to={d2}")) == in_range, in_range)
+fin_a = text(get(A, "/admin/finance")); fin_o = text(get(O, "/provider/finance"))
+check("export: the admin and provider pages show a working export form", 'action="/admin/finance/export"' in get(A, "/admin/finance") and 'action="/provider/finance/export"' in get(O, "/provider/finance"))
 print("FAILS:", FAILS)

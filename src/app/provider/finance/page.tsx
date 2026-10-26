@@ -6,6 +6,7 @@ import { commissionBpsFor } from "@/lib/commission";
 import { formatLocalDate, formatLocalDateTime } from "@/lib/business-time";
 import { ownerMoney } from "@/lib/provider-data";
 import { BookingStatusBadge } from "@/components/status-badges";
+import { ExportForm } from "@/components/export-form";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader, Section, Stat } from "@/components/ui/misc";
@@ -42,6 +43,13 @@ export default async function ProviderFinance() {
         <Stat label="Paid out to you" value={formatMoney(money.paid, currency)} />
         <Stat label="Balance we owe you" value={formatMoney(money.balance, currency)} hint="Earned minus paid out" tone={money.balance > 0 ? "warning" : undefined} />
       </div>
+      <Card>
+        <CardHeader><CardTitle>Export</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted">Your completed bookings with the commission and your share, as a CSV file for a spreadsheet. Only your own vehicles are included.</p>
+          <ExportForm action="/provider/finance/export" title="Download CSV" />
+        </CardContent>
+      </Card>
       <Section title="Bookings" description="Your share is due once the booking is completed. Pending and cancelled bookings never count.">
         <Card>
           {bookings.length === 0 ? <CardContent className="py-10 text-center text-sm text-muted">No bookings yet.</CardContent> : (

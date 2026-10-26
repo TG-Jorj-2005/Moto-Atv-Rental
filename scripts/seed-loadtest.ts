@@ -1,7 +1,7 @@
 // Prepares the TEST database for the Locust scenarios (npm run loadtest:seed).
 // Validates the target first, never touches the development database, and only adds rows (safe to repeat).
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/lib/password";
 import { assertSafeTestDatabase, UnsafeTestDatabaseError } from "../src/test-support/safe-test-db";
 
 try {
@@ -19,7 +19,7 @@ async function main() {
   console.log(`Seeding load-test data into "${target.database}" on ${target.host}:${target.port}.`);
   const prisma = new PrismaClient({ datasourceUrl: testUrl });
   try {
-    const passwordHash = await bcrypt.hash(PASSWORD, 10);
+    const passwordHash = await hashPassword(PASSWORD);
     await prisma.user.createMany({
       data: Array.from({ length: USERS }, (_, i) => ({ email: `load.user${i}@example.test`, name: `Load User ${i}`, passwordHash, role: "CUSTOMER" as const })),
       skipDuplicates: true,

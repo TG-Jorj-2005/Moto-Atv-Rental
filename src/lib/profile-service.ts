@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/db";
 
 // A user edits their own profile. The email is the identity of the account and never changes here.
@@ -28,8 +28,8 @@ export async function changePassword(userId: string, current: string, next: stri
   if (next.length < PASSWORD_MIN_LENGTH || next.length > 100) return { ok: false, code: "INVALID" };
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { passwordHash: true } });
   if (!user) return { ok: false, code: "NOT_FOUND" };
-  if (!(await bcrypt.compare(current, user.passwordHash))) return { ok: false, code: "WRONG_PASSWORD" };
+  if (!(await verifyPassword(current, user.passwordHash)).valid) return { ok: false, code: "WRONG_PASSWORD" };
   if (current === next) return { ok: false, code: "SAME_PASSWORD" };
-  await prisma.user.update({ where: { id: userId }, data: { passwordHash: await bcrypt.hash(next, 12) } });
+  await prisma.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(next) } });
   return { ok: true };
 }

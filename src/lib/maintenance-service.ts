@@ -21,6 +21,18 @@ export async function recordMaintenance(actorId: string, vehicleId: string, inpu
   return { ok: true, id: record.id };
 }
 
+// Corrects a record (type, dates, notes). It never moves the record to another vehicle. The status of the vehicle and
+// every booking stay as they are: a record only produces warnings.
+export async function updateMaintenance(actorId: string, recordId: string, input: MaintenanceInput): Promise<{ ok: true } | { ok: false; code: "NOT_FOUND" | "FORBIDDEN" | "INVALID" }> {
+  const record = await prisma.maintenance.findUnique({ where: { id: recordId }, select: { vehicleId: true } });
+  if (!record) return { ok: false, code: "NOT_FOUND" };
+  const auth = await authorize(actorId, record.vehicleId);
+  if (auth !== "ok") return { ok: false, code: auth };
+  if (input.nextDueAt && input.nextDueAt.getTime() <= input.performedAt.getTime()) return { ok: false, code: "INVALID" };
+  await prisma.maintenance.update({ where: { id: recordId }, data: { type: input.type, performedAt: input.performedAt, nextDueAt: input.nextDueAt, notes: input.notes } });
+  return { ok: true };
+}
+
 export async function deleteMaintenance(actorId: string, recordId: string): Promise<{ ok: true } | { ok: false; code: "NOT_FOUND" | "FORBIDDEN" }> {
   const record = await prisma.maintenance.findUnique({ where: { id: recordId }, select: { vehicleId: true } });
   if (!record) return { ok: false, code: "NOT_FOUND" };

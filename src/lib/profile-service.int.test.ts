@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import bcrypt from "bcryptjs";
+import { verifyPassword } from "./password";
 import { prisma } from "@/lib/db";
 import { changePassword, updateProfile } from "@/lib/profile-service";
 import { makeUser, resetDatabase } from "@/test-support/db";
@@ -48,14 +49,15 @@ describe("changePassword", () => {
     expect(await changePassword(user.id, "wrong", "brand-new-pass")).toEqual({ ok: false, code: "WRONG_PASSWORD" });
     expect(await changePassword(user.id, "old-password-1", "brand-new-pass")).toEqual({ ok: true });
     const { passwordHash } = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
-    expect(await bcrypt.compare("brand-new-pass", passwordHash)).toBe(true);
-    expect(await bcrypt.compare("old-password-1", passwordHash)).toBe(false);
+    expect(passwordHash.startsWith("scrypt$")).toBe(true);
+    expect((await verifyPassword("brand-new-pass", passwordHash)).valid).toBe(true);
+    expect((await verifyPassword("old-password-1", passwordHash)).valid).toBe(false);
   });
   it("refuses short passwords, an unchanged password and unknown users", async () => {
     const user = await userWithPassword("old-password-1");
     expect(await changePassword(user.id, "old-password-1", "short")).toEqual({ ok: false, code: "INVALID" });
     expect(await changePassword(user.id, "old-password-1", "old-password-1")).toEqual({ ok: false, code: "SAME_PASSWORD" });
     expect(await changePassword("ghost", "x", "long-enough-pass")).toEqual({ ok: false, code: "NOT_FOUND" });
-    expect(await bcrypt.compare("old-password-1", (await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).passwordHash)).toBe(true);
+    expect((await verifyPassword("old-password-1", (await prisma.user.findUniqueOrThrow({ where: { id: user.id } })).passwordHash)).valid).toBe(true);
   });
 });

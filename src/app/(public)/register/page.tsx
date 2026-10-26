@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "@/lib/password";
 import { Prisma } from "@prisma/client";
 import { signIn } from "@/auth";
 import { Alert } from "@/components/ui/alert";
@@ -31,7 +31,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     const { name, email, password, role } = parsed.data;
     if (await prisma.user.findUnique({ where: { email } })) redirect("/register?error=exists");
     try {
-      await prisma.user.create({ data: { name, email, role, passwordHash: await bcrypt.hash(password, 12) } });
+      await prisma.user.create({ data: { name, email, role, passwordHash: await hashPassword(password) } });
     } catch (e) {
       // Two registrations with the same email at the same moment: the unique index decides, not the check above.
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") redirect("/register?error=exists");

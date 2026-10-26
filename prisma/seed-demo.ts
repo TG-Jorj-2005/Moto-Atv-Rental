@@ -3,7 +3,7 @@
 // prices are fictional. The accounts use the password given in DEMO_PASSWORD (it is not stored anywhere in the code).
 // Bookings are created through the same services as the application, so snapshots and history are real.
 import type { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+import { hashPassword } from "../src/lib/password";
 import { addDays, localDateOf, localToInstant } from "../src/lib/business-time";
 import { createBooking, transitionBooking } from "../src/lib/booking-service";
 import { createQuote } from "../src/lib/quote-service";
@@ -17,7 +17,7 @@ export async function seedDemoAccounts(prisma: PrismaClient, locationIds: Record
     console.log("Demo accounts already exist: nothing to do.");
     return;
   }
-  const passwordHash = await bcrypt.hash(password, 12);
+  const passwordHash = await hashPassword(password);
   const admin = await prisma.user.findFirstOrThrow({ where: { role: "ADMIN" } });
   const mk = (email: string, name: string, role: "CUSTOMER" | "OWNER" | "RENTAL_COMPANY", commissionBps?: number) =>
     prisma.user.create({ data: { email, name, role, passwordHash, commissionBps } });

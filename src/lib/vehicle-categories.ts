@@ -30,6 +30,9 @@ const BY_TYPE: Record<VehicleType, readonly VehicleCategory[]> = {
 };
 
 export const categoriesFor = (type: VehicleType): readonly VehicleCategory[] => BY_TYPE[type];
+// The categories worth offering when the catalog is filtered by a type: all of them without a type filter, otherwise only the
+// ones of that type (an ATV filter must not offer "Cruiser").
+export const categoriesForFilter = (type: VehicleType | null): readonly VehicleCategory[] => (type ? BY_TYPE[type] : CATEGORIES);
 export const isCategory = (value: unknown): value is VehicleCategory => typeof value === "string" && value in CATEGORY_LABELS;
 export const categoryFitsType = (category: VehicleCategory, type: VehicleType) => BY_TYPE[type].includes(category);
 
