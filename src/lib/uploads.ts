@@ -30,3 +30,33 @@ export function sniffImage(bytes: Uint8Array): ImageKind | null {
   if (bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP") return { ext: "webp", mime: "image/webp" };
   return null;
 }
+
+// What a browser tells about a file besides its bytes. The content decides the type (sniffImage); the name and the
+// declared type are only checked for consistency, so that a file called "photo.php" or "image.svg" is refused even if
+// its bytes happen to be an image, and "a.png" holding a JPEG is refused as suspicious.
+export const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp"] as const;
+export const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+
+export type UploadedFile = { name: string; type: string; bytes: Uint8Array };
+export type UploadProblem = "EMPTY" | "TOO_BIG" | "NOT_AN_IMAGE";
+
+// null = acceptable. Order: empty, size, content, then the name and the declared type against the content.
+export function uploadProblem(file: UploadedFile): UploadProblem | null {
+  if (file.bytes.length === 0) return "EMPTY";
+  if (file.bytes.length > MAX_PHOTO_BYTES) return "TOO_BIG";
+  const kind = sniffImage(file.bytes);
+  if (!kind) return "NOT_AN_IMAGE";
+  const dot = file.name.lastIndexOf(".");
+  const ext = dot >= 0 ? file.name.slice(dot + 1).toLowerCase() : "";
+  if (!(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) return "NOT_AN_IMAGE";
+  if ((ext === "jpeg" ? "jpg" : ext) !== kind.ext) return "NOT_AN_IMAGE";
+  // A browser sends the type of the file it guessed from the name; an empty or generic value is accepted, a different image type is not.
+  if (file.type !== "" && file.type !== "application/octet-stream" && file.type !== kind.mime) return "NOT_AN_IMAGE";
+  return null;
+}
+
+// The files of a form field as bytes plus what the browser said about them.
+export async function readUploads(formData: FormData, field: string): Promise<UploadedFile[]> {
+  const files = formData.getAll(field).filter((f): f is File => f instanceof File && f.size > 0);
+  return Promise.all(files.map(async (f) => ({ name: f.name, type: f.type, bytes: new Uint8Array(await f.arrayBuffer()) })));
+}

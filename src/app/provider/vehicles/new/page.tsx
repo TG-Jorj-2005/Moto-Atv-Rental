@@ -20,7 +20,7 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: P
   return (
     <>
       <Link href="/provider/vehicles" className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-soft hover:underline"><ArrowLeft aria-hidden className="size-4" /> My vehicles</Link>
-      <PageHeader title="Add a vehicle" description="Fill in the details now; you can add photos on the next screen. An administrator approves the listing before it appears on the site." />
+      <PageHeader title="Add a vehicle" description="Fill in the details now; you can add photos now or later. An administrator approves the listing before it appears on the site." />
       {error && <Alert tone="error">{VEHICLE_ERROR[error] ?? "Something went wrong."}</Alert>}
       <Card>
         <CardContent className="p-6">

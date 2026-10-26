@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { contentTypeFor, sniffImage, uploadDir, uploadFilePath } from "./uploads";
+import { MAX_PHOTO_BYTES, contentTypeFor, sniffImage, uploadDir, uploadFilePath, uploadProblem } from "./uploads";
 
 const bytes = (...n: number[]) => Uint8Array.from(n);
 const ascii = (s: string) => Uint8Array.from([...s].map((c) => c.charCodeAt(0)));
@@ -44,5 +44,42 @@ describe("uploadFilePath only accepts the names the server generates", () => {
   it("uses ./uploads by default", () => {
     delete process.env.UPLOAD_DIR;
     expect(uploadDir()).toBe(path.resolve("./uploads"));
+  });
+});
+
+describe("uploadProblem: content, name and declared type must agree", () => {
+  const jpeg = bytes(0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0);
+  const png = bytes(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0);
+  const webp = Uint8Array.from([...ascii("RIFF"), 1, 2, 3, 4, ...ascii("WEBP")]);
+  const file = (name: string, type: string, b: Uint8Array) => ({ name, type, bytes: b });
+
+  it("accepts real images with a matching name, in any letter case, with the usual types", () => {
+    expect(uploadProblem(file("moto.jpg", "image/jpeg", jpeg))).toBeNull();
+    expect(uploadProblem(file("MOTO.JPEG", "image/jpeg", jpeg))).toBeNull();
+    expect(uploadProblem(file("a b (1).png", "image/png", png))).toBeNull();
+    expect(uploadProblem(file("x.webp", "image/webp", webp))).toBeNull();
+    expect(uploadProblem(file("x.jpg", "", jpeg))).toBeNull(); // some browsers send no type
+    expect(uploadProblem(file("x.jpg", "application/octet-stream", jpeg))).toBeNull();
+  });
+  it("refuses an empty file and a file over the limit, before looking at anything else", () => {
+    expect(uploadProblem(file("x.jpg", "image/jpeg", bytes()))).toBe("EMPTY");
+    expect(uploadProblem(file("x.jpg", "image/jpeg", new Uint8Array(MAX_PHOTO_BYTES + 1)))).toBe("TOO_BIG");
+    expect(uploadProblem(file("x.jpg", "image/jpeg", Uint8Array.from([...jpeg, ...new Uint8Array(MAX_PHOTO_BYTES - jpeg.length)])))).toBeNull(); // exactly the limit
+  });
+  it("refuses content that is not an image, whatever the name and the declared type say", () => {
+    expect(uploadProblem(file("x.jpg", "image/jpeg", ascii("<html><script>alert(1)</script>")))).toBe("NOT_AN_IMAGE");
+    expect(uploadProblem(file("x.png", "image/png", ascii("GIF89a....")))).toBe("NOT_AN_IMAGE");
+  });
+  it("refuses a name that is not an image name even when the bytes are an image (php, svg, gif, no extension, double extension)", () => {
+    for (const name of ["shell.php", "pic.svg", "pic.gif", "pic", "pic.", ".jpg.php", "pic.jpg.exe", "pic.html"]) {
+      expect(uploadProblem(file(name, "image/jpeg", jpeg)), name).toBe("NOT_AN_IMAGE");
+    }
+  });
+  it("refuses a name or a declared type that contradicts the content", () => {
+    expect(uploadProblem(file("x.png", "image/png", jpeg))).toBe("NOT_AN_IMAGE");
+    expect(uploadProblem(file("x.jpg", "image/jpeg", png))).toBe("NOT_AN_IMAGE");
+    expect(uploadProblem(file("x.webp", "image/webp", jpeg))).toBe("NOT_AN_IMAGE");
+    expect(uploadProblem(file("x.jpg", "text/html", jpeg))).toBe("NOT_AN_IMAGE");
+    expect(uploadProblem(file("x.jpg", "image/png", jpeg))).toBe("NOT_AN_IMAGE");
   });
 });

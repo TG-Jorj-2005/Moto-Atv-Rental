@@ -1,6 +1,7 @@
 // Texts for the notices shown after the vehicle actions (query parameters ?ok=... and ?error=...).
 export const VEHICLE_OK: Record<string, string> = {
   created: "The vehicle was created. Add some photos next.",
+  created_photos: "The vehicle was created with its photos.",
   saved: "The details were saved.",
   saved_review: "The details were saved. Because the public text changed, the listing is awaiting approval again.",
   photos: "The photos were uploaded.",

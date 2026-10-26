@@ -9,7 +9,8 @@ import { formatLocalDate, formatLocalDateTime } from "@/lib/business-time";
 import { documentWarnings } from "@/lib/maintenance-rules";
 import { displayStatus } from "@/lib/vehicle-rules";
 import { creditForPath, photoUrl } from "@/lib/photos";
-import { MAX_PHOTOS_PER_VEHICLE } from "@/lib/uploads";
+import { MAX_PHOTO_BYTES, MAX_PHOTOS_PER_VEHICLE } from "@/lib/uploads";
+import { PhotoPicker } from "@/components/photo-picker";
 import { VEHICLE_ERROR, VEHICLE_OK } from "@/lib/vehicle-messages";
 import { addMaintenanceAction, updateMaintenanceAction, deleteMaintenanceAction, deletePhotoAction, makeCoverAction, resubmitListingAction, saveVehicleDetailsAction, uploadPhotosAction } from "@/app/actions/vehicle";
 import { BookingStatusBadge, ListingStatusBadge, VehicleStatusBadge } from "@/components/status-badges";
@@ -110,9 +111,9 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
           <Card>
             <CardHeader><CardTitle>Add photos</CardTitle><p className="text-sm text-muted">JPEG, PNG or WebP, up to 5 MB each, at most {MAX_PHOTOS_PER_VEHICLE} per vehicle ({vehicle.photos.length} used). The first photo is the cover.</p></CardHeader>
             <CardContent>
-              <form action={uploadPhotosAction} className="flex flex-wrap items-end gap-3">
+              <form action={uploadPhotosAction} className="space-y-3">
                 <input type="hidden" name="vehicleId" value={vehicle.id} /><input type="hidden" name="returnTo" value={returnTo("photos")} />
-                <Field label="Photos" htmlFor="photos" className="min-w-64 flex-1"><Input id="photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required className="h-auto py-2" /></Field>
+                <Field label="Photos" htmlFor="photos"><PhotoPicker id="photos" max={Math.max(0, MAX_PHOTOS_PER_VEHICLE - vehicle.photos.length)} maxBytes={MAX_PHOTO_BYTES} required /></Field>
                 <Button><ImagePlus aria-hidden className="size-4" /> Upload</Button>
               </form>
               {user.role !== "ADMIN" && vehicle.listingStatus === "APPROVED" && <p className="mt-3 text-xs text-muted">New photos are reviewed: an approved listing goes back to approval when you add photos.</p>}

@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/session";
 import { createListing, ListingCategoryError, ListingForbiddenError } from "@/lib/listings";
 import { createPlatformVehicle, resubmitListing, updateVehicleDetails } from "@/lib/vehicle-service";
 import { addPhotos, deletePhoto, setCoverPhoto } from "@/lib/photo-service";
+import { MAX_PHOTOS_PER_VEHICLE, readUploads, uploadProblem } from "@/lib/uploads";
 import { deleteMaintenance, recordMaintenance, updateMaintenance } from "@/lib/maintenance-service";
 import { parseDateInput } from "@/lib/maintenance-rules";
 import { toBani, vehicleCreateSchema, vehicleEditSchema } from "@/lib/forms";
@@ -35,6 +36,12 @@ export async function createVehicleAction(formData: FormData) {
   const parsed = vehicleCreateSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) back(formData.get("returnTo"), "/provider/vehicles/new", { error: parsed.error.issues.some((i) => i.path[0] === "category") ? "category" : "invalid" });
   const d = parsed.data;
+  // Photos sent with the form are checked BEFORE anything is created, so that a bad file never leaves a half-made listing.
+  const uploads = await readUploads(formData, "photos");
+  if (uploads.length > MAX_PHOTOS_PER_VEHICLE) back(formData.get("returnTo"), "/provider/vehicles/new", { error: "photo_TOO_MANY" });
+  const problem = uploads.map(uploadProblem).find((p) => p !== null);
+  if (problem) back(formData.get("returnTo"), "/provider/vehicles/new", { error: `photo_${problem}` });
+  const photos = uploads.map((u) => u.bytes);
   const common = { name: d.name, type: d.type, plate: d.plate, hourlyRate: toBani(d.hourlyRon), dailyRate: toBani(d.dailyRon), weekendRate: d.weekendRon === null ? null : toBani(d.weekendRon), description: d.description, locationId: d.locationId, year: d.year, engineCc: d.engineCc, powerHp: d.powerHp, seats: d.seats, licenseCategory: d.licenseCategory, category: d.category };
   try {
     let id: string;
@@ -48,9 +55,13 @@ export async function createVehicleAction(formData: FormData) {
     } else {
       id = (await createListing(me.id, common)).id;
     }
+    const area = me.role === "ADMIN" ? "/admin" : "/provider";
+    // The vehicle exists now: if saving the photos still fails (disk, a race), the user lands on its photos tab with the reason.
+    const saved = photos.length > 0 ? await addPhotos(me.id, id, photos) : null;
     revalidatePath("/provider/vehicles");
     revalidatePath("/admin/vehicles");
-    redirect(`${me.role === "ADMIN" ? "/admin" : "/provider"}/vehicles/${id}?tab=photos&ok=created`);
+    if (saved && !saved.ok) redirect(`${area}/vehicles/${id}?tab=photos&ok=created&error=photo_${saved.code}`);
+    redirect(`${area}/vehicles/${id}?tab=photos&ok=${saved ? "created_photos" : "created"}`);
   } catch (e) {
     if (e instanceof ListingForbiddenError) redirect("/forbidden");
     if (e instanceof ListingCategoryError) back(formData.get("returnTo"), "/provider/vehicles/new", { error: "category" });
@@ -73,9 +84,11 @@ export async function saveVehicleDetailsAction(formData: FormData) {
 
 export async function uploadPhotosAction(formData: FormData) {
   const me = await requireRole(...ACTOR_ROLES);
-  const files = formData.getAll("photos").filter((f): f is File => f instanceof File && f.size > 0);
-  const buffers = await Promise.all(files.map(async (f) => new Uint8Array(await f.arrayBuffer())));
-  const result = await addPhotos(me.id, text(formData.get("vehicleId")), buffers);
+  const uploads = await readUploads(formData, "photos");
+  // Name and declared type are checked here; the service checks the content, the size and the count again.
+  const problem = uploads.map(uploadProblem).find((p) => p !== null);
+  if (problem) back(formData.get("returnTo"), "/provider/vehicles", { error: `photo_${problem}` });
+  const result = await addPhotos(me.id, text(formData.get("vehicleId")), uploads.map((u) => u.bytes));
   revalidatePath("/", "layout");
   if (!result.ok) back(formData.get("returnTo"), "/provider/vehicles", { error: `photo_${result.code}` });
   back(formData.get("returnTo"), "/provider/vehicles", { ok: result.backToModeration ? "photos_review" : "photos" });

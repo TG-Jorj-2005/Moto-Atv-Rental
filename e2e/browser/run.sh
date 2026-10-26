@@ -18,6 +18,7 @@ DATABASE_URL="$TEST_DATABASE_URL" UPLOAD_DIR="$E2E_TMP/uploads" AUTH_TRUST_HOST=
 SERVER=$!
 for _ in $(seq 1 40); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
 fail=0
-python3 -W ignore e2e/browser/flows.py || fail=1
-python3 -W ignore e2e/browser/ridedna.py || fail=1
+for script in ${BROWSER_ONLY:-flows ridedna}; do
+  python3 -u -W ignore "e2e/browser/$script.py" || fail=1
+done
 exit $fail

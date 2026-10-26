@@ -1,3 +1,5 @@
+import { MAX_PHOTO_BYTES, MAX_PHOTOS_PER_VEHICLE } from "@/lib/uploads";
+import { PhotoPicker } from "@/components/photo-picker";
 import { Field, Input, Select, Textarea } from "@/components/ui/form";
 import { CATEGORY_LABELS, categoriesFor } from "@/lib/vehicle-categories";
 
@@ -64,6 +66,11 @@ export function VehicleFormFields({ mode, locations, defaults = {} }: { mode: "c
           <option value="">Not specified</option><option value="AM">AM</option><option value="A1">A1</option><option value="A2">A2</option><option value="A">A</option><option value="B">B</option>
         </Select>
       </Field>
+      {mode === "create" && (
+        <Field label="Photos (optional)" htmlFor="vf-photos" className="sm:col-span-2" hint="You see a preview of each photo before saving. You can also add or change photos later.">
+          <PhotoPicker id="vf-photos" max={MAX_PHOTOS_PER_VEHICLE} maxBytes={MAX_PHOTO_BYTES} />
+        </Field>
+      )}
       <Field label="Description" htmlFor="vf-description" className="sm:col-span-2" hint="Shown to customers. Up to 1000 characters."><Textarea id="vf-description" name="description" maxLength={1000} defaultValue={defaults.description ?? ""} /></Field>
     </div>
   );
