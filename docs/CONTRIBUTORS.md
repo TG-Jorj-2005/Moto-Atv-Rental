@@ -2,13 +2,13 @@
 
 ## Author and owner
 
-**TG-Jorj-2005** — student of CTI, UGAL; author and owner of the project. The author defined the scope and every business rule, approved or rejected each architectural decision, directed the work and reviewed its results. The prompts are recorded in [log.md](log.md) and the resulting decisions in [decision.md](decision.md).
+**TG-Jorj-2005** — student of CTI, UGAL; author and owner of the project. The author defined the scope and every business rule, approved or rejected each architectural decision, directed the work and reviewed its results. The prompts are recorded in [log.md](../log.md) and the resulting decisions in [decision.md](../decision.md).
 
 ## AI development assistance
 
 The implementation, tests and documentation of this repository were produced with **AI assistance from Anthropic's Claude, used through the Claude Code command-line tool**, working in the author's local checkout under the author's instructions. In practice the assistant:
 
-- proposed designs and asked for approval where the author required it (see the working agreement in P25 of [log.md](log.md));
+- proposed designs and asked for approval where the author required it (see the working agreement in P25 of [log.md](../log.md));
 - wrote and changed code, migrations, tests, the end-to-end and load-test scripts and the documentation;
 - ran the checks and reported their results.
 
@@ -19,7 +19,7 @@ The history of this repository does not record other assistants. If the author a
 ## Git authorship
 
 - Every commit is authored with the author's own Git identity, as configured on the author's machine. No commit identity was invented or changed. The only rewrite of history was the one the author asked for in the first days of the project (the first commit, to remove a co-author line; see below).
-- At the author's request (P11–P13 in [log.md](log.md)) commits carry **no** `Co-Authored-By` trailer for the assistant.
+- At the author's request (P11–P13 in [log.md](../log.md)) commits carry **no** `Co-Authored-By` trailer for the assistant.
 - Project metadata (`package.json`) does not claim a human developer other than the author.
 
 ## Third-party material

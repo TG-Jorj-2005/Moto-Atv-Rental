@@ -4,6 +4,9 @@ University project (CTI, UGAL, BD2): a multi-vendor marketplace for renting ATVs
 rental companies list vehicles, customers book them, and an administrator approves listings, hands vehicles over and
 keeps the books. Payments and payouts are recorded by hand (no online payments).
 
+**All data used for the demonstration is synthetic**: the people, e-mail addresses, phone numbers, addresses, bookings, payments and payouts are invented placeholders
+(the vehicle models and their manufacturer specifications are real, the photos are openly licensed and credited). Nothing in the demo data refers to a real person or business.
+
 | Role | What they do |
 |---|---|
 | Visitor | Browse the catalog (filters, availability by dates), vehicle pages with gallery, specifications, location, price and calendar |
@@ -110,6 +113,29 @@ false positive in `migrate diff` is `ALTER COLUMN "period" DROP DEFAULT`, which 
 - [log.md](log.md): the owner's prompts and requirements in chronological order.
 - [loadtests/README.md](loadtests/README.md) and [e2e/README.md](e2e/README.md).
 
+## Course requirements (stages 0 to 6)
+
+The project follows the stages of the course slide "Etapele proiectului" (*Baze de date avansate*, Cursul 1). The status column is the real one after the audit of 2026-10-26;
+the full table with the evidence of each row, the exceptions and the reasons is [docs/academic-requirements.md](docs/academic-requirements.md).
+"Fulfilled" is only written where the check in the last column was run.
+
+| Stage | Requirement | Implementation | Evidence | How to check | Status |
+|---|---|---|---|---|---|
+| 0 Theme | Document describing the domain | Domain, users, scenarios and rules | [docs/domain.md](docs/domain.md), [docs/business-rules.md](docs/business-rules.md), this README | read; the figures were compared with the code | Fulfilled |
+| 1 Modelling | At least 6 tables, relations, fixtures | 12 tables, 13 SQL migrations, exclusion constraint and partial indexes, idempotent seeds | [docs/database.md](docs/database.md), ER in [docs/architecture.md](docs/architecture.md#er-diagram), `prisma/schema.prisma`, `prisma/seed*.ts` | `npm run test:integration`, `npm run db:check`; the migrations were also applied to an empty database | Fulfilled |
+| 2 CRUD | CRUD operations, description of the pages | Real flows on PostgreSQL for every entity; archive or cancel instead of delete where the history must stay | [docs/pages.md](docs/pages.md) (all pages, roles, CRUD matrix) | `./e2e/run.sh`, `./e2e/browser/run.sh` | Fulfilled, with documented exceptions (no deletion of locations, bookings, payments, payouts, users) |
+| 3 Authentication | Authentication, at least 3 roles | 4 roles (`CUSTOMER`, `OWNER`, `RENTAL_COMPANY`, `ADMIN`), scrypt hashes, role read from the database on every request, server-side checks | [docs/business-rules.md](docs/business-rules.md), `src/auth.ts`, `src/lib/password*.ts` | `./e2e/run.sh` (scripts `accounts`, `authorization`), integration tests | Fulfilled |
+| 4 Performance | Indexes, load test | Indexes for the frequent queries, query plans, Locust scenarios (catalog, bookings, contested slot, login) | [docs/performance.md](docs/performance.md), raw results in [docs/load-results/](docs/load-results/) | [loadtests/README.md](loadtests/README.md) | Fulfilled for what the slide asks; one internal criterion (login under a burst of 50 users) is not met on a single process, see the document |
+| 5 Reports | PDF, CSV or Excel | CSV: completed bookings for the admin, own bookings for each provider, with date filters (Bucharest days) | [docs/reports-and-export.md](docs/reports-and-export.md) | unit and integration tests of the day boundaries, `e2e/finance.py`, the browser downloads | Fulfilled (CSV only; the file was not opened in a spreadsheet program) |
+| 6 Defence | Final presentation | Preparation steps, demo order, accounts, slide outline, test results, limitations | [docs/presentation.md](docs/presentation.md), [docs/manual-verification.md](docs/manual-verification.md), [docs/screenshots/](docs/screenshots/) | follow the manual list | Partial: nobody has rehearsed it in an interactive browser and there is no slide file, only the outline |
+
+### For the reviewer: a quick way through
+
+1. Start the application (see "Quick start with Docker" or "Local development" above) and load the synthetic demo data (see "Demo accounts").
+2. Follow [docs/manual-verification.md](docs/manual-verification.md): 17 steps from the catalog to the CSV download, each with the expected result.
+3. For the evidence, run the checks of the table in "Tests" below. The ones that use a database touch **only** the test database (`TEST_DATABASE_URL`, name ending in `_test`) and refuse to run otherwise.
+4. The demo order for a presentation is in [docs/presentation.md](docs/presentation.md).
+
 ## Project layout
 
 ```
@@ -119,7 +145,8 @@ src/components/  ui (design system), layout, vehicle, booking and chart componen
 src/lib/         services (*-service.ts), pure rules, pricing, time zone, validators
 src/test-support guarded test database helpers
 scripts/         integration launcher, time-zone matrix, load-test seeding
-e2e/  loadtests/ end-to-end checks and Locust scenarios
+e2e/  loadtests/ end-to-end checks (e2e/browser: real headless Firefox) and Locust scenarios
+docs/            domain, database, pages, performance, reports, presentation, checklist, screenshots, load-test results
 ```
 
 ## Design decisions to know about
@@ -151,4 +178,19 @@ e2e/  loadtests/ end-to-end checks and Locust scenarios
 - `npm test`: fast unit tests, no database needed.
 - `npm run test:tz`: the same unit tests repeated under six different machine time zones (UTC, Bucharest, Los Angeles, Auckland, Kolkata, Lord Howe), to prove the date rules do not depend on the machine.
 - `npm run test:integration`: tests that use a real PostgreSQL. They run **only** against `TEST_DATABASE_URL`. The launcher validates the target before creating, migrating or deleting anything, and refuses to run if the variable is missing, if the host is not local, if the database name does not end with `_test`, or if it is the same database as `DATABASE_URL`. The test process validates it again. The test database (default `rental_test`) is created automatically; the development database is never touched.
+- `./e2e/run.sh`: the screens and actions over HTTP, like a browser would send them (forms, server actions, uploads), on the test database.
+- `./e2e/browser/run.sh`: the main flows (catalog filters, login, a booking with a conflict, editing a maintenance record, the CSV downloads) and the width of 25 pages at 390 px, in a real headless Firefox driven by a script. It is automation, not a person using the site.
 
+Results of the last full run (2026-10-26, same code as the current commit):
+
+| Check | Result |
+|---|---|
+| `npm run lint` | no errors |
+| `npm test` (also under 6 time zones) | 201 passed |
+| `npm run test:integration` | 130 passed |
+| `./e2e/run.sh` | 376 checks passed, 0 failures |
+| `./e2e/browser/run.sh` | 50 checks passed, 0 failures |
+| `npm run db:check` (development database) | 21 of 21 |
+| Locust, 50 and 100 users, 60 s | 0 failed requests; exactly one winner per contested slot |
+
+Not verified: use by a person in an interactive browser, other browsers, a spreadsheet opening the CSV. See [docs/presentation.md](docs/presentation.md) for the full list.
