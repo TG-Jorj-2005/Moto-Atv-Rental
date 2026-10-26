@@ -79,7 +79,7 @@ describe("recommend: price", () => {
     const v = await vehicle();
     const rates = { hourly: v.hourlyRate, daily: v.dailyRate, weekend: v.weekendRate };
     const est = await recommend(answers({ duration: "WEEKEND" }), { currency: "RON", now: NOW });
-    expect(est.period.kind).toBe("ESTIMATE");
+    if (est.period.kind !== "ESTIMATE") throw new Error("an estimate was expected");
     expect(est.recommendations[0]!.priceBani).toBe(calculatePrice(est.period.period.startAt, est.period.period.endAt, rates));
     expect(est.recommendations[0]!.priceBani).toBe(2 * 40_000); // a weekday: no weekend rate
 
