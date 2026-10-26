@@ -35,7 +35,7 @@ npx next build >"$WORK/build.log" 2>&1 || { tail -20 "$WORK/build.log"; exit 1; 
 DATABASE_URL="$TEST_DATABASE_URL" UPLOAD_DIR="$E2E_UPLOAD_DIR" AUTH_TRUST_HOST=true npx next start -p "$PORT" >"$WORK/server.log" 2>&1 &
 SERVER=$!
 for _ in $(seq 1 40); do curl -s -o /dev/null "$BASE/login" && break; sleep 0.5; done
-for script in ${E2E_ONLY:-public_and_customer accounts owner company_and_admin booking_api authorization crawl robustness finance maintenance}; do
+for script in ${E2E_ONLY:-public_and_customer accounts owner company_and_admin booking_api authorization crawl robustness finance maintenance ridedna}; do
   reseed
   echo "== $script"
   out="$(python3 -W ignore "e2e/$script.py" 2>&1)" || true

@@ -69,6 +69,17 @@ class Visitor(HttpUser):
         end = start + timedelta(hours=random.choice([2, 4, 24, 48]))
         self.client.get(f"/api/vehicles/{random.choice(VEHICLES)}/price", params={"start": iso(start), "end": iso(end), "cur": "RON"}, name="/api/vehicles/[id]/price")
 
+    @task(2)
+    def ridedna_results(self):
+        # RideDNA: a questionnaire already answered (the answers are in the address); one query for the vehicles, one for the bookings.
+        base = random.choice([
+            "exp=INTERMEDIATE&lic=A2&adv=MIXED_TRAILS&pri=EXPLORATION,COMFORT&bud=3000&dur=WEEKEND&pax=1&ack=1",
+            "exp=ADVANCED&lic=A&adv=ROAD_TOURING&pri=SPORT&bud=5000&dur=THREE_DAYS&pax=2&ack=1",
+            "exp=BEGINNER&lic=NONE&adv=ATV_RECREATION&pri=SIMPLICITY&bud=2000&dur=ONE_DAY&pax=1&ack=1",
+        ])
+        day = (datetime.now(timezone.utc) + timedelta(days=random.randint(5, 120))).strftime("%Y-%m-%d")
+        self.client.get(f"/ridedna/results?{base}" + (f"&start={day}" if random.random() < 0.5 else ""), name="/ridedna/results?answers")
+
     @task(1)
     def public_api(self):
         self.client.get("/api/vehicles")
