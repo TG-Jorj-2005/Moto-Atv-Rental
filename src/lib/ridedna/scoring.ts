@@ -134,16 +134,18 @@ function adventureCriterion(a: RideDnaAnswers, v: VehicleFacts): Criterion {
   return { key: "adventure", weight: WEIGHTS.adventure, fit, text: `${CATEGORY_LABELS[v.category]} suits "${ADVENTURE_LABEL[a.adventure].toLowerCase()}": ${CATEGORY_BLURBS[v.category].replace(/\.$/, "").toLowerCase()}.`, gap: null };
 }
 
-function priorityFit(p: Priority, v: VehicleFacts): { fit: number | null; text: string | null; gap: string | null } {
+type PriorityPart = { fit: number | null; text: string | null; style: { label: string; pct: number } | null; gap: string | null };
+
+function priorityFit(p: Priority, v: VehicleFacts): PriorityPart {
   if (p === "POWER" || p === "SIMPLICITY") {
-    if (v.powerHp === null) return { fit: null, text: null, gap: "Power not recorded" };
-    if (p === "POWER") return { fit: Math.min(1, v.powerHp / 120), text: `${v.powerHp} hp for "${PRIORITY_LABEL.POWER.toLowerCase()}".`, gap: null };
+    if (v.powerHp === null) return { fit: null, text: null, style: null, gap: "Power not recorded" };
+    if (p === "POWER") return { fit: Math.min(1, v.powerHp / 120), text: `${v.powerHp} hp for "${PRIORITY_LABEL.POWER.toLowerCase()}".`, style: null, gap: null };
     const fit = v.powerHp <= LOW_POWER_MAX_HP ? 1 : v.powerHp <= 75 ? 0.8 : v.powerHp <= MEDIUM_POWER_MAX_HP ? 0.5 : 0.25;
-    return { fit, text: `${v.powerHp} hp, ${fit >= 0.8 ? "approachable" : "a lot of power"}, for "${PRIORITY_LABEL.SIMPLICITY.toLowerCase()}".`, gap: null };
+    return { fit, text: `${v.powerHp} hp, ${fit >= 0.8 ? "approachable" : "a lot of power"}, for "${PRIORITY_LABEL.SIMPLICITY.toLowerCase()}".`, style: null, gap: null };
   }
-  if (!v.category) return { fit: null, text: null, gap: "Category not recorded" };
+  if (!v.category) return { fit: null, text: null, style: null, gap: "Category not recorded" };
   const fit = CATEGORY_TRAITS[v.category][p];
-  return { fit, text: `${CATEGORY_LABELS[v.category]} scores ${Math.round(fit * 100)}% on "${PRIORITY_LABEL[p].toLowerCase()}" in our category guide.`, gap: null };
+  return { fit, text: null, style: { label: PRIORITY_LABEL[p].toLowerCase(), pct: Math.round(fit * 100) }, gap: null };
 }
 
 function preferencesCriterion(a: RideDnaAnswers, v: VehicleFacts): Criterion {
@@ -152,7 +154,11 @@ function preferencesCriterion(a: RideDnaAnswers, v: VehicleFacts): Criterion {
   if (known.length === 0) return { key: "preferences", weight: WEIGHTS.preferences, fit: null, text: null, gap: parts[0]?.gap ?? "No data" };
   const fit = known.reduce((s, p) => s + p.fit!, 0) / known.length;
   const gap = parts.find((p) => p.fit === null)?.gap ?? null;
-  return { key: "preferences", weight: WEIGHTS.preferences, fit, text: known.map((p) => p.text).join(" "), gap };
+  // The style priorities share one sentence: "<category> scores 90% on "x" and 30% on "y" in our category guide."
+  const styles = known.map((p) => p.style).filter((x): x is { label: string; pct: number } => x !== null);
+  const sentences = known.map((p) => p.text).filter((t): t is string => t !== null);
+  if (styles.length > 0 && v.category) sentences.unshift(`${CATEGORY_LABELS[v.category]} scores ${styles.map((x) => `${x.pct}% on "${x.label}"`).join(" and ")} in our category guide.`);
+  return { key: "preferences", weight: WEIGHTS.preferences, fit, text: sentences.join(" "), gap };
 }
 
 function experienceCriterion(a: RideDnaAnswers, v: VehicleFacts): Criterion {
