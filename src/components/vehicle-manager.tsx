@@ -55,7 +55,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
 
   return (
     <>
-      <Link href={`${basePath}/vehicles`} className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-700 hover:underline"><ArrowLeft aria-hidden className="size-4" /> {basePath === "/admin" ? "All vehicles" : "My vehicles"}</Link>
+      <Link href={`${basePath}/vehicles`} className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-soft hover:underline"><ArrowLeft aria-hidden className="size-4" /> {basePath === "/admin" ? "All vehicles" : "My vehicles"}</Link>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-2">
@@ -65,7 +65,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
             <VehicleStatusBadge status={displayStatus(vehicle.status, active > 0)} />
             <Badge>{TYPE_LABEL[vehicle.type]}</Badge>
           </div>
-          <p className="text-sm text-stone-600">{vehicle.plate}{vehicle.location ? ` · ${vehicle.location.name}, ${vehicle.location.city}` : ""}</p>
+          <p className="text-sm text-muted">{vehicle.plate}{vehicle.location ? ` · ${vehicle.location.name}, ${vehicle.location.city}` : ""}</p>
         </div>
         {vehicle.listingStatus === "APPROVED" && vehicle.status !== "RETIRED" && <Link href={`/vehicles/${vehicle.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Public page <ExternalLink aria-hidden className="size-3.5" /></Link>}
       </div>
@@ -97,7 +97,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
             <form action={saveVehicleDetailsAction} className="space-y-6">
               <input type="hidden" name="vehicleId" value={vehicle.id} /><input type="hidden" name="returnTo" value={returnTo("details")} />
               <VehicleFormFields mode="edit" locations={locations} defaults={vehicle} />
-              {user.role !== "ADMIN" && <p className="text-xs text-stone-600">Changing the name or the description of an approved listing sends it for approval again. Prices only affect new bookings.</p>}
+              {user.role !== "ADMIN" && <p className="text-xs text-muted">Changing the name or the description of an approved listing sends it for approval again. Prices only affect new bookings.</p>}
               <Button size="lg">Save changes</Button>
             </form>
           </CardContent>
@@ -107,14 +107,14 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
       {tab === "photos" && (
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle>Add photos</CardTitle><p className="text-sm text-stone-600">JPEG, PNG or WebP, up to 5 MB each, at most {MAX_PHOTOS_PER_VEHICLE} per vehicle ({vehicle.photos.length} used). The first photo is the cover.</p></CardHeader>
+            <CardHeader><CardTitle>Add photos</CardTitle><p className="text-sm text-muted">JPEG, PNG or WebP, up to 5 MB each, at most {MAX_PHOTOS_PER_VEHICLE} per vehicle ({vehicle.photos.length} used). The first photo is the cover.</p></CardHeader>
             <CardContent>
               <form action={uploadPhotosAction} className="flex flex-wrap items-end gap-3">
                 <input type="hidden" name="vehicleId" value={vehicle.id} /><input type="hidden" name="returnTo" value={returnTo("photos")} />
                 <Field label="Photos" htmlFor="photos" className="min-w-64 flex-1"><Input id="photos" name="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required className="h-auto py-2" /></Field>
                 <Button><ImagePlus aria-hidden className="size-4" /> Upload</Button>
               </form>
-              {user.role !== "ADMIN" && vehicle.listingStatus === "APPROVED" && <p className="mt-3 text-xs text-stone-600">New photos are reviewed: an approved listing goes back to approval when you add photos.</p>}
+              {user.role !== "ADMIN" && vehicle.listingStatus === "APPROVED" && <p className="mt-3 text-xs text-muted">New photos are reviewed: an approved listing goes back to approval when you add photos.</p>}
             </CardContent>
           </Card>
           {vehicle.photos.length === 0 ? <EmptyState title="No photos yet" description="Listings with photos get more bookings." /> : (
@@ -124,9 +124,9 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
                 return (
                   <li key={p.id}>
                     <Card className="overflow-hidden">
-                      <div className="relative aspect-[4/3] bg-stone-200"><img src={photoUrl(p.path)} alt={`${vehicle.name}, photo ${i + 1}`} loading="lazy" className="size-full object-cover" />{i === 0 && <Badge tone="dark" className="absolute left-2 top-2"><Star aria-hidden className="size-3" /> Cover</Badge>}</div>
+                      <div className="relative aspect-[4/3] bg-surface-3"><img src={photoUrl(p.path)} alt={`${vehicle.name}, photo ${i + 1}`} loading="lazy" className="size-full object-cover" />{i === 0 && <Badge tone="dark" className="absolute left-2 top-2"><Star aria-hidden className="size-3" /> Cover</Badge>}</div>
                       <CardContent className="space-y-2 p-3">
-                        {credit && <p className="text-xs text-stone-600">Demo photo: {credit.author}, {credit.license}</p>}
+                        {credit && <p className="text-xs text-muted">Demo photo: {credit.author}, {credit.license}</p>}
                         <div className="flex gap-2">
                           {i > 0 && <form action={makeCoverAction}><input type="hidden" name="photoId" value={p.id} /><input type="hidden" name="returnTo" value={returnTo("photos")} /><Button size="sm" variant="outline">Make cover</Button></form>}
                           <form action={deletePhotoAction}><input type="hidden" name="photoId" value={p.id} /><input type="hidden" name="returnTo" value={returnTo("photos")} /><Button size="sm" variant="dangerOutline" aria-label={`Remove photo ${i + 1}`}><Trash2 aria-hidden className="size-3.5" /> Remove</Button></form>
@@ -173,7 +173,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
           <Card>
             <CardHeader><CardTitle>History</CardTitle></CardHeader>
             <CardContent className="p-0">
-              {vehicle.maintenance.length === 0 ? <p className="px-5 py-8 text-center text-sm text-stone-600">No records yet.</p> : (
+              {vehicle.maintenance.length === 0 ? <p className="px-5 py-8 text-center text-sm text-muted">No records yet.</p> : (
                 <Table>
                   <THead><TR><TH>Type</TH><TH>Done on</TH><TH>Next deadline</TH><TH>Notes</TH><TH><span className="sr-only">Actions</span></TH></TR></THead>
                   <TBody>
@@ -182,7 +182,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
                         <TD className="font-medium">{DOC[m.type]}</TD>
                         <TD>{formatLocalDate(m.performedAt)}</TD>
                         <TD>{m.nextDueAt ? formatLocalDate(m.nextDueAt) : "—"}</TD>
-                        <TD className="max-w-xs truncate text-stone-600" title={m.notes ?? ""}>{m.notes ?? "—"}</TD>
+                        <TD className="max-w-xs truncate text-muted" title={m.notes ?? ""}>{m.notes ?? "—"}</TD>
                         <TD><form action={deleteMaintenanceAction}><input type="hidden" name="recordId" value={m.id} /><input type="hidden" name="returnTo" value={returnTo("maintenance")} /><Button size="sm" variant="dangerOutline" aria-label="Remove record"><Trash2 aria-hidden className="size-3.5" /></Button></form></TD>
                       </TR>
                     ))}
@@ -197,14 +197,14 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
       {tab === "bookings" && (
         <Card>
           <CardContent className="p-0">
-            {bookings.length === 0 ? <p className="px-5 py-10 text-center text-sm text-stone-600">No bookings for this vehicle yet.</p> : (
+            {bookings.length === 0 ? <p className="px-5 py-10 text-center text-sm text-muted">No bookings for this vehicle yet.</p> : (
               <Table>
                 <THead><TR><TH>Customer</TH><TH>Period (Bucharest time)</TH><TH>Status</TH><TH className="text-right">Total</TH><TH className="text-right">Owner share</TH></TR></THead>
                 <TBody>
                   {bookings.map((b) => (
                     <TR key={b.id}>
                       <TD className="font-medium">{b.customer.fullName}</TD>
-                      <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
+                      <TD className="whitespace-nowrap text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                       <TD><BookingStatusBadge status={b.status} /></TD>
                       <TD className="text-right">{formatMoney(b.totalPrice, currency)}</TD>
                       <TD className="text-right font-medium">{b.ownerAmount != null ? formatMoney(b.ownerAmount, currency) : "—"}</TD>
@@ -217,7 +217,7 @@ export async function VehicleManager({ vehicleId, user, basePath, tab: tabParam,
         </Card>
       )}
       {warnings.length > 0 && tab !== "maintenance" && (
-        <p className="flex items-center gap-2 text-sm text-amber-900"><AlertTriangle aria-hidden className="size-4" /> {warnings.length} document{warnings.length > 1 ? "s" : ""} need attention. <Link className="font-semibold underline" href={tabHref("maintenance")}>Open maintenance</Link></p>
+        <p className="flex items-center gap-2 text-sm text-warning"><AlertTriangle aria-hidden className="size-4" /> {warnings.length} document{warnings.length > 1 ? "s" : ""} need attention. <Link className="font-semibold underline" href={tabHref("maintenance")}>Open maintenance</Link></p>
       )}
     </>
   );

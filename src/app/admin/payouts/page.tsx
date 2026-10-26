@@ -41,22 +41,22 @@ export default async function AdminPayouts({ searchParams }: { searchParams: Pro
         <Stat label="Still owed to owners and companies" value={formatMoney(totalOwed, "RON")} tone={totalOwed > 0 ? "warning" : undefined} />
       </div>
       <ul className="space-y-4">
-        {owners.length === 0 && <li className="text-stone-600">No owners or companies yet.</li>}
+        {owners.length === 0 && <li className="text-muted">No owners or companies yet.</li>}
         {owners.map((o) => {
           const s = byOwner.get(o.id);
           return (
             <li key={o.id}>
               <Card className="space-y-3 p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="font-semibold">{o.name} <span className="font-normal text-stone-600">{o.email} · {ROLE_LABEL[o.role]}</span></p>
-                  <p className="text-sm text-stone-700">Rate {commissionBpsFor(o) / 100}%{o.role === "OWNER" ? " (fixed)" : o.commissionBps == null ? " (default, not configured)" : ""}</p>
+                  <p className="font-semibold">{o.name} <span className="font-normal text-muted">{o.email} · {ROLE_LABEL[o.role]}</span></p>
+                  <p className="text-sm text-fg-soft">Rate {commissionBpsFor(o) / 100}%{o.role === "OWNER" ? " (fixed)" : o.commissionBps == null ? " (default, not configured)" : ""}</p>
                 </div>
                 <dl className="grid gap-2 text-sm sm:grid-cols-5">
                   {[["Completed bookings", String(s?.completedBookings ?? 0)], ["Charged to customers", formatMoney(s?.gross ?? 0, "RON")], ["Commission", formatMoney(s?.commission ?? 0, "RON")], ["Earned by the owner", formatMoney(s?.earned ?? 0, "RON")], ["Balance owed", formatMoney(s?.balance ?? 0, "RON")]].map(([k, v]) => (
-                    <div key={k}><dt className="text-xs text-stone-600">{k}</dt><dd className="font-semibold">{v}</dd></div>
+                    <div key={k}><dt className="text-xs text-muted">{k}</dt><dd className="font-semibold">{v}</dd></div>
                   ))}
                 </dl>
-                <div className="flex flex-wrap items-end gap-6 border-t border-stone-100 pt-3">
+                <div className="flex flex-wrap items-end gap-6 border-t border-line pt-3">
                   {o.role === "RENTAL_COMPANY" && (
                     <form action={setCompanyRateAction} className="flex items-end gap-2">
                       <input type="hidden" name="ownerId" value={o.id} />

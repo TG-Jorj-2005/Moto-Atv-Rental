@@ -44,17 +44,17 @@ export default async function ProviderFinance() {
       </div>
       <Section title="Bookings" description="Your share is due once the booking is completed. Pending and cancelled bookings never count.">
         <Card>
-          {bookings.length === 0 ? <CardContent className="py-10 text-center text-sm text-stone-600">No bookings yet.</CardContent> : (
+          {bookings.length === 0 ? <CardContent className="py-10 text-center text-sm text-muted">No bookings yet.</CardContent> : (
             <Table>
               <THead><TR><TH>Vehicle</TH><TH>Period</TH><TH>Status</TH><TH className="text-right">Charged</TH><TH className="text-right">Commission</TH><TH className="text-right">Your share</TH></TR></THead>
               <TBody>
                 {bookings.map((b) => (
                   <TR key={b.id}>
                     <TD className="font-medium">{b.vehicle.name}</TD>
-                    <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
+                    <TD className="whitespace-nowrap text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                     <TD><BookingStatusBadge status={b.status} /></TD>
                     <TD className="text-right">{formatMoney(b.totalPrice, currency)}</TD>
-                    <TD className="text-right text-stone-600">{b.commissionAmount != null ? `${formatMoney(b.commissionAmount, currency)} · ${(b.commissionBps ?? 0) / 100}%` : "—"}</TD>
+                    <TD className="text-right text-muted">{b.commissionAmount != null ? `${formatMoney(b.commissionAmount, currency)} · ${(b.commissionBps ?? 0) / 100}%` : "—"}</TD>
                     <TD className="text-right font-semibold">{b.ownerAmount != null ? formatMoney(b.ownerAmount, currency) : "—"}</TD>
                   </TR>
                 ))}
@@ -66,10 +66,10 @@ export default async function ProviderFinance() {
       <Card>
         <CardHeader><CardTitle>Payments we made to you</CardTitle></CardHeader>
         <CardContent className="p-0">
-          {payouts.length === 0 ? <p className="px-5 py-8 text-center text-sm text-stone-600">No payment recorded yet.</p> : (
+          {payouts.length === 0 ? <p className="px-5 py-8 text-center text-sm text-muted">No payment recorded yet.</p> : (
             <Table>
               <THead><TR><TH>Date</TH><TH>Note</TH><TH className="text-right">Amount</TH></TR></THead>
-              <TBody>{payouts.map((p) => <TR key={p.id}><TD>{formatLocalDate(p.paidAt)}</TD><TD className="text-stone-600">{p.note ?? "—"}</TD><TD className="text-right font-semibold">{formatMoney(p.amount, currency)}</TD></TR>)}</TBody>
+              <TBody>{payouts.map((p) => <TR key={p.id}><TD>{formatLocalDate(p.paidAt)}</TD><TD className="text-muted">{p.note ?? "—"}</TD><TD className="text-right font-semibold">{formatMoney(p.amount, currency)}</TD></TR>)}</TBody>
             </Table>
           )}
         </CardContent>

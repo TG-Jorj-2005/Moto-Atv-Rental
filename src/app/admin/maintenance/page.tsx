@@ -52,10 +52,10 @@ export default async function AdminMaintenance() {
                 <TR key={v.id}>
                   <TD>
                     <Link href={`/admin/vehicles/${v.id}?tab=maintenance`} className="font-medium hover:underline">{v.name}</Link>
-                    <span className="block text-xs text-stone-600">{v.plate}</span>
+                    <span className="block text-xs text-muted">{v.plate}</span>
                     <span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden">{warnings.map((w, i) => <WarningBadge key={i} w={w} />)}</span>
                   </TD>
-                  <TD className="text-stone-700">{v.owner?.name ?? "Platform fleet"}</TD>
+                  <TD className="text-fg-soft">{v.owner?.name ?? "Platform fleet"}</TD>
                   <TD><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} /></TD>
                   <TD><div className="flex flex-wrap gap-1.5">{warnings.map((w, i) => <WarningBadge key={i} w={w} />)}</div></TD>
                   <TD><Link href={`/admin/vehicles/${v.id}?tab=maintenance`} className={buttonVariants({ variant: "outline", size: "sm" })}>Open</Link></TD>

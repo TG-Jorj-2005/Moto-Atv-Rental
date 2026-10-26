@@ -117,18 +117,18 @@ export function BookingPanel({ vehicleId, currency, defaultName, defaultEmail }:
       </div>
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Quick durations">
         {PRESETS.map((p) => (
-          <button key={p.label} type="button" disabled={!start} onClick={() => applyPreset(p.hours)} className="cursor-pointer rounded-full border border-stone-300 px-3 py-1 text-xs font-medium hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50">{p.label}</button>
+          <button key={p.label} type="button" disabled={!start} onClick={() => applyPreset(p.hours)} className="cursor-pointer rounded-full border border-line-strong px-3 py-1 text-xs font-medium hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50">{p.label}</button>
         ))}
       </div>
 
-      <div id="estimate" aria-live="polite" className="min-h-14 rounded-lg bg-stone-50 p-3 text-sm">
-        {estimate.state === "idle" && <p className="text-stone-600">Choose the start and the end to see the price.</p>}
-        {estimate.state === "loading" && <p className="flex items-center gap-2 text-stone-600"><Loader2 aria-hidden className="size-4 animate-spin" /> Calculating…</p>}
-        {estimate.state === "problem" && <p className="font-medium text-red-700">{estimate.message}</p>}
+      <div id="estimate" aria-live="polite" className="min-h-14 rounded-lg bg-canvas p-3 text-sm">
+        {estimate.state === "idle" && <p className="text-muted">Choose the start and the end to see the price.</p>}
+        {estimate.state === "loading" && <p className="flex items-center gap-2 text-muted"><Loader2 aria-hidden className="size-4 animate-spin" /> Calculating…</p>}
+        {estimate.state === "problem" && <p className="font-medium text-danger">{estimate.message}</p>}
         {estimate.state === "ready" && (
           <p>
-            <span className="text-stone-600">Total price</span> <strong className="text-xl">{estimate.label}</strong>
-            <span className={estimate.available ? "mt-0.5 block font-medium text-green-800" : "mt-0.5 block font-medium text-red-700"}>{estimate.available ? "Free for this period" : "Already booked for part of this period"}</span>
+            <span className="text-muted">Total price</span> <strong className="text-xl">{estimate.label}</strong>
+            <span className={estimate.available ? "mt-0.5 block font-medium text-success" : "mt-0.5 block font-medium text-danger"}>{estimate.available ? "Free for this period" : "Already booked for part of this period"}</span>
           </p>
         )}
       </div>
@@ -139,7 +139,7 @@ export function BookingPanel({ vehicleId, currency, defaultName, defaultEmail }:
 
       {error && <Alert tone="error">{error}</Alert>}
       <Button size="lg" className="w-full" disabled={submitting || blocked}>{submitting ? "Booking…" : "Request booking"}</Button>
-      <p className="text-xs text-stone-600">Your request is confirmed by our team. You can cancel free of charge until the booking starts.</p>
+      <p className="text-xs text-muted">Your request is confirmed by our team. You can cancel free of charge until the booking starts.</p>
     </form>
   );
 }

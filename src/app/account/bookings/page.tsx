@@ -55,15 +55,15 @@ export default async function MyBookingsPage({ searchParams }: { searchParams: P
             return (
               <li key={b.id}>
                 <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                  <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-stone-200 sm:w-40">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
+                  <div className="aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-surface-3 sm:w-40">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{b.vehicle.name}</h2><BookingStatusBadge status={b.status} /></div>
-                    <p className="text-sm text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</p>
-                    {b.vehicle.location && <p className="text-sm text-stone-600">Pick-up: {b.vehicle.location.name}, {b.vehicle.location.city}</p>}
+                    <p className="text-sm text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</p>
+                    {b.vehicle.location && <p className="text-sm text-muted">Pick-up: {b.vehicle.location.name}, {b.vehicle.location.city}</p>}
                   </div>
                   <div className="space-y-1 text-left sm:text-right">
                     <p className="text-lg font-bold">{formatMoney(b.totalPrice, currency)}</p>
-                    {owing > 0 && <p className="text-xs text-amber-800">{formatMoney(owing, currency)} still to pay</p>}
+                    {owing > 0 && <p className="text-xs text-warning">{formatMoney(owing, currency)} still to pay</p>}
                     <Link href={`/account/bookings/${b.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Details</Link>
                   </div>
                 </Card>

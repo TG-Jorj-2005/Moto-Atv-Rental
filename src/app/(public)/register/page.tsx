@@ -48,7 +48,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
         <CardContent className="space-y-5 p-6">
           <div className="space-y-1">
             <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
-            <p className="text-sm text-stone-600">Rent vehicles, or list your own for rent.</p>
+            <p className="text-sm text-muted">Rent vehicles, or list your own for rent.</p>
           </div>
           {error && <Alert tone="error">{MESSAGES[error] ?? "Something went wrong."}</Alert>}
           <form action={register} className="space-y-4">
@@ -65,8 +65,8 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
             </Field>
             <Button className="w-full" size="lg">Create account</Button>
           </form>
-          <p className="text-center text-sm text-stone-600">
-            Already registered? <Link href={`/login${target !== "/" ? `?next=${encodeURIComponent(target)}` : ""}`} className="font-semibold text-brand-700 hover:underline">Log in</Link>
+          <p className="text-center text-sm text-muted">
+            Already registered? <Link href={`/login${target !== "/" ? `?next=${encodeURIComponent(target)}` : ""}`} className="font-semibold text-accent-fg hover:underline">Log in</Link>
           </p>
         </CardContent>
       </Card>

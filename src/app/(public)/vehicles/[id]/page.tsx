@@ -73,8 +73,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
-      <nav aria-label="Breadcrumb" className="text-sm text-stone-600">
-        <Link href="/vehicles" className="hover:underline">Vehicles</Link> <span aria-hidden>/</span> <span className="text-stone-900">{vehicle.name}</span>
+      <nav aria-label="Breadcrumb" className="text-sm text-muted">
+        <Link href="/vehicles" className="hover:underline">Vehicles</Link> <span aria-hidden>/</span> <span className="text-fg">{vehicle.name}</span>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_24rem]">
@@ -88,8 +88,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
               {inService ? <Badge tone="warning">Temporarily unavailable</Badge> : <Badge tone="success">Available to book</Badge>}
             </div>
             <h1 className="text-3xl font-bold tracking-tight">{vehicle.name}</h1>
-            {vehicle.location && <p className="flex items-center gap-1.5 text-stone-600"><MapPin aria-hidden className="size-4" /> {vehicle.location.name}, {vehicle.location.city}, {vehicle.location.county}</p>}
-            {vehicle.description && <p className="max-w-3xl whitespace-pre-line text-stone-700">{vehicle.description}</p>}
+            {vehicle.location && <p className="flex items-center gap-1.5 text-muted"><MapPin aria-hidden className="size-4" /> {vehicle.location.name}, {vehicle.location.city}, {vehicle.location.county}</p>}
+            {vehicle.description && <p className="max-w-3xl whitespace-pre-line text-fg-soft">{vehicle.description}</p>}
             <a href="#book" className={buttonVariants({ size: "lg", className: "w-full lg:hidden" })}>Check the price and book</a>
           </div>
 
@@ -97,9 +97,9 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             <h2 id="specs" className="text-lg font-semibold tracking-tight">Specifications</h2>
             <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {specs.map((s) => (
-                <div key={s.label} className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3">
-                  <s.icon aria-hidden className="size-5 text-brand-700" />
-                  <div><dt className="text-xs text-stone-600">{s.label}</dt><dd className="font-semibold">{s.value}</dd></div>
+                <div key={s.label} className="flex items-center gap-3 rounded-xl border border-line bg-surface p-3">
+                  <s.icon aria-hidden className="size-5 text-accent-fg" />
+                  <div><dt className="text-xs text-muted">{s.label}</dt><dd className="font-semibold">{s.value}</dd></div>
                 </div>
               ))}
             </dl>
@@ -108,7 +108,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           <section aria-labelledby="availability" className="space-y-3">
             <div>
               <h2 id="availability" className="text-lg font-semibold tracking-tight">Availability</h2>
-              <p className="text-sm text-stone-600">Days with a booking are crossed out. Times are Bucharest time; a vehicle can be free for part of a booked day.</p>
+              <p className="text-sm text-muted">Days with a booking are crossed out. Times are Bucharest time; a vehicle can be free for part of a booked day.</p>
             </div>
             <div className="grid gap-5 md:grid-cols-3">
               {months.map((m) => <MonthCalendar key={`${m.year}-${m.month}`} year={m.year} month={m.month} marks={marks} today={today} compact />)}
@@ -119,9 +119,9 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             <Card>
               <CardHeader><CardTitle>Pick-up location</CardTitle></CardHeader>
               <CardContent className="grid gap-3 text-sm sm:grid-cols-3">
-                <p className="flex items-start gap-2"><MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-stone-500" /><span>{vehicle.location.address}, {vehicle.location.city}</span></p>
-                <p className="flex items-start gap-2"><Clock aria-hidden className="mt-0.5 size-4 shrink-0 text-stone-500" /><span>{vehicle.location.hours}</span></p>
-                <p className="flex items-start gap-2"><Phone aria-hidden className="mt-0.5 size-4 shrink-0 text-stone-500" /><span>{vehicle.location.phone}</span></p>
+                <p className="flex items-start gap-2"><MapPin aria-hidden className="mt-0.5 size-4 shrink-0 text-subtle" /><span>{vehicle.location.address}, {vehicle.location.city}</span></p>
+                <p className="flex items-start gap-2"><Clock aria-hidden className="mt-0.5 size-4 shrink-0 text-subtle" /><span>{vehicle.location.hours}</span></p>
+                <p className="flex items-start gap-2"><Phone aria-hidden className="mt-0.5 size-4 shrink-0 text-subtle" /><span>{vehicle.location.phone}</span></p>
               </CardContent>
             </Card>
           )}
@@ -130,8 +130,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         <aside id="book" className="scroll-mt-24 lg:sticky lg:top-24 lg:self-start">
           <Card>
             <CardHeader>
-              <p className="text-3xl font-bold tracking-tight">{formatMoney(vehicle.dailyRate, currency)}<span className="text-base font-medium text-stone-600"> / day</span></p>
-              <p className="text-sm text-stone-600">
+              <p className="text-3xl font-bold tracking-tight">{formatMoney(vehicle.dailyRate, currency)}<span className="text-base font-medium text-muted"> / day</span></p>
+              <p className="text-sm text-muted">
                 {formatMoney(vehicle.hourlyRate, currency)} per hour{vehicle.weekendRate != null && <> · weekend flat rate {formatMoney(vehicle.weekendRate, currency)}</>}
               </p>
             </CardHeader>
@@ -140,7 +140,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
                 <Alert tone="warning" title="Temporarily unavailable">This vehicle is in service and cannot be booked right now.</Alert>
               ) : !user ? (
                 <div className="space-y-3">
-                  <p className="text-sm text-stone-700">Log in or create an account to book this vehicle.</p>
+                  <p className="text-sm text-fg-soft">Log in or create an account to book this vehicle.</p>
                   <div className="flex gap-2">
                     <Link href={`/login?next=/vehicles/${id}`} className={buttonVariants({ className: "flex-1" })}>Log in</Link>
                     <Link href={`/register?next=/vehicles/${id}`} className={buttonVariants({ variant: "outline", className: "flex-1" })}>Register</Link>

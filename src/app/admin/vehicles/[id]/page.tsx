@@ -38,7 +38,7 @@ export default async function AdminVehiclePage({ params, searchParams }: { param
           <CardHeader><CardTitle>Administration</CardTitle></CardHeader>
           <CardContent className="grid gap-6 lg:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-sm text-stone-700">Stored status: <strong>{LABEL[vehicle.status]}</strong>. A vehicle that is out with a customer is shown as <em>Rented now</em>; that is derived from the handover and never stored. A vehicle in service or retired stays so until you change it here.</p>
+              <p className="text-sm text-fg-soft">Stored status: <strong>{LABEL[vehicle.status]}</strong>. A vehicle that is out with a customer is shown as <em>Rented now</em>; that is derived from the handover and never stored. A vehicle in service or retired stays so until you change it here.</p>
               {targets.length > 0 ? (
                 <form action={changeVehicleStatusAction} className="flex flex-wrap items-end gap-3">
                   <input type="hidden" name="vehicleId" value={id} /><input type="hidden" name="returnTo" value={here} />
@@ -47,8 +47,8 @@ export default async function AdminVehiclePage({ params, searchParams }: { param
                   </Field>
                   <Button variant="dark">Change status</Button>
                 </form>
-              ) : <p className="text-sm text-stone-600">No status change is possible.</p>}
-              <p className="text-xs text-stone-600">Not possible while a booking of this vehicle is ACTIVE. Upcoming bookings are never cancelled automatically. A retired vehicle must go through "In service" before it can be available again.</p>
+              ) : <p className="text-sm text-muted">No status change is possible.</p>}
+              <p className="text-xs text-muted">Not possible while a booking of this vehicle is ACTIVE. Upcoming bookings are never cancelled automatically. A retired vehicle must go through "In service" before it can be available again.</p>
             </div>
             <div className="space-y-3 text-sm">
               <p>Offered by: {vehicle.owner ? <><strong>{vehicle.owner.name}</strong> ({vehicle.owner.email}, {vehicle.owner.role === "RENTAL_COMPANY" ? "rental company" : "individual owner"})</> : <strong>Platform fleet (no commission)</strong>}</p>

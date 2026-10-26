@@ -30,15 +30,15 @@ export default async function ProviderVehicles() {
             return (
               <li key={v.id}>
                 <Card className="flex h-full flex-col overflow-hidden">
-                  <div className="aspect-[16/9] bg-stone-200">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
+                  <div className="aspect-[16/9] bg-surface-3">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
                   <div className="flex flex-1 flex-col gap-3 p-4">
                     <div className="flex flex-wrap items-center gap-1.5"><ListingStatusBadge status={v.listingStatus} /><VehicleStatusBadge status={v.display} /><Badge>{TYPE_LABEL[v.type]}</Badge></div>
                     <div>
                       <h2 className="font-semibold">{v.name}</h2>
-                      <p className="text-sm text-stone-600">{v.plate} · {v.location ? `${v.location.name}, ${v.location.city}` : "No location"}</p>
+                      <p className="text-sm text-muted">{v.plate} · {v.location ? `${v.location.name}, ${v.location.city}` : "No location"}</p>
                     </div>
-                    <p className="text-sm text-stone-700">{formatMoney(v.dailyRate, currency)} / day · {v.upcomingBookings} upcoming booking{v.upcomingBookings === 1 ? "" : "s"}</p>
-                    {v.warnings.length > 0 && <p className="flex items-center gap-1.5 text-sm font-medium text-amber-900"><AlertTriangle aria-hidden className="size-4" /> {v.warnings.length} document{v.warnings.length > 1 ? "s" : ""} need attention</p>}
+                    <p className="text-sm text-fg-soft">{formatMoney(v.dailyRate, currency)} / day · {v.upcomingBookings} upcoming booking{v.upcomingBookings === 1 ? "" : "s"}</p>
+                    {v.warnings.length > 0 && <p className="flex items-center gap-1.5 text-sm font-medium text-warning"><AlertTriangle aria-hidden className="size-4" /> {v.warnings.length} document{v.warnings.length > 1 ? "s" : ""} need attention</p>}
                     <Link href={`/provider/vehicles/${v.id}`} className={buttonVariants({ variant: "outline", className: "mt-auto" })}>Manage</Link>
                   </div>
                 </Card>

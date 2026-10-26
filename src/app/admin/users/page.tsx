@@ -86,14 +86,14 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: P
         <Table>
           <THead><TR><TH>User</TH><TH>Role</TH><TH>Vehicles</TH><TH>Change role</TH></TR></THead>
           <TBody>
-            {users.length === 0 && <TR><TD colSpan={4} className="py-8 text-center text-stone-600">No users match.</TD></TR>}
+            {users.length === 0 && <TR><TD colSpan={4} className="py-8 text-center text-muted">No users match.</TD></TR>}
             {users.map((u) => (
               <TR key={u.id}>
-                <TD><span className="font-medium">{u.name || u.email}</span><span className="block text-xs text-stone-600">{u.email}</span></TD>
+                <TD><span className="font-medium">{u.name || u.email}</span><span className="block text-xs text-muted">{u.email}</span></TD>
                 <TD><Badge tone={u.role === "ADMIN" ? "dark" : "neutral"}>{ROLE_LABEL[u.role]}</Badge></TD>
                 <TD>{u._count.vehicles}</TD>
                 <TD>
-                  {u.id === admin.id ? <span className="text-xs text-stone-600">You cannot change your own role</span> : (
+                  {u.id === admin.id ? <span className="text-xs text-muted">You cannot change your own role</span> : (
                     <form method="get" className="flex gap-2">
                       <input type="hidden" name="confirm" value={u.id} />
                       {q && <input type="hidden" name="q" value={q} />}{filterRole && <input type="hidden" name="role" value={filterRole} />}

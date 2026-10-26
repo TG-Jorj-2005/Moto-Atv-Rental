@@ -43,7 +43,7 @@ export function BarChart({ labels, series, format, title, className }: { labels:
           );
         })}
       </svg>
-      <figcaption className="flex flex-wrap gap-4 text-xs text-stone-700">
+      <figcaption className="flex flex-wrap gap-4 text-xs text-fg-soft">
         {series.map((s) => <span key={s.name} className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded" style={{ background: s.color }} /> {s.name}</span>)}
       </figcaption>
       <div className="sr-only">

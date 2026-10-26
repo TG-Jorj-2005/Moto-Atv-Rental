@@ -19,7 +19,7 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: P
   const locations = await prisma.location.findMany({ orderBy: [{ county: "asc" }, { name: "asc" }], select: { id: true, name: true, city: true, county: true } });
   return (
     <>
-      <Link href="/provider/vehicles" className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-700 hover:underline"><ArrowLeft aria-hidden className="size-4" /> My vehicles</Link>
+      <Link href="/provider/vehicles" className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-soft hover:underline"><ArrowLeft aria-hidden className="size-4" /> My vehicles</Link>
       <PageHeader title="Add a vehicle" description="Fill in the details now; you can add photos on the next screen. An administrator approves the listing before it appears on the site." />
       {error && <Alert tone="error">{VEHICLE_ERROR[error] ?? "Something went wrong."}</Alert>}
       <Card>
@@ -27,7 +27,7 @@ export default async function NewVehiclePage({ searchParams }: { searchParams: P
           <form action={createVehicleAction} className="space-y-6">
             <input type="hidden" name="returnTo" value="/provider/vehicles/new" />
             <VehicleFormFields mode="create" locations={locations} />
-            <div className="flex gap-2"><Button size="lg">Create the listing</Button><Link href="/provider/vehicles" className="inline-flex h-12 items-center rounded-lg px-4 text-sm font-semibold hover:bg-stone-100">Cancel</Link></div>
+            <div className="flex gap-2"><Button size="lg">Create the listing</Button><Link href="/provider/vehicles" className="inline-flex h-12 items-center rounded-lg px-4 text-sm font-semibold hover:bg-surface-3">Cancel</Link></div>
           </form>
         </CardContent>
       </Card>

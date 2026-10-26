@@ -19,7 +19,7 @@ export default async function NewPlatformVehicle({ searchParams }: { searchParam
   const locations = await prisma.location.findMany({ orderBy: [{ county: "asc" }, { name: "asc" }], select: { id: true, name: true, city: true, county: true } });
   return (
     <>
-      <Link href="/admin/vehicles" className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-700 hover:underline"><ArrowLeft aria-hidden className="size-4" /> All vehicles</Link>
+      <Link href="/admin/vehicles" className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-soft hover:underline"><ArrowLeft aria-hidden className="size-4" /> All vehicles</Link>
       <PageHeader title="Add a platform vehicle" description="A vehicle of the platform's own fleet: it has no owner, carries no commission (the platform keeps 100%) and is approved immediately." />
       {error && <Alert tone="error">{VEHICLE_ERROR[error] ?? "Something went wrong."}</Alert>}
       <Card><CardContent className="p-6">

@@ -37,7 +37,7 @@ export default async function AdminLocations({ searchParams }: { searchParams: P
       <Card>
         <Table>
           <THead><TR><TH>County</TH><TH>Name</TH><TH>Address</TH><TH>Hours</TH><TH className="text-right">Vehicles</TH></TR></THead>
-          <TBody>{locations.map((l) => <TR key={l.id}><TD>{l.county}</TD><TD className="font-medium">{l.name}</TD><TD className="text-stone-600">{l.address}, {l.city}</TD><TD className="text-stone-600">{l.hours}</TD><TD className="text-right">{l._count.vehicles}</TD></TR>)}</TBody>
+          <TBody>{locations.map((l) => <TR key={l.id}><TD>{l.county}</TD><TD className="font-medium">{l.name}</TD><TD className="text-muted">{l.address}, {l.city}</TD><TD className="text-muted">{l.hours}</TD><TD className="text-right">{l._count.vehicles}</TD></TR>)}</TBody>
         </Table>
       </Card>
     </>

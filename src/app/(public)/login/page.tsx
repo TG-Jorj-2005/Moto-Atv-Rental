@@ -35,7 +35,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <CardContent className="space-y-5 p-6">
           <div className="space-y-1">
             <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-            <p className="text-sm text-stone-600">Log in to manage your bookings and vehicles.</p>
+            <p className="text-sm text-muted">Log in to manage your bookings and vehicles.</p>
           </div>
           {error && <Alert tone="error">Wrong email or password.</Alert>}
           <form action={login} className="space-y-4">
@@ -44,8 +44,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <Field label="Password" htmlFor="password"><Input id="password" name="password" type="password" autoComplete="current-password" required /></Field>
             <Button className="w-full" size="lg">Log in</Button>
           </form>
-          <p className="text-center text-sm text-stone-600">
-            New here? <Link href={`/register${target !== "/" ? `?next=${encodeURIComponent(target)}` : ""}`} className="font-semibold text-brand-700 hover:underline">Create an account</Link>
+          <p className="text-center text-sm text-muted">
+            New here? <Link href={`/register${target !== "/" ? `?next=${encodeURIComponent(target)}` : ""}`} className="font-semibold text-accent-fg hover:underline">Create an account</Link>
           </p>
         </CardContent>
       </Card>

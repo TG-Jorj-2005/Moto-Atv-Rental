@@ -85,14 +85,14 @@ export default async function AdminBookings({ searchParams }: { searchParams: Pr
                   <TR key={b.id}>
                     <TD>
                       <Link href={`/admin/bookings/${b.id}`} className="font-medium hover:underline">{b.vehicle.name}</Link>
-                      <span className="block text-xs text-stone-600">{b.vehicle.owner?.name ?? "Platform fleet"}</span>
+                      <span className="block text-xs text-muted">{b.vehicle.owner?.name ?? "Platform fleet"}</span>
                       <span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden"><BookingStatusBadge status={b.status} />{flags.handoverDelayed && <Badge tone="danger">HANDOVER_DELAYED</Badge>}</span>
                     </TD>
                     <TD>{b.customer.fullName}</TD>
-                    <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
+                    <TD className="whitespace-nowrap text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                     <TD><div className="flex flex-wrap items-center gap-1.5"><BookingStatusBadge status={b.status} />{flags.handoverDelayed && <Badge tone="danger">HANDOVER_DELAYED</Badge>}{flags.returnOverdue && <Badge tone="danger">Return overdue</Badge>}</div></TD>
                     <TD className="text-right">{formatMoney(b.totalPrice, currency)}</TD>
-                    <TD className={paid < b.totalPrice && b.status !== "CANCELLED" && b.status !== "PENDING" ? "text-right font-medium text-amber-900" : "text-right"}>{formatMoney(paid, currency)}</TD>
+                    <TD className={paid < b.totalPrice && b.status !== "CANCELLED" && b.status !== "PENDING" ? "text-right font-medium text-warning" : "text-right"}>{formatMoney(paid, currency)}</TD>
                     <TD><Link href={`/admin/bookings/${b.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Open</Link></TD>
                   </TR>
                 );
@@ -104,7 +104,7 @@ export default async function AdminBookings({ searchParams }: { searchParams: Pr
       {pages > 1 && (
         <nav aria-label="Pagination" className="flex items-center justify-between">
           <Link aria-disabled={page <= 1} href={qs(page - 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page <= 1 ? "pointer-events-none opacity-50" : "" })}>Previous</Link>
-          <span className="text-sm text-stone-600">Page {page} of {pages} · {total} bookings</span>
+          <span className="text-sm text-muted">Page {page} of {pages} · {total} bookings</span>
           <Link aria-disabled={page >= pages} href={qs(page + 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page >= pages ? "pointer-events-none opacity-50" : "" })}>Next</Link>
         </nav>
       )}

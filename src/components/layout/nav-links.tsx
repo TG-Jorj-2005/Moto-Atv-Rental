@@ -20,7 +20,7 @@ export function NavLinks({ items, orientation = "vertical" }: { items: NavItem[]
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium",
-                active ? "bg-brand-50 text-brand-900" : "text-stone-700 hover:bg-stone-100 hover:text-stone-900",
+                active ? "bg-accent-soft text-accent-fg" : "text-fg-soft hover:bg-surface-3 hover:text-fg",
               )}
             >
               {item.icon}

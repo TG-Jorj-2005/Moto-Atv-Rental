@@ -66,15 +66,15 @@ export default async function ProviderOverview() {
           <Alert tone="success">Nothing needs attention: every vehicle has valid ITP and RCA records.</Alert>
         ) : (
           <Card>
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-line">
               {alerts.map(({ vehicle, warning }, i) => (
                 <li key={`${vehicle.id}-${warning.type}-${i}`} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-                  <span className="flex items-center gap-2"><AlertTriangle aria-hidden className={warning.state === "OVERDUE" || warning.state === "NO_RECORD" ? "size-4 text-red-700" : "size-4 text-amber-700"} /><span className="font-medium">{vehicle.name}</span><span className="text-stone-600">{DOC[warning.type]}</span></span>
+                  <span className="flex items-center gap-2"><AlertTriangle aria-hidden className={warning.state === "OVERDUE" || warning.state === "NO_RECORD" ? "size-4 text-danger" : "size-4 text-warning"} /><span className="font-medium">{vehicle.name}</span><span className="text-muted">{DOC[warning.type]}</span></span>
                   <span className="flex items-center gap-3">
                     {warning.state === "OVERDUE" && <Badge tone="danger">Overdue since {formatLocalDate(warning.dueAt!)}</Badge>}
                     {warning.state === "DUE_SOON" && <Badge tone="warning">Due {formatLocalDate(warning.dueAt!)}</Badge>}
                     {warning.state === "NO_RECORD" && <Badge tone="danger">No record</Badge>}
-                    <Link href={`/provider/vehicles/${vehicle.id}?tab=maintenance`} className="font-semibold text-brand-700 hover:underline">Update</Link>
+                    <Link href={`/provider/vehicles/${vehicle.id}?tab=maintenance`} className="font-semibold text-accent-fg hover:underline">Update</Link>
                   </span>
                 </li>
               ))}
@@ -84,9 +84,9 @@ export default async function ProviderOverview() {
       </Section>
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between"><CardTitle>Latest bookings</CardTitle><Link href="/provider/bookings" className="text-sm font-semibold text-brand-700 hover:underline">All bookings</Link></CardHeader>
+        <CardHeader className="flex-row items-center justify-between"><CardTitle>Latest bookings</CardTitle><Link href="/provider/bookings" className="text-sm font-semibold text-accent-fg hover:underline">All bookings</Link></CardHeader>
         <CardContent className="p-0">
-          {recent.length === 0 ? <p className="px-5 py-8 text-center text-sm text-stone-600">No bookings on your vehicles yet.</p> : (
+          {recent.length === 0 ? <p className="px-5 py-8 text-center text-sm text-muted">No bookings on your vehicles yet.</p> : (
             <Table>
               <THead><TR><TH>Vehicle</TH><TH>Customer</TH><TH>Period</TH><TH>Status</TH><TH className="text-right">Your share</TH></TR></THead>
               <TBody>
@@ -94,7 +94,7 @@ export default async function ProviderOverview() {
                   <TR key={b.id}>
                     <TD className="font-medium">{b.vehicle.name}</TD>
                     <TD>{b.customer.fullName}</TD>
-                    <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
+                    <TD className="whitespace-nowrap text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                     <TD><BookingStatusBadge status={b.status} /></TD>
                     <TD className="text-right font-medium">{b.ownerAmount != null ? formatMoney(b.ownerAmount, currency) : "—"}</TD>
                   </TR>

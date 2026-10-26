@@ -51,7 +51,7 @@ export default async function AdminFinance({ searchParams }: { searchParams: Pro
           <TBody>{[...rows].reverse().map((r) => <TR key={r.month}><TD className="font-medium">{LABEL(r.month)}</TD><TD className="text-right">{r.bookings}</TD><TD className="text-right">{fmt(r.revenue)}</TD><TD className="text-right">{fmt(r.commission)}</TD><TD className="text-right font-semibold">{fmt(r.platformRevenue)}</TD></TR>)}</TBody>
         </Table>
       </Card>
-      <p className="text-sm text-stone-600">Amounts owed to owners and companies, and their payouts, are on the <Link className="font-semibold text-brand-700 hover:underline" href="/admin/payouts">Payouts</Link> page.</p>
+      <p className="text-sm text-muted">Amounts owed to owners and companies, and their payouts, are on the <Link className="font-semibold text-accent-fg hover:underline" href="/admin/payouts">Payouts</Link> page.</p>
     </>
   );
 }

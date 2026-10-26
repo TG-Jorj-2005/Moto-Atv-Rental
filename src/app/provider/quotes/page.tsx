@@ -99,21 +99,21 @@ export default async function QuotesPage({ searchParams }: { searchParams: Promi
                   <CardContent className="space-y-3 p-5">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="font-semibold">{q.quantity} × {q.vehicleType === "ATV" ? "ATV" : q.vehicleType === "MOTORCYCLE" ? "motorcycle" : "scooter"} · {q.startDate.toISOString().slice(0, 10)} → {q.endDate.toISOString().slice(0, 10)}</p>
-                      <div className="flex items-center gap-2"><span className="text-xs text-stone-600">Version {q.revision}</span><QuoteStatusBadge status={q.status} /></div>
+                      <div className="flex items-center gap-2"><span className="text-xs text-muted">Version {q.revision}</span><QuoteStatusBadge status={q.status} /></div>
                     </div>
-                    <p className="text-sm text-stone-600">{q.purpose}</p>
+                    <p className="text-sm text-muted">{q.purpose}</p>
                     {q.adminNote && <Alert tone="warning">{q.adminNote}</Alert>}
                     {q.items.length > 0 && (
-                      <div className="rounded-lg border border-stone-200">
-                        <ul className="divide-y divide-stone-100 text-sm">
+                      <div className="rounded-lg border border-line">
+                        <ul className="divide-y divide-line text-sm">
                           {q.items.map((i) => (
                             <li key={i.id} className="flex flex-wrap justify-between gap-2 px-3 py-2">
-                              <span>{i.vehicle.name} <span className="text-stone-600">({i.vehicle.plate}) · {i.vehicle.location?.name ?? "no location"}</span></span>
-                              <span>{i.price !== i.listPrice && <s className="mr-1 text-stone-500">{formatMoney(i.listPrice, currency)}</s>}<strong>{formatMoney(i.price, currency)}</strong></span>
+                              <span>{i.vehicle.name} <span className="text-muted">({i.vehicle.plate}) · {i.vehicle.location?.name ?? "no location"}</span></span>
+                              <span>{i.price !== i.listPrice && <s className="mr-1 text-subtle">{formatMoney(i.listPrice, currency)}</s>}<strong>{formatMoney(i.price, currency)}</strong></span>
                             </li>
                           ))}
                         </ul>
-                        <p className="flex flex-wrap justify-between gap-2 border-t border-stone-200 bg-stone-50 px-3 py-2 text-sm font-semibold">
+                        <p className="flex flex-wrap justify-between gap-2 border-t border-line bg-canvas px-3 py-2 text-sm font-semibold">
                           <span>{q.offeredQuantity} of {q.quantity} vehicles{q.discountBps ? ` · ${q.discountBps / 100}% bulk discount included` : ""}</span>
                           <span>Total {formatMoney(q.quotedAmount ?? 0, currency)}</span>
                         </p>

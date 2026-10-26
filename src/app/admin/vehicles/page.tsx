@@ -86,13 +86,13 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
                   <TR key={v.id}>
                     <TD>
                       <div className="flex items-center gap-3">
-                        <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-stone-200">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
-                        <div><Link href={`/admin/vehicles/${v.id}`} className="font-medium hover:underline">{v.name}</Link><span className="block text-xs text-stone-600">{v.plate} · {v.location?.name ?? "no location"}</span><span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden"><ListingStatusBadge status={v.listingStatus} /><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} /></span></div>
+                        <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-surface-3">{cover && <img src={cover} alt="" loading="lazy" className="size-full object-cover" />}</div>
+                        <div><Link href={`/admin/vehicles/${v.id}`} className="font-medium hover:underline">{v.name}</Link><span className="block text-xs text-muted">{v.plate} · {v.location?.name ?? "no location"}</span><span className="mt-1.5 flex flex-wrap gap-1.5 md:hidden"><ListingStatusBadge status={v.listingStatus} /><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} /></span></div>
                       </div>
                     </TD>
-                    <TD className="text-stone-700">{v.owner ? <>{v.owner.name}<span className="block text-xs text-stone-600">{v.owner.role === "RENTAL_COMPANY" ? "Rental company" : "Owner"}</span></> : "Platform fleet"}</TD>
+                    <TD className="text-fg-soft">{v.owner ? <>{v.owner.name}<span className="block text-xs text-muted">{v.owner.role === "RENTAL_COMPANY" ? "Rental company" : "Owner"}</span></> : "Platform fleet"}</TD>
                     <TD><ListingStatusBadge status={v.listingStatus} /></TD>
-                    <TD><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} />{warnings.length > 0 && <span className="mt-1 flex items-center gap-1 text-xs text-amber-900"><AlertTriangle aria-hidden className="size-3" /> {warnings.length} document{warnings.length > 1 ? "s" : ""}</span>}</TD>
+                    <TD><VehicleStatusBadge status={displayStatus(v.status, activeSet.has(v.id))} />{warnings.length > 0 && <span className="mt-1 flex items-center gap-1 text-xs text-warning"><AlertTriangle aria-hidden className="size-3" /> {warnings.length} document{warnings.length > 1 ? "s" : ""}</span>}</TD>
                     <TD>{upMap.get(v.id) ?? 0}</TD>
                     <TD>
                       <div className="flex flex-wrap items-center gap-2">
@@ -116,7 +116,7 @@ export default async function AdminVehicles({ searchParams }: { searchParams: Pr
       {pages > 1 && (
         <nav aria-label="Pagination" className="flex items-center justify-between">
           <Link aria-disabled={page <= 1} href={qs(page - 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page <= 1 ? "pointer-events-none opacity-50" : "" })}>Previous</Link>
-          <span className="text-sm text-stone-600">Page {page} of {pages} · {total} vehicles</span>
+          <span className="text-sm text-muted">Page {page} of {pages} · {total} vehicles</span>
           <Link aria-disabled={page >= pages} href={qs(page + 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page >= pages ? "pointer-events-none opacity-50" : "" })}>Next</Link>
         </nav>
       )}

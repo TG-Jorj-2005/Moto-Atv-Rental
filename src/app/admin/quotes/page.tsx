@@ -31,15 +31,15 @@ export default async function AdminQuotes() {
               <Card>
                 <CardContent className="space-y-3 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-semibold">{q.user.name} <span className="font-normal text-stone-600">{q.user.email} · {q.contactPhone}</span></p>
-                    <div className="flex items-center gap-2"><span className="text-xs text-stone-600">Version {q.revision}</span><QuoteStatusBadge status={q.status} /></div>
+                    <p className="font-semibold">{q.user.name} <span className="font-normal text-muted">{q.user.email} · {q.contactPhone}</span></p>
+                    <div className="flex items-center gap-2"><span className="text-xs text-muted">Version {q.revision}</span><QuoteStatusBadge status={q.status} /></div>
                   </div>
-                  <p className="text-sm">{q.quantity} × {q.vehicleType.toLowerCase()} · {q.startDate.toISOString().slice(0, 10)} → {q.endDate.toISOString().slice(0, 10)} · <span className="text-stone-600">{q.purpose}</span></p>
+                  <p className="text-sm">{q.quantity} × {q.vehicleType.toLowerCase()} · {q.startDate.toISOString().slice(0, 10)} → {q.endDate.toISOString().slice(0, 10)} · <span className="text-muted">{q.purpose}</span></p>
                   {q.adminNote && <Alert tone="warning">{q.adminNote}</Alert>}
                   {q.items.length > 0 && (
-                    <p className="text-sm text-stone-700">Offered {q.offeredQuantity} of {q.quantity}: {q.items.map((i) => `${i.vehicle.name} (${formatMoney(i.price, currency)})`).join(", ")}. Total <strong>{formatMoney(q.quotedAmount ?? 0, currency)}</strong>{q.discountBps ? `, ${q.discountBps / 100}% bulk discount` : ""}.</p>
+                    <p className="text-sm text-fg-soft">Offered {q.offeredQuantity} of {q.quantity}: {q.items.map((i) => `${i.vehicle.name} (${formatMoney(i.price, currency)})`).join(", ")}. Total <strong>{formatMoney(q.quotedAmount ?? 0, currency)}</strong>{q.discountBps ? `, ${q.discountBps / 100}% bulk discount` : ""}.</p>
                   )}
-                  {q.status === "ACCEPTED" && <p className="text-sm font-medium text-green-800">{q._count.bookings} booking{q._count.bookings === 1 ? "" : "s"} created.</p>}
+                  {q.status === "ACCEPTED" && <p className="text-sm font-medium text-success">{q._count.bookings} booking{q._count.bookings === 1 ? "" : "s"} created.</p>}
                 </CardContent>
               </Card>
             </li>

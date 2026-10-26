@@ -54,7 +54,7 @@ async function Results({ filters }: { filters: CatalogFilters }) {
   const last = Math.min(result.page * PAGE_SIZE, result.total);
   return (
     <section aria-live="polite" className="space-y-5">
-      <p className="text-sm text-stone-600">{result.total === 0 ? "No vehicles found" : `Showing ${first}–${last} of ${result.total} vehicle${result.total === 1 ? "" : "s"}`}</p>
+      <p className="text-sm text-muted">{result.total === 0 ? "No vehicles found" : `Showing ${first}–${last} of ${result.total} vehicle${result.total === 1 ? "" : "s"}`}</p>
       {result.total === 0 ? (
         <EmptyState icon={SearchX} title="No vehicles match your filters" description="Try other dates, a wider price range or another location." action={<Link href="/vehicles" className={buttonVariants({ variant: "outline" })}>Clear all filters</Link>} />
       ) : (
@@ -63,7 +63,7 @@ async function Results({ filters }: { filters: CatalogFilters }) {
       {result.pages > 1 && (
         <nav aria-label="Pagination" className="flex items-center justify-between gap-2 pt-2">
           <Link aria-disabled={result.page <= 1} tabIndex={result.page <= 1 ? -1 : undefined} href={`/vehicles${queryString(filters, result.page - 1)}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), result.page <= 1 && "pointer-events-none opacity-50")}><ChevronLeft aria-hidden className="size-4" /> Previous</Link>
-          <span className="text-sm text-stone-600">Page {result.page} of {result.pages}</span>
+          <span className="text-sm text-muted">Page {result.page} of {result.pages}</span>
           <Link aria-disabled={result.page >= result.pages} tabIndex={result.page >= result.pages ? -1 : undefined} href={`/vehicles${queryString(filters, result.page + 1)}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), result.page >= result.pages && "pointer-events-none opacity-50")}>Next <ChevronRight aria-hidden className="size-4" /></Link>
         </nav>
       )}
@@ -93,20 +93,20 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
               key={c.label}
               href={`/vehicles${queryString({ ...filters, category: c.value, type: null }, 1)}`}
               aria-current={active ? "true" : undefined}
-              className={cn("shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors", active ? "border-stone-900 bg-stone-900 text-white" : "border-stone-300 bg-white text-stone-800 hover:bg-stone-50")}
+              className={cn("shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors", active ? "border-accent bg-accent text-on-accent" : "border-line-strong bg-surface text-fg hover:bg-surface-2")}
             >
-              {c.label}{count ? <span className={cn("ml-1.5 text-xs", active ? "text-stone-300" : "text-stone-500")}>{count}</span> : null}
+              {c.label}{count ? <span className={cn("ml-1.5 text-xs", active ? "text-fg-soft" : "text-subtle")}>{count}</span> : null}
             </Link>
           );
         })}
       </nav>
 
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
-        <details className="group self-start rounded-xl border border-stone-200 bg-white shadow-card lg:open:block" open>
+        <details className="group self-start rounded-xl border border-line bg-surface shadow-card lg:open:block" open>
           <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-semibold lg:pointer-events-none">
-            <SlidersHorizontal aria-hidden className="size-4" /> Filters{activeCount > 0 && <span className="rounded-full bg-brand-100 px-2 text-xs text-brand-900">{activeCount}</span>}
+            <SlidersHorizontal aria-hidden className="size-4" /> Filters{activeCount > 0 && <span className="rounded-full bg-accent-soft px-2 text-xs text-accent-fg">{activeCount}</span>}
           </summary>
-          <form method="get" action="/vehicles" className="space-y-4 border-t border-stone-100 p-4">
+          <form method="get" action="/vehicles" className="space-y-4 border-t border-line p-4">
             <Field label="Search by name" htmlFor="q"><Input id="q" name="q" defaultValue={filters.q} placeholder="e.g. Grizzly or cruiser" maxLength={60} /></Field>
             <Field label="Type" htmlFor="type">
               <Select id="type" name="type" defaultValue={filters.type ?? ""}>
@@ -135,19 +135,19 @@ export default async function CatalogPage({ searchParams }: { searchParams: Prom
               </Select>
             </Field>
             <fieldset className="space-y-1.5">
-              <legend className="text-sm font-medium text-stone-800">Price per day (RON)</legend>
+              <legend className="text-sm font-medium text-fg">Price per day (RON)</legend>
               <div className="grid grid-cols-2 gap-2">
                 <Input name="minPrice" type="number" min="0" step="1" inputMode="numeric" aria-label="Minimum price per day in RON" placeholder="Min" defaultValue={filters.minDailyRon ?? ""} />
                 <Input name="maxPrice" type="number" min="0" step="1" inputMode="numeric" aria-label="Maximum price per day in RON" placeholder="Max" defaultValue={filters.maxDailyRon ?? ""} />
               </div>
             </fieldset>
             <fieldset className="space-y-1.5">
-              <legend className="text-sm font-medium text-stone-800">Free on these days</legend>
+              <legend className="text-sm font-medium text-fg">Free on these days</legend>
               <div className="grid grid-cols-2 gap-2">
                 <Input name="from" type="date" min={today} aria-label="First day" defaultValue={iso(filters.from)} />
                 <Input name="to" type="date" min={today} aria-label="Last day" defaultValue={iso(filters.to)} />
               </div>
-              <p className="text-xs text-stone-600">Shows only vehicles with no booking during the whole period.</p>
+              <p className="text-xs text-muted">Shows only vehicles with no booking during the whole period.</p>
             </fieldset>
             <Field label="Sort by" htmlFor="sort">
               <Select id="sort" name="sort" defaultValue={filters.sort}>

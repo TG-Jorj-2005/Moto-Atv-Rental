@@ -60,11 +60,11 @@ export default async function ProviderCalendar({ searchParams }: { searchParams:
         </CardContent>
       </Card>
       <MonthCalendar year={ym.year} month={ym.month} marks={marks} today={today} />
-      <ul className="flex flex-wrap gap-3 text-xs text-stone-700" aria-label="Legend">
-        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-amber-200" /> Awaiting confirmation</li>
-        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-sky-200" /> Confirmed</li>
-        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-green-200" /> In progress</li>
-        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-stone-300" /> Completed</li>
+      <ul className="flex flex-wrap gap-3 text-xs text-fg-soft" aria-label="Legend">
+        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-warning-soft" /> Awaiting confirmation</li>
+        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-info-soft" /> Confirmed</li>
+        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-success-soft" /> In progress</li>
+        <li className="flex items-center gap-1.5"><span aria-hidden className="size-3 rounded bg-line-strong" /> Completed</li>
       </ul>
     </>
   );

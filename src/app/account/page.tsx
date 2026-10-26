@@ -45,12 +45,12 @@ export default async function AccountPage() {
         {next ? (
           <Card>
             <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-stone-200 sm:w-48">
+              <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-3 sm:w-48">
                 {coverOf(next.vehicle.photos) && <img src={coverOf(next.vehicle.photos)!} alt="" className="size-full object-cover" />}
               </div>
               <div className="flex-1 space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2"><h3 className="text-lg font-semibold">{next.vehicle.name}</h3><BookingStatusBadge status={next.status} /></div>
-                <p className="text-sm text-stone-600">{formatLocalDateTime(next.startAt)} → {formatLocalDateTime(next.endAt)} (Bucharest time)</p>
+                <p className="text-sm text-muted">{formatLocalDateTime(next.startAt)} → {formatLocalDateTime(next.endAt)} (Bucharest time)</p>
                 <p className="text-sm font-semibold">{formatMoney(next.totalPrice, currency)}</p>
               </div>
               <Link href={`/account/bookings/${next.id}`} className={buttonVariants({ variant: "outline" })}>View details</Link>
@@ -62,14 +62,14 @@ export default async function AccountPage() {
       </Section>
 
       {recent.length > 0 && (
-        <Section title="Recently completed" actions={<Link href="/account/bookings?tab=past" className="text-sm font-semibold text-brand-700 hover:underline">All past bookings</Link>}>
-          <ul className="divide-y divide-stone-100 rounded-xl border border-stone-200 bg-white">
+        <Section title="Recently completed" actions={<Link href="/account/bookings?tab=past" className="text-sm font-semibold text-accent-fg hover:underline">All past bookings</Link>}>
+          <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
             {recent.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                 <span className="font-medium">{b.vehicle.name}</span>
-                <span className="text-stone-600">{formatLocalDateTime(b.startAt)}</span>
+                <span className="text-muted">{formatLocalDateTime(b.startAt)}</span>
                 <span className="font-semibold">{formatMoney(b.totalPrice, currency)}</span>
-                <Link href={`/account/bookings/${b.id}`} className="font-semibold text-brand-700 hover:underline">Details</Link>
+                <Link href={`/account/bookings/${b.id}`} className="font-semibold text-accent-fg hover:underline">Details</Link>
               </li>
             ))}
           </ul>

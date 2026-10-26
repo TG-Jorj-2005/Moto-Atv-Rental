@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 32" width="400" height="64" role="img" aria-label="Moto &amp; ATV Rental">
+  <rect width="32" height="32" rx="8" fill="#ff6b1a"/>
+  <g fill="none" stroke="#0b0d10" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="20" r="5.5"/>
+    <path d="M17.5 22 21 13.5l2.5 4.5L27 9"/>
+  </g>
+  <g font-family="Inter, 'Segoe UI', Roboto, Arial, sans-serif" font-weight="800" text-transform="uppercase">
+    <text x="42" y="17" font-size="15" letter-spacing="0.9" fill="#f4f6f9">MOTO &amp; ATV</text>
+    <text x="42" y="28" font-size="8.5" letter-spacing="3.2" font-weight="700" fill="#ff9159">RENTAL</text>
+  </g>
+</svg>

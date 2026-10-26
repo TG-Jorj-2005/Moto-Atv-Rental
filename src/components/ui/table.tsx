@@ -10,13 +10,13 @@ export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTab
   );
 }
 export function THead(props: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className="border-b border-stone-200 bg-stone-50 text-xs uppercase tracking-wide text-stone-600" {...props} />;
+  return <thead className="border-b border-line bg-canvas text-xs uppercase tracking-wide text-muted" {...props} />;
 }
 export function TBody(props: React.HTMLAttributes<HTMLTableSectionElement>) {
-  return <tbody className="divide-y divide-stone-100" {...props} />;
+  return <tbody className="divide-y divide-line" {...props} />;
 }
 export function TR({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className={cn("hover:bg-stone-50/60", className)} {...props} />;
+  return <tr className={cn("hover:bg-surface-2/60", className)} {...props} />;
 }
 export function TH({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return <th scope="col" className={cn("px-4 py-2.5 font-semibold", className)} {...props} />;

@@ -62,10 +62,10 @@ export default async function ProviderBookings({ searchParams }: { searchParams:
                 <TR key={b.id}>
                   <TD className="font-medium"><Link className="hover:underline" href={`/provider/vehicles/${b.vehicle.id}?tab=bookings`}>{b.vehicle.name}</Link><span className="mt-1.5 block md:hidden"><BookingStatusBadge status={b.status} /></span></TD>
                   <TD>{b.customer.fullName}</TD>
-                  <TD className="whitespace-nowrap text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
+                  <TD className="whitespace-nowrap text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</TD>
                   <TD><BookingStatusBadge status={b.status} /></TD>
                   <TD className="text-right">{formatMoney(b.totalPrice, currency)}</TD>
-                  <TD className="text-right text-stone-600">{b.commissionAmount != null ? `${formatMoney(b.commissionAmount, currency)} (${(b.commissionBps ?? 0) / 100}%)` : "—"}</TD>
+                  <TD className="text-right text-muted">{b.commissionAmount != null ? `${formatMoney(b.commissionAmount, currency)} (${(b.commissionBps ?? 0) / 100}%)` : "—"}</TD>
                   <TD className="text-right font-medium">{b.ownerAmount != null ? formatMoney(b.ownerAmount, currency) : "—"}</TD>
                 </TR>
               ))}
@@ -76,7 +76,7 @@ export default async function ProviderBookings({ searchParams }: { searchParams:
       {pages > 1 && (
         <nav aria-label="Pagination" className="flex items-center justify-between">
           <Link aria-disabled={page <= 1} href={qs(page - 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page <= 1 ? "pointer-events-none opacity-50" : "" })}>Previous</Link>
-          <span className="text-sm text-stone-600">Page {page} of {pages} · {total} bookings</span>
+          <span className="text-sm text-muted">Page {page} of {pages} · {total} bookings</span>
           <Link aria-disabled={page >= pages} href={qs(page + 1)} className={buttonVariants({ variant: "outline", size: "sm", className: page >= pages ? "pointer-events-none opacity-50" : "" })}>Next</Link>
         </nav>
       )}

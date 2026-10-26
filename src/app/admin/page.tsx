@@ -73,11 +73,11 @@ export default async function AdminOverview() {
       {(o.delayedHandovers.length > 0 || o.overdueReturns.length > 0) && (
         <Card>
           <CardHeader><CardTitle>Time-sensitive bookings</CardTitle></CardHeader>
-          <ul className="divide-y divide-stone-100 text-sm">
+          <ul className="divide-y divide-line text-sm">
             {[...o.delayedHandovers.map((b) => ({ b, label: "Handover delayed" })), ...o.overdueReturns.map((b) => ({ b, label: "Return overdue" }))].slice(0, 10).map(({ b, label }) => (
               <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
-                <span className="flex items-center gap-2"><AlertTriangle aria-hidden className="size-4 text-red-700" /><span className="font-medium">{b.vehicle.name}</span><span className="text-stone-600">{b.customer.fullName}</span></span>
-                <span className="flex items-center gap-3"><span className="text-stone-600">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</span><BookingStatusBadge status={b.status} /><span className="font-semibold text-red-800">{label}</span><Link href={`/admin/bookings/${b.id}`} className="font-semibold text-brand-700 hover:underline">Open</Link></span>
+                <span className="flex items-center gap-2"><AlertTriangle aria-hidden className="size-4 text-danger" /><span className="font-medium">{b.vehicle.name}</span><span className="text-muted">{b.customer.fullName}</span></span>
+                <span className="flex items-center gap-3"><span className="text-muted">{formatLocalDateTime(b.startAt)} → {formatLocalDateTime(b.endAt)}</span><BookingStatusBadge status={b.status} /><span className="font-semibold text-danger">{label}</span><Link href={`/admin/bookings/${b.id}`} className="font-semibold text-accent-fg hover:underline">Open</Link></span>
               </li>
             ))}
           </ul>

@@ -10,11 +10,11 @@ export const dayKey = (d: LocalDate) => `${d.year}-${String(d.month).padStart(2,
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const TONE: Record<NonNullable<DayEvent["tone"]>, string> = {
-  busy: "bg-red-100 text-red-900",
-  info: "bg-sky-100 text-sky-900",
-  warning: "bg-amber-100 text-amber-900",
-  success: "bg-green-100 text-green-900",
-  neutral: "bg-stone-100 text-stone-800",
+  busy: "bg-danger-soft text-danger",
+  info: "bg-info-soft text-info",
+  warning: "bg-warning-soft text-warning",
+  success: "bg-success-soft text-success",
+  neutral: "bg-surface-2 text-fg",
 };
 
 // One month as a calendar grid (weeks start on Monday). Days are Bucharest calendar dates. With `compact` the days
@@ -30,10 +30,10 @@ export function MonthCalendar({ year, month, marks, today, compact = false }: { 
   return (
     <div>
       <p className="mb-2 text-sm font-semibold">{MONTHS[month - 1]} {year}</p>
-      <div role="grid" aria-label={`${MONTHS[month - 1]} ${year}`} className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-stone-200 bg-stone-200 text-xs">
-        {WEEKDAYS.map((w) => <div key={w} role="columnheader" className="bg-stone-50 px-1 py-1.5 text-center font-semibold text-stone-600">{w}</div>)}
+      <div role="grid" aria-label={`${MONTHS[month - 1]} ${year}`} className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-line bg-surface-3 text-xs">
+        {WEEKDAYS.map((w) => <div key={w} role="columnheader" className="bg-canvas px-1 py-1.5 text-center font-semibold text-muted">{w}</div>)}
         {cells.map((d, i) => {
-          if (!d) return <div key={`e${i}`} role="gridcell" className="bg-stone-50/60" />;
+          if (!d) return <div key={`e${i}`} role="gridcell" className="bg-surface-2/60" />;
           const key = dayKey(d);
           const events = marks[key] ?? [];
           const busy = events.some((e) => e.tone === "busy");
@@ -42,14 +42,14 @@ export function MonthCalendar({ year, month, marks, today, compact = false }: { 
               key={key}
               role="gridcell"
               aria-label={`${key}${events.length ? `: ${events.map((e) => e.label).join(", ")}` : ""}`}
-              className={cn("bg-white p-1", compact ? "min-h-9 text-center" : "min-h-20", busy && compact && "bg-red-100", key === todayKey && "ring-2 ring-inset ring-brand-600")}
+              className={cn("bg-surface p-1", compact ? "min-h-9 text-center" : "min-h-20", busy && compact && "bg-danger-soft", key === todayKey && "ring-2 ring-inset ring-accent")}
             >
-              <span className={cn("block font-medium", key === todayKey ? "text-brand-800" : "text-stone-700", busy && compact && "text-red-900 line-through")}>{d.day}</span>
+              <span className={cn("block font-medium", key === todayKey ? "text-accent-fg" : "text-fg-soft", busy && compact && "text-danger line-through")}>{d.day}</span>
               {!compact && events.slice(0, 3).map((e, j) => {
                 const cls = cn("mt-0.5 block truncate rounded px-1 py-0.5 text-[11px] leading-tight", TONE[e.tone ?? "neutral"]);
                 return e.href ? <Link key={j} href={e.href} className={cls} title={e.label}>{e.label}</Link> : <span key={j} className={cls} title={e.label}>{e.label}</span>;
               })}
-              {!compact && events.length > 3 && <span className="mt-0.5 block text-[11px] text-stone-600">+{events.length - 3} more</span>}
+              {!compact && events.length > 3 && <span className="mt-0.5 block text-[11px] text-muted">+{events.length - 3} more</span>}
             </div>
           );
         })}

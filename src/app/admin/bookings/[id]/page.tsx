@@ -50,7 +50,7 @@ export default async function AdminBookingPage({ params, searchParams }: { param
 
   return (
     <>
-      <Link href="/admin/bookings" className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-700 hover:underline"><ArrowLeft aria-hidden className="size-4" /> All bookings</Link>
+      <Link href="/admin/bookings" className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-soft hover:underline"><ArrowLeft aria-hidden className="size-4" /> All bookings</Link>
       {sp.ok && <Alert tone="success">{sp.ok === "payment" ? "The payment was recorded." : `The booking is now ${sp.ok.toLowerCase()}.`}</Alert>}
       {sp.unpaid && Number(sp.unpaid) > 0 && <Alert tone="warning" title="Completed with an unpaid balance">{formatMoney(Number(sp.unpaid), "RON")} is still unpaid. Nothing was marked as paid automatically.</Alert>}
       {sp.error && <Alert tone="error">{(DENIAL_MESSAGES as Record<string, string>)[sp.error] ?? (sp.error === "PAYMENT_INVALID" ? "Enter a valid amount." : "The action was refused.")}</Alert>}
@@ -61,32 +61,32 @@ export default async function AdminBookingPage({ params, searchParams }: { param
         <h1 className="text-2xl font-bold tracking-tight">{booking.vehicle.name}</h1>
         <BookingStatusBadge status={booking.status} />
         <VehicleStatusBadge status={displayStatus(booking.vehicle.status, activeOnVehicle > 0)} />
-        <span className="text-sm text-stone-600">Reference <span className="font-mono">{booking.id.slice(-8).toUpperCase()}</span></span>
+        <span className="text-sm text-muted">Reference <span className="font-mono">{booking.id.slice(-8).toUpperCase()}</span></span>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Booking</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <p><span className="text-stone-600">Customer:</span> <strong>{booking.customer.fullName}</strong> · {booking.customer.email} · {booking.customer.phone}</p>
-            {booking.user && <p><span className="text-stone-600">Account:</span> {booking.user.name} ({booking.user.role.toLowerCase().replace("_", " ")})</p>}
-            <p><span className="text-stone-600">Period:</span> {formatLocalDateTime(booking.startAt)} → {formatLocalDateTime(booking.endAt)} (Bucharest time)</p>
-            <p><span className="text-stone-600">Vehicle:</span> <Link className="font-medium text-brand-700 hover:underline" href={`/admin/vehicles/${booking.vehicleId}`}>{booking.vehicle.name}</Link> ({booking.vehicle.plate}), {booking.vehicle.location?.name ?? "no location"}</p>
-            <p><span className="text-stone-600">Offered by:</span> {booking.vehicle.owner ? `${booking.vehicle.owner.name} (${booking.vehicle.owner.email})` : "Platform fleet"}</p>
-            {booking.quoteId && <p className="text-stone-600">Created by accepting a bulk offer.</p>}
+            <p><span className="text-muted">Customer:</span> <strong>{booking.customer.fullName}</strong> · {booking.customer.email} · {booking.customer.phone}</p>
+            {booking.user && <p><span className="text-muted">Account:</span> {booking.user.name} ({booking.user.role.toLowerCase().replace("_", " ")})</p>}
+            <p><span className="text-muted">Period:</span> {formatLocalDateTime(booking.startAt)} → {formatLocalDateTime(booking.endAt)} (Bucharest time)</p>
+            <p><span className="text-muted">Vehicle:</span> <Link className="font-medium text-accent-fg hover:underline" href={`/admin/vehicles/${booking.vehicleId}`}>{booking.vehicle.name}</Link> ({booking.vehicle.plate}), {booking.vehicle.location?.name ?? "no location"}</p>
+            <p><span className="text-muted">Offered by:</span> {booking.vehicle.owner ? `${booking.vehicle.owner.name} (${booking.vehicle.owner.email})` : "Platform fleet"}</p>
+            {booking.quoteId && <p className="text-muted">Created by accepting a bulk offer.</p>}
           </CardContent>
         </Card>
         <Card>
           <CardHeader><CardTitle>Money</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <p className="flex justify-between"><span className="text-stone-600">Price charged</span><strong className="text-lg">{formatMoney(booking.totalPrice, currency)}</strong></p>
-            <p className="flex justify-between"><span className="text-stone-600">Paid</span><span>{formatMoney(paid, currency)}</span></p>
-            <p className={`flex justify-between ${left > 0 ? "font-semibold text-amber-900" : ""}`}><span>Still to pay</span><span>{formatMoney(left, currency)}</span></p>
-            <hr className="border-stone-100" />
-            <p className="text-xs uppercase tracking-wide text-stone-600">Commission snapshot (taken when the booking was made)</p>
-            <p className="flex justify-between"><span className="text-stone-600">Rate</span><span>{booking.commissionBps != null ? `${booking.commissionBps / 100}%` : "—"}</span></p>
-            <p className="flex justify-between"><span className="text-stone-600">Platform commission</span><span>{booking.commissionAmount != null ? formatMoney(booking.commissionAmount, currency) : "—"}</span></p>
-            <p className="flex justify-between"><span className="text-stone-600">Owner share</span><span>{booking.ownerAmount != null ? formatMoney(booking.ownerAmount, currency) : "none (platform fleet)"}</span></p>
+            <p className="flex justify-between"><span className="text-muted">Price charged</span><strong className="text-lg">{formatMoney(booking.totalPrice, currency)}</strong></p>
+            <p className="flex justify-between"><span className="text-muted">Paid</span><span>{formatMoney(paid, currency)}</span></p>
+            <p className={`flex justify-between ${left > 0 ? "font-semibold text-warning" : ""}`}><span>Still to pay</span><span>{formatMoney(left, currency)}</span></p>
+            <hr className="border-line" />
+            <p className="text-xs uppercase tracking-wide text-muted">Commission snapshot (taken when the booking was made)</p>
+            <p className="flex justify-between"><span className="text-muted">Rate</span><span>{booking.commissionBps != null ? `${booking.commissionBps / 100}%` : "—"}</span></p>
+            <p className="flex justify-between"><span className="text-muted">Platform commission</span><span>{booking.commissionAmount != null ? formatMoney(booking.commissionAmount, currency) : "—"}</span></p>
+            <p className="flex justify-between"><span className="text-muted">Owner share</span><span>{booking.ownerAmount != null ? formatMoney(booking.ownerAmount, currency) : "none (platform fleet)"}</span></p>
           </CardContent>
         </Card>
       </div>
@@ -103,7 +103,7 @@ export default async function AdminBookingPage({ params, searchParams }: { param
               <div className="flex flex-wrap gap-2">
                 {actions.map((to) => <Button key={to} name="to" value={to} variant={to === "CANCELLED" ? "dangerOutline" : to === "COMPLETED" ? "dark" : "primary"}>{ACTION[to]}</Button>)}
               </div>
-              {booking.status === "CONFIRMED" && <p className="text-xs text-stone-600">The handover can be recorded from {formatLocalDateTime(handoverOpens)} (1 hour before the start) until the end of the booking. Nothing changes automatically with the time.</p>}
+              {booking.status === "CONFIRMED" && <p className="text-xs text-muted">The handover can be recorded from {formatLocalDateTime(handoverOpens)} (1 hour before the start) until the end of the booking. Nothing changes automatically with the time.</p>}
             </form>
           </CardContent>
         </Card>
@@ -114,7 +114,7 @@ export default async function AdminBookingPage({ params, searchParams }: { param
           <CardHeader><CardTitle>Payments</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {booking.payments.length > 0 && (
-              <ul className="divide-y divide-stone-100 text-sm">
+              <ul className="divide-y divide-line text-sm">
                 {booking.payments.map((p) => <li key={p.id} className="flex justify-between py-2"><span>{formatLocalDateTime(p.paidAt)} · {METHOD[p.method]}{p.currency === "EUR" && p.paidAmount != null ? ` · ${(p.paidAmount / 100).toFixed(2)} EUR at ${p.exchangeRate}` : ""}</span><strong>{formatMoney(p.amount, "RON")}</strong></li>)}
               </ul>
             )}
@@ -127,7 +127,7 @@ export default async function AdminBookingPage({ params, searchParams }: { param
                 <Button variant="dark">Record payment</Button>
               </form>
             )}
-            <p className="text-xs text-stone-600">Payments are recorded by hand. Completing a booking never marks anything as paid.</p>
+            <p className="text-xs text-muted">Payments are recorded by hand. Completing a booking never marks anything as paid.</p>
           </CardContent>
         </Card>
       )}
@@ -138,11 +138,11 @@ export default async function AdminBookingPage({ params, searchParams }: { param
           <ol className="space-y-3 text-sm">
             {booking.history.map((h) => (
               <li key={h.id} className="flex gap-3">
-                <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-brand-700" />
+                <span aria-hidden className="mt-1.5 size-2 shrink-0 rounded-full bg-accent" />
                 <span>
                   <span className="font-medium">{h.fromStatus ?? "created"} → {h.toStatus}</span>
-                  <span className="text-stone-600"> · {formatLocalDateTime(h.changedAt)} · {h.changedBy ? `${h.changedBy.name || h.changedBy.email} (${h.changedBy.role.toLowerCase().replace("_", " ")})` : "no actor recorded"}</span>
-                  {h.note && <span className="block text-stone-700">{h.note.startsWith("backfill:") ? <Badge className="mr-1">backfill</Badge> : null}{h.note}</span>}
+                  <span className="text-muted"> · {formatLocalDateTime(h.changedAt)} · {h.changedBy ? `${h.changedBy.name || h.changedBy.email} (${h.changedBy.role.toLowerCase().replace("_", " ")})` : "no actor recorded"}</span>
+                  {h.note && <span className="block text-fg-soft">{h.note.startsWith("backfill:") ? <Badge className="mr-1">backfill</Badge> : null}{h.note}</span>}
                 </span>
               </li>
             ))}
