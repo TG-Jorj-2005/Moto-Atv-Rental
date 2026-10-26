@@ -194,10 +194,10 @@ Results of the last full run (2026-10-26, on the code of the commit `test(ridedn
 | Check | Result |
 |---|---|
 | `npm run lint` | no errors |
-| `npm test` (also under 6 time zones) | 246 passed |
+| `npm test` (also under 6 time zones) | 251 passed |
 | `npm run test:integration` | 151 passed |
-| `./e2e/run.sh` | 401 checks passed, 0 failures |
-| `./e2e/browser/run.sh` | 94 checks passed, 0 failures |
+| `./e2e/run.sh` | 434 checks passed, 0 failures |
+| `./e2e/browser/run.sh` | 107 checks passed, 0 failures |
 | `npm run db:check` (development database) | 21 of 21 |
 | Locust, 50 and 100 users, 60 s | 0 failed requests; exactly one winner per contested slot |
 

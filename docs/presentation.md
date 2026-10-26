@@ -57,11 +57,11 @@ Accounts (the password is the one chosen above, the administrator's is `ADMIN_PA
 | Check | Command | Result |
 |---|---|---|
 | Type check | `npm run lint` (`tsc --noEmit`) | no errors |
-| Unit tests | `npm test` | 246 passed (26 files) |
-| Unit tests in six time zones | `npm run test:tz` | 246 passed in each of the 6 zones |
+| Unit tests | `npm test` | 251 passed (26 files) |
+| Unit tests in six time zones | `npm run test:tz` | 251 passed in each of the 6 zones |
 | Integration tests on PostgreSQL (test database; include concurrent bookings, roles and offers, the password upgrade and the CSV boundaries) | `npm run test:integration` | 151 passed (16 files) |
-| End to end over HTTP (builds the app, test database) | `./e2e/run.sh` | 401 checks passed (376 + 25 of RideDNA) + the seed idempotency check, 0 failures |
-| **Real browser** (headless Firefox through Marionette, test database) | `./e2e/browser/run.sh` | 94 checks passed, 0 failures (50 of the main flows + 44 of RideDNA; see below) |
+| End to end over HTTP (builds the app, test database) | `./e2e/run.sh` | 434 checks passed (376 + 25 of RideDNA + 33 of photos at creation) + the seed idempotency check, 0 failures |
+| **Real browser** (headless Firefox through Marionette, test database) | `./e2e/browser/run.sh` | 107 checks passed, 0 failures (63 of the main flows, 13 of them for the photos, + 44 of RideDNA; see below) |
 | Consistency of the development database | `npm run db:check` | 21 of 21 passed |
 | All 13 migrations on a fresh empty database | `prisma migrate deploy` on a new `*_test` database (dropped afterwards) | applied; 12 tables; the overlap and partial-index constraints present; `migrate diff` shows only the known false positive |
 | **Docker Compose** with the documented configuration | `docker compose up --build -d app` | image built in 72 s; the app started, applied no migration (database up to date), skipped the seed (users exist); `/login`, `/vehicles`, `/api/vehicles` answer 200, `/admin` redirects; the placeholder `AUTH_SECRET` and `ADMIN_PASSWORD` make the container refuse to start; scrypt works in the container (Node 22). Volumes and the development database were not touched |

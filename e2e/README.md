@@ -16,7 +16,7 @@ folder, and exits with code 1 if any check fails.
 |---|---|
 | `public_and_customer.py` | catalog filters, categories and search words, vehicle page with category and photo credit, price API, 404s, profile, password, booking detail privacy, customer cancel |
 | `accounts.py` | scrypt storage and the upgrade of a legacy bcrypt hash at login, registration (ADMIN can never be chosen, invented roles, duplicates, weak passwords), login, forged and garbage sessions, role and deletion read from the database on every request |
-| `owner.py` | creating listings (category must fit the type), photo upload rules and serving, path traversal, edits and re-approval, maintenance, other owners' vehicles, earnings |
+| `owner.py` | creating listings (with photos in the same form: hostile names and types, nothing created on refusal, the image served with the bytes that were uploaded, shown in the catalog), (category must fit the type), photo upload rules and serving, path traversal, edits and re-approval, maintenance, other owners' vehicles, earnings |
 | `company_and_admin.py` | bulk offers (stale, changed, accepted), handover, completion, payments in EUR, cancellation, vehicle status rules, moderation, roles, commission rate, payouts, locations, CSV |
 | `booking_api.py` | `POST /api/bookings`: 401, email mismatch, past start, conflict (409), pending limit; 8 simultaneous requests from one user (exactly 3 succeed); 6 users on one slot (exactly 1 wins) |
 | `authorization.py` | every route by role, forged admin actions from every other role, isolation between owners and companies, the status API |

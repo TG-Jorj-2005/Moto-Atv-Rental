@@ -37,6 +37,17 @@ Accounts: the administrator from `.env` (`ADMIN_EMAIL`, `ADMIN_PASSWORD`), and `
 | 16 | At 390 px open the catalog, a vehicle, *My bookings*, the owner's *Earnings* and the admin *Bookings* | No page scrolls sideways; wide tables scroll **inside** their card |
 | 17 | Open the mobile menu (hamburger) on a dashboard and on the public site | The menu opens, every entry works, the log-out button works |
 
+## Photos when adding a vehicle
+
+| # | Do | Expected |
+|---|---|---|
+| P1 | As `demo.company@`, open *My vehicles → Add a vehicle*, fill the form, choose one photo in *Photos (optional)* | A preview appears with the *Cover* mark and "1 of 8 photos selected" |
+| P2 | Choose a text file renamed `.jpg`, then a `.php` file | A red message for each; they are not added |
+| P3 | Choose a second photo, then remove the first with its × button | One preview left, now the cover |
+| P4 | Press *Create the listing* | The photos tab opens: "created with its photos", the photos are shown |
+| P5 | As the administrator approve the listing, then open the catalog and search for the vehicle | The card and the vehicle page show the cover photo |
+| P6 | Add another vehicle without any photo | It works as before (photos can be added later on the photos tab) |
+
 ## RideDNA (extra feature, see [ridedna.md](ridedna.md))
 
 | # | Do | Expected |

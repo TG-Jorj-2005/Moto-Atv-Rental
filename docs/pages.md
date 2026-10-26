@@ -62,7 +62,7 @@ Business rules decide where a record is archived instead of erased: bookings, pa
 | User | `/register`; the first admin by seed | `/admin/users`, `/account/profile` | profile and password (own); role and company rate (admin) | not offered: accounts keep their history; demotion has safeguards |
 | Location | `/admin/locations` | catalog, home | `/admin/locations` | not offered: vehicles reference it |
 | Vehicle | `/provider/vehicles/new`, `/admin/vehicles/new` | catalog, dashboards | details, specifications, status, listing moderation | **archived**: status `RETIRED` (blocked while a booking is active), never erased |
-| Vehicle photo | upload (type, size and content checked) | vehicle page | choose the cover | delete |
+| Vehicle photo | upload with the new-vehicle form (owner, company, administrator) or on the photos tab, with a preview before saving; the server checks the content, the name, the declared type, the size and the count | vehicle page | choose the cover | delete |
 | Maintenance record | provider and admin forms | vehicle and admin pages | edit form (pencil icon in the history; type, dates, notes; the record stays on its vehicle) | delete |
 | Booking | booking form → `POST /api/bookings` | account, provider and admin pages | status transitions, strictly validated | **cancelled**: status `CANCELLED` with a history row; never erased |
 | Payment | admin on a booking | booking detail, finance | not offered: it is an accounting entry | not offered |
