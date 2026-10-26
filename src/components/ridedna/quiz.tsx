@@ -86,6 +86,7 @@ export function RideDnaQuiz({ currency, eurRate, today, initial, startAtSummary 
   const [submitting, setSubmitting] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const loaded = useRef(false);
+  const moveFocus = useRef(false); // set when the user changes the step, so that loading or restoring a draft never steals the focus
 
   // The unfinished answers live only in this tab (sessionStorage), so that Back from the results returns to them.
   useEffect(() => {
@@ -112,7 +113,10 @@ export function RideDnaQuiz({ currency, eurRate, today, initial, startAtSummary 
     }
   }, [draft, step]);
   useEffect(() => {
-    if (loaded.current) heading.current?.focus();
+    if (moveFocus.current) {
+      moveFocus.current = false;
+      heading.current?.focus();
+    }
   }, [step]);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
@@ -136,10 +140,11 @@ export function RideDnaQuiz({ currency, eurRate, today, initial, startAtSummary 
   const goNext = () => {
     if (!valid[current.id]) return setAttempted(true);
     setAttempted(false);
+    moveFocus.current = true;
     setStep((s) => Math.min(STEPS.length - 1, s + 1));
   };
-  const goBack = () => { setAttempted(false); setStep((s) => Math.max(0, s - 1)); };
-  const reset = () => { setDraft(EMPTY); setStep(0); setAttempted(false); try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ } };
+  const goBack = () => { setAttempted(false); moveFocus.current = true; setStep((s) => Math.max(0, s - 1)); };
+  const reset = () => { setDraft(EMPTY); moveFocus.current = true; setStep(0); setAttempted(false); try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ } };
   const submit = () => {
     if (!complete || !draft.ack) return setAttempted(true);
     setSubmitting(true);
@@ -161,7 +166,7 @@ export function RideDnaQuiz({ currency, eurRate, today, initial, startAtSummary 
           <button type="button" onClick={reset} className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 hover:bg-surface-3 hover:text-fg"><RotateCcw aria-hidden className="size-3.5" /> Start over</button>
         </div>
         <div role="progressbar" aria-label="Questionnaire progress" aria-valuemin={1} aria-valuemax={STEPS.length} aria-valuenow={step + 1} className="h-1.5 overflow-hidden rounded-full bg-surface-3">
-          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+          <div className="h-full rounded-full bg-accent transition-all motion-reduce:transition-none" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
         </div>
       </div>
 
@@ -225,7 +230,7 @@ export function RideDnaQuiz({ currency, eurRate, today, initial, startAtSummary 
           </div>
         </div>
       )}
-      {current.id === "summary" && complete && <Summary draft={draft} answers={complete} onEdit={(i) => { setAttempted(false); setStep(i); }} onAck={(v) => set("ack", v)} attempted={attempted} currency={currency} />}
+      {current.id === "summary" && complete && <Summary draft={draft} answers={complete} onEdit={(i) => { setAttempted(false); moveFocus.current = true; setStep(i); }} onAck={(v) => set("ack", v)} attempted={attempted} currency={currency} />}
       {current.id === "summary" && !complete && <Alert tone="warning" title="Some answers are missing">Go back and complete the earlier steps.</Alert>}
 
       {attempted && current.id !== "summary" && current.id !== "budget" && !valid[current.id] && <Alert tone="error" className="mt-4">{problem[current.id]}</Alert>}
