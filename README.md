@@ -17,7 +17,7 @@ keeps the books. Payments and payouts are recorded by hand (no online payments).
 
 The platform's own fleet has no owner and 0% commission. The demo fleet is 17 real models (cruisers, adventure, naked and sport, dual-sport, and ATVs) with manufacturer specifications and openly licensed photos credited on the page.
 
-[Watch the silent project video](https://tg-jorj-2005.github.io/proiecte/moto-atv-rental/#prezentare) · [MP4 file](docs/media/prezentare.mp4)
+https://github.com/user-attachments/assets/bf396943-09bb-43e4-98f4-4389dc180015
 
 ## Stack
 
