@@ -17,6 +17,12 @@ keeps the books. Payments and payouts are recorded by hand (no online payments).
 
 The platform's own fleet has no owner and 0% commission. The demo fleet is 17 real models (cruisers, adventure, naked and sport, dual-sport, and ATVs) with manufacturer specifications and openly licensed photos credited on the page.
 
+## Live demo
+
+Browse the ATV catalogue and open a vehicle in the running Next.js app with its PostgreSQL demonstration data.
+
+https://github.com/user-attachments/assets/3cbb4678-c703-46bb-ac4f-9e8380655a05
+
 ## Stack
 
 Next.js 15 (App Router, server actions) · strict TypeScript · PostgreSQL 16 + Prisma · Auth.js (credentials, JWT carrying only the user id) · Zod · Tailwind CSS 4 with shadcn-style components (no Radix) · Vitest · Locust · Docker Compose
